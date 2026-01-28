@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { CheckCircle2, CreditCard, Loader2, Truck, X } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { formatCurrency } from '@/utils/currency';
 import { calculateDelivery } from '@/utils/delivery';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { validateTZPhone } from '@/utils/phone';
+
+const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -33,6 +36,8 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
   const [vendorProfiles, setVendorProfiles] = useState<Record<string, VendorProfile>>({});
   const [vendorProfilesError, setVendorProfilesError] = useState<string | null>(null);
   const [vendorProfilesLoading, setVendorProfilesLoading] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const checkoutSessionRef = useRef<string | null>(null);
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -112,19 +117,56 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Disable submit instantly (before await)
+    if (loading) return;
+    setLoading(true);
+    
     if (!form.name || !form.phone || !form.deliveryAddress || !form.deliveryCity) {
       toast.error('Please fill in all required fields');
+      setLoading(false);
       return;
     }
+
+    // Validate Tanzania phone
+    const phoneValidation = validateTZPhone(form.phone);
+    if (!phoneValidation.isValid) {
+      setPhoneError(phoneValidation.error);
+      toast.error(phoneValidation.error || 'Invalid phone number');
+      setLoading(false);
+      return;
+    }
+    setPhoneError(null);
 
     if (!deliverySupported) {
       toast.error('We do not support international delivery at this time.');
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
+    // Generate idempotency key for this checkout session
+    if (!checkoutSessionRef.current) {
+      checkoutSessionRef.current = crypto.randomUUID();
+    }
+    const checkoutSessionId = checkoutSessionRef.current;
 
     try {
+      // Check for duplicate order using checkout_session_id (Bug Fix B)
+      // Note: checkout_session_id column must be added via migration
+      const existingOrderQuery = supabase
+        .from('orders')
+        .select('id') as any;
+      const { data: existingOrder } = await existingOrderQuery
+        .eq('checkout_session_id', checkoutSessionId)
+        .maybeSingle();
+
+      if (existingOrder) {
+        toast.error('This order has already been placed.');
+        checkoutSessionRef.current = null;
+        setLoading(false);
+        return;
+      }
+
       let affiliateLinkId = null;
       let affiliateId = null;
       if (affiliateCode) {
@@ -137,15 +179,21 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
         if (linkData) {
           affiliateLinkId = linkData.id;
           affiliateId = linkData.affiliate_id;
-          await supabase
-            .from('affiliate_links')
-            .update({ conversions: (linkData.conversions || 0) + 1 })
-            .eq('id', linkData.id);
+          // Only increment conversions in DEMO_MODE (Bug Fix E)
+          if (IS_DEMO_MODE) {
+            await supabase
+              .from('affiliate_links')
+              .update({ conversions: (linkData.conversions || 0) + 1 })
+              .eq('id', linkData.id);
+          }
         }
       }
 
       const confirmationToken = crypto.randomUUID();
       const deliveryTypeLabel = deliveryBreakdown[0]?.result.label ?? 'Intercity delivery (distance-based)';
+
+      // Use pending_payment by default, 'paid' only in DEMO_MODE (Bug Fix A)
+      const orderStatus = IS_DEMO_MODE ? 'paid' : 'pending_payment';
 
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -153,15 +201,16 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
           customer_name: form.name,
           customer_email: form.email || `${form.phone}@buyer.afrilink`,
           total_amount: grandTotal,
-          status: 'paid',
+          status: orderStatus,
           affiliate_link_id: affiliateLinkId,
-          customer_phone: form.phone,
+          customer_phone: phoneValidation.normalized || form.phone,
           delivery_address: form.deliveryAddress,
           delivery_city: form.deliveryCity,
           delivery_country: form.deliveryCountry || null,
           delivery_fee: deliveryFeeTotal,
           delivery_type: deliveryTypeLabel,
           confirmation_token: confirmationToken,
+          checkout_session_id: checkoutSessionId,
         } as any)
         .select()
         .single();
@@ -210,9 +259,11 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
         deliveryEstimate,
       });
       clearCart();
+      checkoutSessionRef.current = null; // Reset for next checkout
     } catch (error: any) {
       console.error('Checkout error:', error);
       toast.error(error.message || 'Failed to place order');
+      checkoutSessionRef.current = null; // Reset on error to allow retry
     } finally {
       setLoading(false);
     }
@@ -225,7 +276,7 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-afrilink-green" />
-              <h2 className="text-xl font-bold text-foreground">Payment received</h2>
+              <h2 className="text-xl font-bold text-foreground">{IS_DEMO_MODE ? 'Payment received' : 'Order placed (payment pending)'}</h2>
             </div>
             <button onClick={onClose} className="p-2 hover:bg-secondary rounded-lg transition-colors">
               <X className="w-5 h-5 text-muted-foreground" />
@@ -246,7 +297,7 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
                 <span>{formatCurrency(receipt.deliveryFee)}</span>
               </div>
               <div className="flex justify-between text-base font-semibold text-foreground mt-2">
-                <span>Total paid</span>
+                <span>{IS_DEMO_MODE ? 'Total paid' : 'Total due'}</span>
                 <span>{formatCurrency(receipt.totalAmount)}</span>
               </div>
             </div>
@@ -328,11 +379,15 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
             <input
               type="tel"
               value={form.phone}
-              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-              className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
-              placeholder="Enter your phone number"
+              onChange={(e) => {
+                setForm((f) => ({ ...f, phone: e.target.value }));
+                setPhoneError(null);
+              }}
+              className={`w-full px-4 py-3 bg-secondary border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-foreground ${phoneError ? 'border-destructive' : 'border-border'}`}
+              placeholder="+255XXXXXXXXX or 0XXXXXXXXX"
               required
             />
+            {phoneError && <p className="text-xs text-destructive mt-1">{phoneError}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Email (optional)</label>

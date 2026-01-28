@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { validateTZPhone } from '@/utils/phone';
 
 interface RegistrationFlowProps {
   role: 'vendor' | 'affiliate';
@@ -32,6 +33,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   // OTP resend cooldown timer
   useEffect(() => {
@@ -120,19 +122,29 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
   };
 
   const handleSendOtp = async () => {
-    if (!phone || !userId) {
+    // Validate Tanzania phone
+    const phoneValidation = validateTZPhone(phone);
+    if (!phoneValidation.isValid) {
+      setPhoneError(phoneValidation.error);
+      toast({ title: 'Invalid phone', description: phoneValidation.error || 'Enter a valid phone number.', variant: 'destructive' });
+      return;
+    }
+    setPhoneError(null);
+
+    if (!userId) {
       toast({ title: 'Phone required', description: 'Enter a valid phone number.', variant: 'destructive' });
       return;
     }
 
     setLoading(true);
+    const normalizedPhone = phoneValidation.normalized || phone;
     try {
-      const { error } = await supabase.from('profiles').update({ phone, phone_verified: false }).eq('id', userId);
+      const { error } = await supabase.from('profiles').update({ phone: normalizedPhone, phone_verified: false }).eq('id', userId);
       if (error) throw error;
 
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
       const { data, error: otpError } = await supabase.functions.invoke('send-otp', {
-        body: { phone, code: otpCode },
+        body: { phone: normalizedPhone, code: otpCode },
       });
 
       if (otpError || !data?.success) {
@@ -276,10 +288,15 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
                   id="phone"
                   type="tel"
                   value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  placeholder="+234 801 234 5678"
+                  onChange={(event) => {
+                    setPhone(event.target.value);
+                    setPhoneError(null);
+                  }}
+                  placeholder="+255XXXXXXXXX or 0XXXXXXXXX"
+                  className={phoneError ? 'border-destructive' : ''}
                   required
                 />
+                {phoneError && <p className="text-xs text-destructive">{phoneError}</p>}
               </div>
               <Button onClick={handleSendOtp} className="w-full" disabled={loading}>
                 {loading ? (
