@@ -154,15 +154,21 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
 
           {step === 2 && (
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Enter OTP</Label>
-                <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                  <InputOTPGroup>
-                    {Array.from({ length: 6 }).map((_, index) => (
-                      <InputOTPSlot key={index} index={index} />
-                    ))}
-                  </InputOTPGroup>
-              </InputOTP>
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Enter OTP</Label>
+                <div className="bg-muted/50 border border-border rounded-xl p-4 flex justify-center">
+                  <InputOTP maxLength={6} value={otp} onChange={setOtp} className="gap-2">
+                    <InputOTPGroup className="gap-2">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <InputOTPSlot 
+                          key={index} 
+                          index={index} 
+                          className="w-11 h-12 text-lg font-semibold border-2 border-input bg-background rounded-lg shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                        />
+                      ))}
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <ShieldCheck className="w-4 h-4" />
