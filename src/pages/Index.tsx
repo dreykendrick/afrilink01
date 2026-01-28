@@ -264,6 +264,7 @@ const IndexContent = () => {
             imageCount: p.image_urls?.length || (p.image_url ? 1 : 0),
             status: p.status as 'approved' | 'pending' | 'rejected' | 'pending_takedown' | 'taken_down',
             sales: p.sales,
+            isAvailable: (p as any).is_available !== false,
           }));
           setProducts(formattedProducts);
 
@@ -327,6 +328,7 @@ const IndexContent = () => {
             imageCount: p.image_urls?.length || (p.image_url ? 1 : 0),
             status: p.status as 'approved' | 'pending' | 'rejected' | 'pending_takedown' | 'taken_down',
             sales: p.sales,
+            isAvailable: (p as any).is_available !== false,
           }));
           setProducts(formattedProducts);
         }
@@ -384,6 +386,7 @@ const IndexContent = () => {
           imageCount: p.image_urls?.length || (p.image_url ? 1 : 0),
           status: p.status as 'approved' | 'pending' | 'rejected' | 'pending_takedown' | 'taken_down',
           sales: p.sales,
+          isAvailable: (p as any).is_available !== false,
         }));
         setProducts(formattedProducts);
         return formattedProducts;

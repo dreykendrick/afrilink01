@@ -10,6 +10,7 @@ export interface Product {
   imageCount?: number;
   status: 'approved' | 'pending' | 'rejected' | 'pending_takedown' | 'taken_down';
   sales: number;
+  isAvailable?: boolean;
 }
 
 export interface User {
