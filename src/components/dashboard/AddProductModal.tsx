@@ -56,20 +56,46 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
   
   // Store image previews separately to persist across re-renders
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  
+  // Track mounted state to prevent setState after unmount (mobile crash fix)
+  const isMountedRef = useRef(true);
+  
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
-  // Reset form when modal closes
+  // Hard reset form state on modal open/close to prevent stale image reuse
+  const resetFormState = useCallback(() => {
+    setFormData(initialFormData);
+    setImagePreviews([]);
+    setIsLoading(false);
+    setIsUploading(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, []);
+
+  // Reset form immediately when modal opens (prevents stale data from previous session/user)
+  useEffect(() => {
+    if (isOpen) {
+      resetFormState();
+    }
+  }, [isOpen, resetFormState]);
+
+  // Also reset on close (with small delay for animation)
   useEffect(() => {
     if (!isOpen) {
-      // Small delay to allow animation to complete before resetting
       const timer = setTimeout(() => {
-        setFormData(initialFormData);
-        setImagePreviews([]);
-        setIsLoading(false);
-        setIsUploading(false);
+        if (isMountedRef.current) {
+          resetFormState();
+        }
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, resetFormState]);
 
   const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -185,8 +211,8 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         uploadedUrls.push(publicUrl);
       }
 
-      if (uploadedUrls.length > 0) {
-        // Update state with new images
+      if (uploadedUrls.length > 0 && isMountedRef.current) {
+        // Update state with new images (only if still mounted)
         setFormData(prev => {
           const newUrls = [...prev.image_urls, ...uploadedUrls];
           console.log('Updated image_urls:', newUrls);
@@ -206,13 +232,17 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
       }
     } catch (error: any) {
       console.error('Image upload error:', error);
-      toast({
-        title: 'Upload failed',
-        description: error.message || 'Failed to upload images',
-        variant: 'destructive'
-      });
+      if (isMountedRef.current) {
+        toast({
+          title: 'Upload failed',
+          description: error.message || 'Failed to upload images',
+          variant: 'destructive'
+        });
+      }
     } finally {
-      setIsUploading(false);
+      if (isMountedRef.current) {
+        setIsUploading(false);
+      }
       // Clear the input value so the same file can be selected again
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -297,8 +327,9 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
       const priceValue = parseFloat(formData.price);
       const commissionValue = parseInt(formData.commission) || 10;
       
-      // Use imagePreviews as fallback if formData.image_urls is empty
-      const imageUrls = formData.image_urls.length > 0 ? formData.image_urls : imagePreviews;
+      // CRITICAL: Only use formData.image_urls - never fall back to imagePreviews
+      // This prevents cross-user image reuse from stale state
+      const imageUrls = formData.image_urls;
       
       const productData = {
         vendor_id: userId,
@@ -307,7 +338,7 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         price: Math.round(priceValue * 100),
         commission: commissionValue,
         category: formData.category,
-        image_url: imageUrls[0] || null,
+        image_url: imageUrls.length > 0 ? imageUrls[0] : null,
         image_urls: imageUrls.length > 0 ? imageUrls : null,
         status: 'pending'
       };
@@ -361,14 +392,18 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
       onClose();
     } catch (error: any) {
       console.error('=== PRODUCT SUBMIT ERROR ===', error);
-      toast({
-        title: 'Error adding product',
-        description: error.message || 'Failed to add product. Please try again.',
-        variant: 'destructive'
-      });
+      if (isMountedRef.current) {
+        toast({
+          title: 'Error adding product',
+          description: error.message || 'Failed to add product. Please try again.',
+          variant: 'destructive'
+        });
+      }
     } finally {
       console.log('Setting loading to false');
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
