@@ -78,7 +78,7 @@ serve(async (req) => {
     const data = await response.json();
     console.log("Briq verify response status:", response.status);
 
-    if (!response.ok || !data.verified) {
+    if (!response.ok || !data.success) {
       console.error("OTP verification failed", { status: response.status, data });
       return new Response(JSON.stringify({ 
         success: false, 
