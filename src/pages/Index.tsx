@@ -112,7 +112,8 @@ const IndexContent = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   
   // Real data states
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]); // Vendor's own products
+  const [marketplaceProducts, setMarketplaceProducts] = useState<Product[]>([]); // Marketplace products (all approved)
   const [rawProducts, setRawProducts] = useState<any[]>([]);
   const [profile, setProfile] = useState<{ full_name: string; wallet_balance: number; verification_photo_url: string | null; verification_status: string | null; phone_verified: boolean | null } | null>(null);
   const [roleAvatarUrl, setRoleAvatarUrl] = useState<string | null>(null);
@@ -193,6 +194,13 @@ const IndexContent = () => {
       handlePostLogin();
     }
   }, [user, userRole]);
+
+  // Fetch marketplace products for landing page and marketplace view
+  useEffect(() => {
+    if (view === 'landing' || view === 'marketplace') {
+      fetchMarketplaceProducts();
+    }
+  }, [view]);
 
   const handlePostLogin = async () => {
     await fetchUserData();
@@ -315,7 +323,6 @@ const IndexContent = () => {
           .eq('status', 'approved');
 
         if (approvedProducts) {
-          setRawProducts(approvedProducts);
           const formattedProducts: Product[] = approvedProducts.map(p => ({
             id: p.id,
             title: p.title,
@@ -330,7 +337,7 @@ const IndexContent = () => {
             sales: p.sales,
             isAvailable: (p as any).is_available !== false,
           }));
-          setProducts(formattedProducts);
+          setMarketplaceProducts(formattedProducts);
         }
 
         // Fetch affiliate links and stats
@@ -373,7 +380,6 @@ const IndexContent = () => {
         .eq('status', 'approved');
 
       if (approvedProducts) {
-        setRawProducts(approvedProducts);
         const formattedProducts: Product[] = approvedProducts.map(p => ({
           id: p.id,
           title: p.title,
@@ -388,7 +394,7 @@ const IndexContent = () => {
           sales: p.sales,
           isAvailable: (p as any).is_available !== false,
         }));
-        setProducts(formattedProducts);
+        setMarketplaceProducts(formattedProducts);
         return formattedProducts;
       }
     } catch (error) {
@@ -406,6 +412,7 @@ const IndexContent = () => {
     setView('landing');
     setProfile(null);
     setProducts([]);
+    setMarketplaceProducts([]);
     setRoleAvatarUrl(null);
     showNotification('Logged out successfully');
   };
@@ -551,8 +558,8 @@ const IndexContent = () => {
   // Get categories from products
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
-  // Filter products
-  const filteredProducts = products.filter(p => {
+  // Filter marketplace products for display
+  const filteredProducts = marketplaceProducts.filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          p.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
@@ -570,7 +577,7 @@ const IndexContent = () => {
   if (view === 'landing') {
     return (
       <>
-        <LandingPage products={products} onNavigate={handleNavigate} onLogin={() => handleNavigate('login')} />
+        <LandingPage products={marketplaceProducts} onNavigate={handleNavigate} onLogin={() => handleNavigate('login')} />
         {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
       </>
     );
