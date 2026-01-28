@@ -335,7 +335,7 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         vendor_id: userId,
         title: formData.title.trim(),
         description: formData.description?.trim() || null,
-        price: Math.round(priceValue * 100),
+        price: Math.round(priceValue),
         commission: commissionValue,
         category: formData.category,
         image_url: imageUrls.length > 0 ? imageUrls[0] : null,
@@ -586,7 +586,7 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
                 <span className="text-destructive">*</span>
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-xs">Tsh</span>
                 <Input
                   id="price"
                   type="number"
@@ -596,7 +596,7 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
                   value={formData.price}
                   onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
                   placeholder="0.00"
-                  className="bg-secondary/30 border-border focus:border-afrilink-green focus:ring-afrilink-green/20 h-11 pl-7"
+                  className="bg-secondary/30 border-border focus:border-afrilink-green focus:ring-afrilink-green/20 h-11 pl-9"
                 />
               </div>
             </div>
