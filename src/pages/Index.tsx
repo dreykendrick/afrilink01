@@ -110,6 +110,8 @@ const IndexContent = () => {
   // Marketplace filters
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [commissionFilter, setCommissionFilter] = useState('all');
+  const [priceFilter, setPriceFilter] = useState('all');
   
   // Real data states
   const [products, setProducts] = useState<Product[]>([]); // Vendor's own products
@@ -563,7 +565,22 @@ const IndexContent = () => {
     const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          p.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    
+    // Commission filter
+    let matchesCommission = true;
+    if (commissionFilter === '5+') matchesCommission = p.commission >= 5;
+    else if (commissionFilter === '10+') matchesCommission = p.commission >= 10;
+    else if (commissionFilter === '15+') matchesCommission = p.commission >= 15;
+    else if (commissionFilter === '20+') matchesCommission = p.commission >= 20;
+    
+    // Price filter
+    let matchesPrice = true;
+    if (priceFilter === '0-50000') matchesPrice = p.price < 50000;
+    else if (priceFilter === '50000-100000') matchesPrice = p.price >= 50000 && p.price <= 100000;
+    else if (priceFilter === '100000-500000') matchesPrice = p.price > 100000 && p.price <= 500000;
+    else if (priceFilter === '500000+') matchesPrice = p.price > 500000;
+    
+    return matchesSearch && matchesCategory && matchesCommission && matchesPrice;
   });
 
   if (authLoading) {
@@ -858,6 +875,10 @@ const IndexContent = () => {
           categories={categories}
           onCartClick={() => setCartOpen(true)}
           onLogin={() => handleNavigate('login')}
+          commissionFilter={commissionFilter}
+          setCommissionFilter={setCommissionFilter}
+          priceFilter={priceFilter}
+          setPriceFilter={setPriceFilter}
         />
         <PullToRefresh onRefresh={handleMarketplaceRefresh} disabled={dataLoading}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
