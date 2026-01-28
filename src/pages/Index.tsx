@@ -828,7 +828,7 @@ const IndexContent = () => {
             ) : (
               <AffiliateDashboard
                 currentUser={currentUser}
-                products={products}
+                products={marketplaceProducts}
                 stats={affiliateStats}
                 onGenerateLink={handleGenerateLink}
                 onVerify={() => setView('verification')}
