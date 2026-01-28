@@ -573,6 +573,7 @@ const IndexContent = () => {
           setOnboardingRole(role);
           setView('onboarding-register', role); // Bug Fix C: pass role to URL
         }}
+        onLogin={() => setView('login')}
       />
     );
   }

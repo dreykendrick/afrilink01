@@ -323,11 +323,11 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
                   </InputOTPGroup>
                 </InputOTP>
               </div>
-              {/* Dev mode OTP display */}
-              {import.meta.env.DEV && generatedOtp && (
+              {/* Dev mode OTP display - visible in preview for testing */}
+              {generatedOtp && (
                 <div className="p-3 bg-accent border border-border rounded-lg">
                   <p className="text-xs text-muted-foreground font-mono text-center">
-                    <span className="font-semibold text-foreground">DEV MODE:</span> OTP is <span className="text-lg font-bold text-primary">{generatedOtp}</span>
+                    <span className="font-semibold text-foreground">TEST MODE:</span> OTP is <span className="text-lg font-bold text-primary">{generatedOtp}</span>
                   </p>
                 </div>
               )}
