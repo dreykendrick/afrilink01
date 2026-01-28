@@ -45,6 +45,17 @@ export const MarketplaceNav = ({
           
           <div className="flex items-center gap-2 sm:gap-4">
             <button
+              onClick={onCartClick}
+              className="relative p-2 sm:p-3 bg-secondary hover:bg-secondary/80 rounded-xl transition-colors"
+            >
+              <ShoppingCart className="w-5 h-5 text-foreground" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center font-bold">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 bg-secondary rounded-xl"
             >
