@@ -45,9 +45,10 @@ export const ProductPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
+      // Bug Fix F: Explicit select to avoid exposing vendor contact info
       const { data } = await supabase
         .from('products')
-        .select('*')
+        .select('id, title, description, price, commission, category, image_url, image_urls, vendor_id, status, sales')
         .eq('status', 'approved');
 
       const matchedProduct = data?.find((item) => getProductSlug(item.title, item.id) === slug) || null;

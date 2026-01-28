@@ -53,17 +53,59 @@ type View =
   | 'affiliate-profile-setup'
   | 'phone-verification';
 
+// Bug Fix C: Helper to read view from URL
+const getViewFromUrl = (): { view: View | null; role: 'vendor' | 'affiliate' | null } => {
+  const params = new URLSearchParams(window.location.search);
+  const viewParam = params.get('view');
+  const roleParam = params.get('role');
+  const validViews: View[] = [
+    'landing', 'login', 'signup', 'forgot-password', 'reset-password', 'verification',
+    'dashboard', 'marketplace', 'settings', 'verification-manage', 'help-support',
+    'onboarding', 'role-selection', 'onboarding-register', 'vendor-profile-setup',
+    'affiliate-profile-setup', 'phone-verification'
+  ];
+  const view = validViews.includes(viewParam as View) ? (viewParam as View) : null;
+  const role = roleParam === 'vendor' || roleParam === 'affiliate' ? roleParam : null;
+  return { view, role };
+};
+
+// Bug Fix C: Helper to update URL without navigation
+const updateUrlView = (view: View, role?: 'vendor' | 'affiliate' | null) => {
+  const params = new URLSearchParams(window.location.search);
+  params.set('view', view);
+  if (role) {
+    params.set('role', role);
+  } else {
+    params.delete('role');
+  }
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState(null, '', newUrl);
+};
+
 const IndexContent = () => {
   const { user, loading: authLoading, userRole, signOut } = useAuth();
   const { addToCart, setAffiliateCode } = useCart();
-  const [view, setView] = useState<View>('landing');
+  // Bug Fix C: Initialize view from URL or default
+  const [view, setViewState] = useState<View>(() => {
+    const urlState = getViewFromUrl();
+    return urlState.view || 'landing';
+  });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [onboardingRole, setOnboardingRole] = useState<'vendor' | 'affiliate' | null>(null);
+  const [onboardingRole, setOnboardingRole] = useState<'vendor' | 'affiliate' | null>(() => {
+    const urlState = getViewFromUrl();
+    return urlState.role;
+  });
   const [postGrabProductId, setPostGrabProductId] = useState<string | null>(null);
+
+  // Bug Fix C: Wrapper to update view and URL together
+  const setView = useCallback((newView: View, role?: 'vendor' | 'affiliate' | null) => {
+    setViewState(newView);
+    updateUrlView(newView, role);
+  }, []);
   
   // Marketplace filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -128,7 +170,13 @@ const IndexContent = () => {
     }
   }, []);
 
+  // Bug Fix C: Only set default view if URL doesn't specify one
   useEffect(() => {
+    const urlState = getViewFromUrl();
+    if (urlState.view) {
+      // URL has view state, respect it
+      return;
+    }
     const hasSeenOnboarding = localStorage.getItem('afrilink_onboarding_seen');
     if (!user) {
       if (!hasSeenOnboarding) {
@@ -137,7 +185,7 @@ const IndexContent = () => {
         setView('role-selection');
       }
     }
-  }, [user]);
+  }, [user, setView]);
 
   // Redirect to dashboard if logged in
   useEffect(() => {
@@ -523,7 +571,7 @@ const IndexContent = () => {
             return;
           }
           setOnboardingRole(role);
-          setView('onboarding-register');
+          setView('onboarding-register', role); // Bug Fix C: pass role to URL
         }}
       />
     );
