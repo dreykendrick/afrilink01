@@ -446,17 +446,17 @@ const IndexContent = () => {
   const handleGenerateLink = async (productId: string) => {
     if (!user) return;
     
-    // Find the raw product by ID
-    const rawProduct = rawProducts.find(p => p.id === productId);
-    if (!rawProduct) {
+    // Find the product by ID - check marketplace products first (for affiliates), then raw products
+    const product = marketplaceProducts.find(p => p.id === productId) || rawProducts.find(p => p.id === productId);
+    if (!product) {
       toast.error('Product not found');
       return;
     }
 
     // Check if link already exists
-    const existingLink = affiliateLinks.find(l => l.product_id === rawProduct.id);
+    const existingLink = affiliateLinks.find(l => l.product_id === productId);
     if (existingLink) {
-      const slug = getProductSlug(rawProduct.title, rawProduct.id);
+      const slug = getProductSlug(product.title, product.id);
       const link = `${window.location.origin}/p/${slug}?ref=${existingLink.code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link copied to clipboard!');
@@ -464,14 +464,14 @@ const IndexContent = () => {
     }
 
     // Generate unique code
-    const code = `${user.id.substring(0, 6)}_${rawProduct.id.substring(0, 6)}_${Date.now().toString(36)}`;
+    const code = `${user.id.substring(0, 6)}_${productId.substring(0, 6)}_${Date.now().toString(36)}`;
 
     try {
       const { data, error } = await supabase
         .from('affiliate_links')
         .insert({
           affiliate_id: user.id,
-          product_id: rawProduct.id,
+          product_id: productId,
           code: code,
         })
         .select()
@@ -480,7 +480,7 @@ const IndexContent = () => {
       if (error) throw error;
 
       setAffiliateLinks(prev => [...prev, data]);
-      const slug = getProductSlug(rawProduct.title, rawProduct.id);
+      const slug = getProductSlug(product.title, product.id);
       const link = `${window.location.origin}/p/${slug}?ref=${code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link generated and copied!');
