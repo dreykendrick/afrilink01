@@ -70,7 +70,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         phone_number: phone,
-        developer_app_id: developerAppId,
+        app_key: developerAppId,
         otp_length: 6,
         minutes_to_expire: 10,
         delivery_method: "sms",
