@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { User as UserType } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { getUserFriendlyError } from '@/utils/errorMessages';
 
 interface SettingsPageProps {
   currentUser: UserType;
@@ -60,7 +61,7 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
       toast.success('Profile updated successfully!');
       onRefresh();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update profile');
+      toast.error(getUserFriendlyError(error));
     } finally {
       setSaving(false);
     }

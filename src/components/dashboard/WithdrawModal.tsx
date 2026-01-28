@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/utils/currency';
+import { getUserFriendlyError } from '@/utils/errorMessages';
 
 interface WithdrawModalProps {
   isOpen: boolean;
@@ -88,7 +89,7 @@ export const WithdrawModal = ({ isOpen, onClose, balance, onWithdrawSuccess }: W
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error.message || 'Failed to request withdrawal',
+        description: getUserFriendlyError(error),
         variant: 'destructive'
       });
     } finally {
