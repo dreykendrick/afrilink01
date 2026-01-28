@@ -24,7 +24,7 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
   const [step, setStep] = useState<1 | 2>(1);
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
-  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [normalizedPhone, setNormalizedPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
@@ -39,21 +39,21 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
     setPhoneError(null);
 
     setLoading(true);
-    const normalizedPhone = phoneValidation.normalized || phone;
+    const phoneToUse = phoneValidation.normalized || phone;
+    setNormalizedPhone(phoneToUse);
+    
     try {
-      const { error } = await supabase.from('profiles').update({ phone: normalizedPhone, phone_verified: false }).eq('id', userId);
+      const { error } = await supabase.from('profiles').update({ phone: phoneToUse, phone_verified: false }).eq('id', userId);
       if (error) throw error;
 
-      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
       const { data, error: otpError } = await supabase.functions.invoke('send-otp', {
-        body: { phone: normalizedPhone, code: otpCode },
+        body: { phone: phoneToUse },
       });
 
       if (otpError || !data?.success) {
         throw otpError || new Error(data?.error || 'Unable to send OTP.');
       }
 
-      setGeneratedOtp(otpCode);
       setOtp('');
       toast({
         title: 'OTP sent',
@@ -72,13 +72,19 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
       toast({ title: 'Enter the full code', description: 'Please enter all 6 digits.', variant: 'destructive' });
       return;
     }
-    if (otp !== generatedOtp) {
-      toast({ title: 'Invalid code', description: 'The OTP entered is incorrect.', variant: 'destructive' });
-      return;
-    }
 
     setLoading(true);
     try {
+      // Verify OTP with Briq API
+      const { data, error: verifyError } = await supabase.functions.invoke('verify-otp', {
+        body: { phone: normalizedPhone, code: otp },
+      });
+
+      if (verifyError || !data?.success) {
+        throw verifyError || new Error(data?.error || 'Invalid or expired code.');
+      }
+
+      // Update profile as verified
       const { error } = await supabase.from('profiles').update({ phone_verified: true }).eq('id', userId);
       if (error) throw error;
 
@@ -158,14 +164,6 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
                   </InputOTPGroup>
               </InputOTP>
               </div>
-              {/* Dev mode OTP display - visible in preview for testing */}
-              {generatedOtp && (
-                <div className="p-3 bg-accent border border-border rounded-lg">
-                  <p className="text-xs text-muted-foreground font-mono text-center">
-                    <span className="font-semibold text-foreground">TEST MODE:</span> OTP is <span className="text-lg font-bold text-primary">{generatedOtp}</span>
-                  </p>
-                </div>
-              )}
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <ShieldCheck className="w-4 h-4" />
                 OTP required before account activation.

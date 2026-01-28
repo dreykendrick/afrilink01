@@ -5,8 +5,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface OtpPayload {
+interface VerifyOtpPayload {
   phone?: string;
+  code?: string;
 }
 
 serve(async (req) => {
@@ -22,35 +23,32 @@ serve(async (req) => {
     });
   }
 
-  let payload: OtpPayload;
+  let payload: VerifyOtpPayload;
   try {
     payload = await req.json();
   } catch (error) {
-    console.error("Failed to parse OTP payload", error);
+    console.error("Failed to parse verify OTP payload", error);
     return new Response(JSON.stringify({ success: false, error: "Invalid request body" }), {
       status: 400,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }
 
-  const { phone } = payload;
-  if (!phone) {
-    return new Response(JSON.stringify({ success: false, error: "Phone number is required" }), {
+  const { phone, code } = payload;
+  if (!phone || !code) {
+    return new Response(JSON.stringify({ success: false, error: "Phone and code are required" }), {
       status: 400,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }
 
-  console.log("Requesting OTP for:", phone);
+  console.log("Verifying OTP for:", phone);
 
   const apiKey = Deno.env.get("BRIQ_API_KEY");
   const developerAppId = Deno.env.get("BRIQ_DEVELOPER_APP_ID");
 
   if (!apiKey || !developerAppId) {
-    console.error("Briq API configuration missing", { 
-      apiKeyConfigured: Boolean(apiKey),
-      developerAppIdConfigured: Boolean(developerAppId)
-    });
+    console.error("Briq API configuration missing");
     return new Response(
       JSON.stringify({ success: false, error: "SMS provider not configured" }),
       {
@@ -61,8 +59,8 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Calling Briq OTP API");
-    const response = await fetch("https://karibu.briq.tz/v1/otp/request", {
+    console.log("Calling Briq OTP verify API");
+    const response = await fetch("https://karibu.briq.tz/v1/otp/verify", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,35 +69,32 @@ serve(async (req) => {
       body: JSON.stringify({
         phone_number: phone,
         developer_app_id: developerAppId,
-        otp_length: 6,
-        minutes_to_expire: 10,
-        delivery_method: "sms",
-        message_template: "Your AfriLink verification code is {code}. It expires in 10 minutes.",
+        code: code,
       }),
     });
 
     const data = await response.json();
-    console.log("Briq API response status:", response.status);
+    console.log("Briq verify response status:", response.status);
 
-    if (!response.ok) {
-      console.error("Briq API failed", { status: response.status, data });
-      return new Response(JSON.stringify({ success: false, error: "SMS delivery failed" }), {
-        status: 500,
+    if (!response.ok || !data.verified) {
+      console.error("OTP verification failed", { status: response.status, data });
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: data.message || "Invalid or expired code" 
+      }), {
+        status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    console.log("OTP request sent successfully for:", phone);
-    return new Response(JSON.stringify({ 
-      success: true,
-      request_id: data.request_id 
-    }), {
+    console.log("OTP verified successfully for:", phone);
+    return new Response(JSON.stringify({ success: true, verified: true }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error) {
-    console.error("Briq API exception", error);
-    return new Response(JSON.stringify({ success: false, error: "SMS delivery failed" }), {
+    console.error("Briq verify API exception", error);
+    return new Response(JSON.stringify({ success: false, error: "Verification failed" }), {
       status: 500,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
