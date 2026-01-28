@@ -320,11 +320,33 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         .select()
         .single();
 
-      console.log('Insert response:', { success: !!data, error: error?.message });
+      console.log('Insert response:', { 
+        success: !!data, 
+        errorMessage: error?.message,
+        errorCode: error?.code,
+        errorDetails: error?.details,
+        errorHint: error?.hint
+      });
 
       if (error) {
-        console.error('Product insert failed:', error);
-        throw new Error(error.message || 'Failed to create product');
+        console.error('Product insert failed:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+        
+        // Provide more specific error messages
+        let userMessage = 'Failed to create product. Please try again.';
+        if (error.code === '42501') {
+          userMessage = 'Permission denied. Please ensure you are logged in as a vendor.';
+        } else if (error.code === '23505') {
+          userMessage = 'A product with this title already exists.';
+        } else if (error.message) {
+          userMessage = error.message;
+        }
+        
+        throw new Error(userMessage);
       }
 
       console.log('=== PRODUCT CREATED SUCCESSFULLY ===', data.id);
