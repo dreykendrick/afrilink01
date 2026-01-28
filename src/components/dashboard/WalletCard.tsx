@@ -10,6 +10,7 @@ interface WalletCardProps {
 
 export const WalletCard = ({ balance, onWithdrawSuccess }: WalletCardProps) => {
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+  const canWithdraw = balance > 0;
 
   return (
     <>
@@ -19,11 +20,16 @@ export const WalletCard = ({ balance, onWithdrawSuccess }: WalletCardProps) => {
             <div className="text-xs sm:text-sm opacity-90 mb-1 sm:mb-2">Available Balance</div>
             <div className="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4">{formatCurrency(balance)}</div>
             <button 
-              onClick={() => setIsWithdrawOpen(true)}
-              className="px-4 sm:px-6 py-2 bg-white/20 backdrop-blur-sm rounded-lg font-semibold hover:bg-white/30 transition-all duration-300 flex items-center space-x-2 text-sm sm:text-base"
+              onClick={() => canWithdraw && setIsWithdrawOpen(true)}
+              disabled={!canWithdraw}
+              className={`px-4 sm:px-6 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2 text-sm sm:text-base ${
+                canWithdraw 
+                  ? 'bg-white/20 backdrop-blur-sm hover:bg-white/30 cursor-pointer' 
+                  : 'bg-white/10 opacity-60 cursor-not-allowed'
+              }`}
             >
               <Download className="w-4 h-4" />
-              <span>Withdraw</span>
+              <span>{canWithdraw ? 'Withdraw' : 'Withdraw (Unavailable)'}</span>
             </button>
           </div>
           <Wallet className="w-12 h-12 sm:w-16 sm:h-16 opacity-30" />

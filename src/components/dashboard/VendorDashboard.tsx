@@ -78,7 +78,7 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
         return (
           <Badge className="bg-amber-500/20 text-amber-500 border border-amber-500/30 text-xs">
             <Clock className="w-3 h-3 mr-1" />
-            Pending
+            Under Review
           </Badge>
         );
       case 'pending_takedown':
@@ -116,14 +116,17 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
       <div className="mb-6 sm:mb-8 animate-in fade-in slide-in-from-top-3 duration-500">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Welcome back, {currentUser.name}!</h1>
         <p className="text-sm sm:text-base text-muted-foreground">Here's your vendor dashboard overview</p>
+        {products.length === 0 && (
+          <p className="text-xs text-muted-foreground mt-1">Start by adding a product to get approved and go live.</p>
+        )}
       </div>
 
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
-        <StatsCard icon={DollarSign} value={formatCurrency(stats.revenue)} label="Total Revenue" gradient="from-afrilink-green to-emerald-600" />
-        <StatsCard icon={ShoppingCart} value={stats.sales} label="Total Sales" gradient="from-afrilink-blue to-cyan-600" />
+        <StatsCard icon={DollarSign} value={formatCurrency(stats.revenue)} label="Total Revenue" gradient="from-afrilink-green to-emerald-600" subtext="All-time" />
+        <StatsCard icon={ShoppingCart} value={stats.sales} label="Total Sales" gradient="from-afrilink-blue to-cyan-600" subtext="All-time" />
         <StatsCard icon={Package} value={stats.products} label="Active Products" gradient="from-afrilink-purple to-afrilink-pink" />
-        <StatsCard icon={Eye} value={stats.pending} label="Pending Review" gradient="from-afrilink-amber to-afrilink-orange" />
+        <StatsCard icon={Eye} value={stats.pending} label="Products Under Review" gradient="from-afrilink-amber to-afrilink-orange" subtext="Usually takes up to 24 hours" />
       </div>
 
       <div className="bg-card rounded-xl sm:rounded-2xl border border-border overflow-hidden shadow-card mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">

@@ -100,121 +100,39 @@ export const DashboardNav = ({
       className="w-72 p-0 bg-card border border-border shadow-xl rounded-xl overflow-hidden"
       sideOffset={8}
     >
-      {/* Profile Header */}
-      <div className="p-4 bg-gradient-to-br from-primary/10 via-transparent to-afrilink-purple/10">
-        <div className="flex items-start gap-3">
-          <Avatar className="w-12 h-12 border-2 border-primary/30 shadow-lg">
+      {/* Profile Header - Display only */}
+      <div className="p-4 bg-gradient-to-br from-primary/10 via-transparent to-afrilink-purple/10 border-b border-border">
+        <div className="flex items-center gap-3">
+          <Avatar className="w-10 h-10 border-2 border-primary/30">
             {currentUser.avatarUrl && (
               <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} className="object-cover" />
             )}
-            <AvatarFallback className="bg-gradient-primary text-primary-foreground text-base font-semibold">
+            <AvatarFallback className="bg-gradient-primary text-primary-foreground text-sm font-semibold">
               {getInitials(currentUser.name)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-foreground truncate">{currentUser.name}</p>
-            <div className="flex items-center gap-1 group cursor-pointer" onClick={copyUserId}>
-              <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
-              {copied ? (
-                <Check className="w-3 h-3 text-afrilink-green flex-shrink-0" />
-              ) : (
-                <Copy className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-              )}
-            </div>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant="outline" className={`text-xs capitalize flex items-center gap-1 ${getRoleBadgeStyle(currentUser.role)}`}>
-                {getRoleIcon(currentUser.role)}
-                {currentUser.role}
-              </Badge>
-              {currentUser.verified ? (
-                <Badge className="bg-afrilink-green/20 text-afrilink-green border border-afrilink-green/30 text-xs flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" />
-                  Verified
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="text-xs text-amber-500 border-amber-500/30 bg-amber-500/10">
-                  Pending
-                </Badge>
-              )}
-            </div>
+            <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
           </div>
         </div>
       </div>
 
-      {/* Wallet Section */}
+      {/* Wallet Balance - Display only */}
       <div className="px-4 py-3 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-afrilink-green/10 flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-afrilink-green" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Wallet Balance</p>
-              <p className="font-bold text-foreground">{formatCurrency(currentUser.wallet)}</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-afrilink-green/10 flex items-center justify-center">
+            <Wallet className="w-4 h-4 text-afrilink-green" />
           </div>
-          <button 
-            onClick={() => setIsWithdrawOpen(true)}
-            className="flex items-center gap-1 text-xs text-afrilink-green border border-afrilink-green/30 bg-afrilink-green/10 hover:bg-afrilink-green/20 transition-colors px-2 py-1 rounded-md font-medium"
-          >
-            <Download className="w-3 h-3" />
-            Withdraw
-          </button>
+          <div>
+            <p className="text-xs text-muted-foreground">Wallet Balance</p>
+            <p className="font-bold text-foreground">{formatCurrency(currentUser.wallet)}</p>
+          </div>
         </div>
       </div>
-
-      {/* Menu Items */}
-      <DropdownMenuGroup className="p-2">
-        <DropdownMenuItem 
-          onClick={onNavigateToVerification}
-          className="cursor-pointer rounded-lg px-3 py-2.5 focus:bg-secondary/80"
-        >
-          <div className="w-8 h-8 rounded-lg bg-afrilink-blue/10 flex items-center justify-center mr-3">
-            <ShieldCheck className="w-4 h-4 text-afrilink-blue" />
-          </div>
-          <div className="flex-1">
-            <span className="font-medium text-sm">Verification Status</span>
-            <p className="text-xs text-muted-foreground">
-              {currentUser.verified ? 'Account verified' : 'Complete verification'}
-            </p>
-          </div>
-          {!currentUser.verified && (
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-          )}
-        </DropdownMenuItem>
-
-        <DropdownMenuItem 
-          onClick={onNavigateToSettings}
-          className="cursor-pointer rounded-lg px-3 py-2.5 focus:bg-secondary/80"
-        >
-          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center mr-3">
-            <Settings className="w-4 h-4 text-muted-foreground" />
-          </div>
-          <div className="flex-1">
-            <span className="font-medium text-sm">Settings</span>
-            <p className="text-xs text-muted-foreground">Manage your account</p>
-          </div>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem 
-          onClick={onNavigateToMarketplace}
-          className="cursor-pointer rounded-lg px-3 py-2.5 focus:bg-secondary/80"
-        >
-          <div className="w-8 h-8 rounded-lg bg-afrilink-purple/10 flex items-center justify-center mr-3">
-            <Store className="w-4 h-4 text-afrilink-purple" />
-          </div>
-          <div className="flex-1">
-            <span className="font-medium text-sm">Marketplace</span>
-            <p className="text-xs text-muted-foreground">Browse products</p>
-          </div>
-          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
-        </DropdownMenuItem>
-      </DropdownMenuGroup>
-
-      <DropdownMenuSeparator className="my-0" />
 
       {/* Theme Toggle */}
-      <div className="p-2">
+      <div className="p-2 border-b border-border">
         <div className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-secondary/50 transition-colors">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
@@ -230,24 +148,20 @@ export const DashboardNav = ({
         </div>
       </div>
 
-      <DropdownMenuSeparator className="my-0" />
-
-      {/* Help & Support */}
-      <DropdownMenuGroup className="p-2">
-        <DropdownMenuItem 
-          onClick={onNavigateToHelp}
-          className="cursor-pointer rounded-lg px-3 py-2.5 focus:bg-secondary/80"
-        >
-          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center mr-3">
-            <HelpCircle className="w-4 h-4 text-muted-foreground" />
+      {/* Switch Account - Disabled/Coming Soon */}
+      <div className="p-2 border-b border-border">
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg opacity-50 cursor-not-allowed">
+          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+            <Users className="w-4 h-4 text-muted-foreground" />
           </div>
-          <span className="font-medium text-sm">Help & Support</span>
-        </DropdownMenuItem>
-      </DropdownMenuGroup>
+          <div className="flex-1">
+            <span className="font-medium text-sm text-muted-foreground">Switch Account</span>
+            <p className="text-xs text-muted-foreground">Coming soon</p>
+          </div>
+        </div>
+      </div>
 
-      <DropdownMenuSeparator className="my-0" />
-
-      {/* Logout */}
+      {/* Sign Out */}
       <div className="p-2">
         <DropdownMenuItem 
           onClick={onLogout}

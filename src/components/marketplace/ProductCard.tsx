@@ -60,7 +60,7 @@ export const ProductCard = ({ product, onAddToCart, onGrabLink, onClick, index }
 
         {/* Price and sales */}
         <div className="flex justify-between items-center mb-1 sm:mb-2">
-          <span className="text-base sm:text-2xl font-bold text-foreground">
+          <span className="text-sm sm:text-xl font-semibold text-muted-foreground">
             {formatCurrency(product.price)}
           </span>
           <span className="text-[10px] sm:text-sm text-muted-foreground">
