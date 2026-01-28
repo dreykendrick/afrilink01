@@ -113,7 +113,7 @@ serve(async (req) => {
     // STEP 2 (request payload capture): build payload explicitly so we can safely log it.
     const briqPayload = {
       phone_number: phone,
-      app_key: developerAppId,
+      developer_app_id: developerAppId,
       otp_length: 6,
       minutes_to_expire: 10,
       delivery_method: "sms",
