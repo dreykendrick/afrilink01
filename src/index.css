@@ -1,0 +1,246 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  /* Light Mode */
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 32 95% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 32 95% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 32 95% 50%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 32 95% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 32 95% 50%;
+
+    /* Custom AfriLink colors */
+    --afrilink-amber: 32 95% 50%;
+    --afrilink-orange: 25 95% 48%;
+    --afrilink-purple: 280 70% 50%;
+    --afrilink-slate-900: 222 47% 11%;
+    --afrilink-slate-800: 215 28% 17%;
+    --afrilink-slate-700: 217 19% 27%;
+    --afrilink-green: 142 71% 40%;
+    --afrilink-blue: 199 89% 45%;
+    --afrilink-pink: 330 81% 55%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(32 95% 50%), hsl(25 95% 48%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 14% 96%), hsl(280 70% 95%), hsl(220 14% 96%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100% / 0.8), hsl(220 14% 96% / 0.5));
+    --gradient-green: linear-gradient(135deg, hsl(142 71% 40%), hsl(158 64% 48%));
+    --gradient-blue: linear-gradient(135deg, hsl(199 89% 45%), hsl(189 94% 40%));
+    --gradient-purple: linear-gradient(135deg, hsl(280 70% 50%), hsl(330 81% 55%));
+
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsl(32 95% 50% / 0.2);
+    --shadow-card: 0 10px 30px hsl(222 47% 11% / 0.08);
+  }
+
+  /* Dark Mode */
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 0 0% 100%;
+
+    --card: 215 28% 17%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 215 28% 17%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 32 95% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 32 95% 56%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 32 95% 56%;
+
+    --sidebar-background: 220 26% 14%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 32 95% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 32 95% 56%;
+
+    /* Custom AfriLink colors */
+    --afrilink-amber: 32 95% 56%;
+    --afrilink-orange: 25 95% 53%;
+    --afrilink-purple: 280 70% 50%;
+    --afrilink-slate-900: 222 47% 11%;
+    --afrilink-slate-800: 215 28% 17%;
+    --afrilink-slate-700: 217 19% 27%;
+    --afrilink-green: 142 71% 45%;
+    --afrilink-blue: 199 89% 48%;
+    --afrilink-pink: 330 81% 60%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(32 95% 56%), hsl(25 95% 53%));
+    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11%), hsl(280 70% 30%), hsl(222 47% 11%));
+    --gradient-card: linear-gradient(135deg, hsl(215 28% 17% / 0.5), hsl(217 19% 27% / 0.3));
+    --gradient-green: linear-gradient(135deg, hsl(142 71% 45%), hsl(158 64% 52%));
+    --gradient-blue: linear-gradient(135deg, hsl(199 89% 48%), hsl(189 94% 43%));
+    --gradient-purple: linear-gradient(135deg, hsl(280 70% 50%), hsl(330 81% 60%));
+
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsl(32 95% 56% / 0.3);
+    --shadow-card: 0 10px 30px hsl(222 47% 11% / 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Touch-friendly improvements */
+  button, a, [role="button"] {
+    @apply touch-manipulation;
+  }
+
+  /* Minimum touch target size */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Mobile-specific utilities */
+@layer utilities {
+  /* Safe area padding for notched devices */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-area-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Hide scrollbar but allow scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Momentum scrolling for iOS */
+  .scroll-momentum {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent text selection on touch */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Hardware acceleration for animations */
+  .gpu {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Touch feedback */
+  .touch-feedback {
+    @apply active:scale-95 active:opacity-80 transition-transform duration-100;
+  }
+
+  /* Bottom sheet spacing for mobile nav */
+  .pb-mobile-nav {
+    padding-bottom: 5rem;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+
+/* Pull to refresh animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Prevent overscroll on body */
+html {
+  overscroll-behavior: none;
+}
+
+/* Smooth scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
