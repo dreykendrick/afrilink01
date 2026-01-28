@@ -212,18 +212,6 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
                   </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                  {product.status === 'approved' && (
-                    <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-secondary/50">
-                      <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                        {product.isAvailable !== false ? 'In Stock' : 'Sold Out'}
-                      </span>
-                      <Switch
-                        checked={product.isAvailable !== false}
-                        onCheckedChange={() => handleAvailabilityToggle(product.id, product.isAvailable !== false)}
-                        className="scale-75 sm:scale-90"
-                      />
-                    </div>
-                  )}
                   <div className="text-right">
                     <div className="font-bold text-foreground text-sm sm:text-base">{formatCurrency(product.price)}</div>
                     <div className="text-xs text-muted-foreground">{product.sales} sales</div>
@@ -234,6 +222,16 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-popover border border-border shadow-lg">
+                        <DropdownMenuItem 
+                          onClick={() => handleAvailabilityToggle(product.id, product.isAvailable !== false)}
+                          className="focus:bg-secondary"
+                        >
+                          <Switch
+                            checked={product.isAvailable !== false}
+                            className="scale-75 mr-2 pointer-events-none"
+                          />
+                          {product.isAvailable !== false ? 'Mark as Sold Out' : 'Mark as Available'}
+                        </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => setTakedownProductId(product.id)}
                           className="text-orange-500 focus:text-orange-500"
