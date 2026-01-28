@@ -76,17 +76,6 @@ export const MarketplaceNav = ({
           />
         </div>
 
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-4 p-4 bg-card rounded-xl border border-border animate-in fade-in slide-in-from-top-2 duration-200">
-            <button 
-              onClick={onLogin}
-              className="w-full px-4 py-3 bg-gradient-primary text-white rounded-xl font-semibold mb-4"
-            >
-              Vendor/Affiliate Login
-            </button>
-          </div>
-        )}
 
         {/* Categories */}
         <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
