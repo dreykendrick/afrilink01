@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Loader2, ImagePlus, Trash2, Plus, Package, DollarSign, Tag, FileText, Percent, Sparkles } from 'lucide-react';
+import { Loader2, ImagePlus, Trash2, Plus, Package, Tag, FileText, Percent, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
