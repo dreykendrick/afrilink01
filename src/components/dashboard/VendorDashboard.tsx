@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DollarSign, ShoppingCart, Package, Eye, Plus, MoreVertical, ArrowDownCircle, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { DollarSign, ShoppingCart, Package, Eye, Plus, MoreVertical, ArrowDownCircle, AlertCircle, CheckCircle, Clock, XCircle, Circle } from 'lucide-react';
 import { User, Product, VendorStats } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { StatsCard } from './StatsCard';
@@ -7,6 +7,7 @@ import { AddProductModal } from './AddProductModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,50 +66,90 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
     setTakedownProductId(null);
   };
 
+  const handleAvailabilityToggle = async (productId: string, currentAvailability: boolean) => {
+    const newAvailability = !currentAvailability;
+    
+    const { error } = await supabase
+      .from('products')
+      .update({ is_available: newAvailability } as any)
+      .eq('id', productId);
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update availability',
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: newAvailability ? 'Now Available' : 'Marked as Sold Out',
+        description: newAvailability 
+          ? 'Your product is now visible to buyers.' 
+          : 'Your product is marked as sold out.',
+      });
+      onProductAdded?.();
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
         return (
-          <Badge className="bg-afrilink-green/20 text-afrilink-green border border-afrilink-green/30 text-xs">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Active
+          <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0 text-[11px] font-medium px-2 py-0.5 gap-1">
+            <Circle className="w-1.5 h-1.5 fill-current" />
+            Live
           </Badge>
         );
       case 'pending':
         return (
-          <Badge className="bg-amber-500/20 text-amber-500 border border-amber-500/30 text-xs">
-            <Clock className="w-3 h-3 mr-1" />
-            Under Review
+          <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0 text-[11px] font-medium px-2 py-0.5 gap-1">
+            <Circle className="w-1.5 h-1.5 fill-current animate-pulse" />
+            In Review
           </Badge>
         );
       case 'pending_takedown':
         return (
-          <Badge className="bg-orange-500/20 text-orange-500 border border-orange-500/30 text-xs">
-            <ArrowDownCircle className="w-3 h-3 mr-1" />
+          <Badge className="bg-orange-500/10 text-orange-600 dark:text-orange-400 border-0 text-[11px] font-medium px-2 py-0.5 gap-1">
+            <ArrowDownCircle className="w-3 h-3" />
             Takedown Pending
           </Badge>
         );
       case 'taken_down':
         return (
-          <Badge className="bg-muted text-muted-foreground border border-border text-xs">
-            <XCircle className="w-3 h-3 mr-1" />
+          <Badge className="bg-muted text-muted-foreground border-0 text-[11px] font-medium px-2 py-0.5 gap-1">
+            <XCircle className="w-3 h-3" />
             Taken Down
           </Badge>
         );
       case 'rejected':
         return (
-          <Badge className="bg-destructive/20 text-destructive border border-destructive/30 text-xs">
-            <XCircle className="w-3 h-3 mr-1" />
+          <Badge className="bg-red-500/10 text-red-600 dark:text-red-400 border-0 text-[11px] font-medium px-2 py-0.5 gap-1">
+            <XCircle className="w-3 h-3" />
             Rejected
           </Badge>
         );
       default:
         return (
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-[11px] font-medium px-2 py-0.5">
             {status}
           </Badge>
         );
     }
+  };
+
+  const getAvailabilityBadge = (isAvailable: boolean) => {
+    if (isAvailable) {
+      return (
+        <Badge className="bg-primary/10 text-primary border-0 text-[11px] font-medium px-2 py-0.5">
+          In Stock
+        </Badge>
+      );
+    }
+    return (
+      <Badge className="bg-muted text-muted-foreground border-0 text-[11px] font-medium px-2 py-0.5">
+        Sold Out
+      </Badge>
+    );
   };
 
   return (
@@ -153,27 +194,46 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
                 className="flex items-center justify-between p-3 sm:p-4 bg-secondary/50 rounded-lg sm:rounded-xl hover:bg-secondary transition-all duration-200 animate-in fade-in slide-in-from-left-3 duration-500"
                 style={{ animationDelay: `${300 + index * 50}ms` }}
               >
-                <div className="flex items-center space-x-3 sm:space-x-4">
-                  <img src={product.image} alt={product.title} className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover" />
-                  <div>
-                    <div className="font-semibold text-foreground text-sm sm:text-base">{product.title}</div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs sm:text-sm text-muted-foreground">{product.category}</span>
+                <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                  <img src={product.image} alt={product.title} className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="font-semibold text-foreground text-sm sm:text-base truncate">{product.title}</div>
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                      <span className="text-xs text-muted-foreground">{product.category}</span>
+                      <span className="text-muted-foreground/40">•</span>
                       {getStatusBadge(product.status)}
+                      {product.status === 'approved' && (
+                        <>
+                          <span className="text-muted-foreground/40">•</span>
+                          {getAvailabilityBadge(product.isAvailable !== false)}
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                  {product.status === 'approved' && (
+                    <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-secondary/50">
+                      <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                        {product.isAvailable !== false ? 'In Stock' : 'Sold Out'}
+                      </span>
+                      <Switch
+                        checked={product.isAvailable !== false}
+                        onCheckedChange={() => handleAvailabilityToggle(product.id, product.isAvailable !== false)}
+                        className="scale-75 sm:scale-90"
+                      />
+                    </div>
+                  )}
                   <div className="text-right">
                     <div className="font-bold text-foreground text-sm sm:text-base">{formatCurrency(product.price)}</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground">{product.sales} sales</div>
+                    <div className="text-xs text-muted-foreground">{product.sales} sales</div>
                   </div>
                   {product.status === 'approved' && (
                     <DropdownMenu>
                       <DropdownMenuTrigger className="p-2 hover:bg-secondary rounded-lg transition-colors">
                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="bg-popover border border-border shadow-lg">
                         <DropdownMenuItem 
                           onClick={() => setTakedownProductId(product.id)}
                           className="text-orange-500 focus:text-orange-500"
