@@ -118,16 +118,29 @@ export const DashboardNav = ({
         </div>
       </div>
 
-      {/* Wallet Balance - Display only */}
+      {/* Wallet Balance with Withdraw button */}
       <div className="px-4 py-3 border-b border-border">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-afrilink-green/10 flex items-center justify-center">
-            <Wallet className="w-4 h-4 text-afrilink-green" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-afrilink-green/10 flex items-center justify-center">
+              <Wallet className="w-4 h-4 text-afrilink-green" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Wallet Balance</p>
+              <p className="font-bold text-foreground">{formatCurrency(currentUser.wallet)}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Wallet Balance</p>
-            <p className="font-bold text-foreground">{formatCurrency(currentUser.wallet)}</p>
-          </div>
+          {currentUser.wallet > 0 ? (
+            <button 
+              onClick={() => setIsWithdrawOpen(true)}
+              className="flex items-center gap-1 text-xs text-afrilink-green border border-afrilink-green/30 bg-afrilink-green/10 hover:bg-afrilink-green/20 transition-colors px-2 py-1 rounded-md font-medium"
+            >
+              <Download className="w-3 h-3" />
+              Withdraw
+            </button>
+          ) : (
+            <span className="text-xs text-muted-foreground">No funds</span>
+          )}
         </div>
       </div>
 
@@ -148,18 +161,28 @@ export const DashboardNav = ({
         </div>
       </div>
 
-      {/* Switch Account - Disabled/Coming Soon */}
-      <div className="p-2 border-b border-border">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg opacity-50 cursor-not-allowed">
-          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+      {/* Switch Account - Coming Soon with toast */}
+      <DropdownMenuGroup className="p-2 border-b border-border">
+        <DropdownMenuItem 
+          onClick={() => {
+            import('@/hooks/use-toast').then(({ toast }) => {
+              toast({
+                title: "Coming Soon",
+                description: "Switch Account feature will be available soon.",
+              });
+            });
+          }}
+          className="cursor-pointer rounded-lg px-3 py-2.5 focus:bg-secondary/80"
+        >
+          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center mr-3">
             <Users className="w-4 h-4 text-muted-foreground" />
           </div>
           <div className="flex-1">
-            <span className="font-medium text-sm text-muted-foreground">Switch Account</span>
+            <span className="font-medium text-sm">Switch Account</span>
             <p className="text-xs text-muted-foreground">Coming soon</p>
           </div>
-        </div>
-      </div>
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
 
       {/* Sign Out */}
       <div className="p-2">
