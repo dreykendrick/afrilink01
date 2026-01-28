@@ -581,7 +581,7 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-afrilink-green" />
+                <span className="w-4 h-4 text-afrilink-green text-xs font-bold">Tsh</span>
                 <Label htmlFor="price" className="text-sm font-semibold">Price</Label>
                 <span className="text-destructive">*</span>
               </div>
