@@ -86,24 +86,38 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
         </div>
 
         <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
-          <TabsList className="bg-secondary/50 p-1 rounded-xl w-full overflow-x-auto flex justify-start sm:justify-center">
-            <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-background min-h-[44px] px-3 sm:px-4 flex-shrink-0">
-              <User className="w-4 h-4 mr-1.5 sm:mr-2" />
-              <span className="text-sm">Profile</span>
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="rounded-lg data-[state=active]:bg-background min-h-[44px] px-3 sm:px-4 flex-shrink-0">
-              <Bell className="w-4 h-4 mr-1.5 sm:mr-2" />
-              <span className="text-sm">Notifications</span>
-            </TabsTrigger>
-            <TabsTrigger value="appearance" className="rounded-lg data-[state=active]:bg-background min-h-[44px] px-3 sm:px-4 flex-shrink-0">
-              <Moon className="w-4 h-4 mr-1.5 sm:mr-2" />
-              <span className="text-sm">Appearance</span>
-            </TabsTrigger>
-            <TabsTrigger value="security" className="rounded-lg data-[state=active]:bg-background min-h-[44px] px-3 sm:px-4 flex-shrink-0">
-              <Shield className="w-4 h-4 mr-1.5 sm:mr-2" />
-              <span className="text-sm">Security</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="border-b border-border">
+            <TabsList className="bg-transparent p-0 h-auto w-full flex justify-start gap-0 overflow-x-auto">
+              <TabsTrigger 
+                value="profile" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent min-h-[48px] px-4 sm:px-6 flex-shrink-0 text-muted-foreground data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              >
+                <User className="w-4 h-4 mr-2" />
+                <span className="text-sm font-medium">Profile</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="notifications" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent min-h-[48px] px-4 sm:px-6 flex-shrink-0 text-muted-foreground data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                <span className="text-sm font-medium">Notifications</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="appearance" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent min-h-[48px] px-4 sm:px-6 flex-shrink-0 text-muted-foreground data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              >
+                <Moon className="w-4 h-4 mr-2" />
+                <span className="text-sm font-medium">Appearance</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="security" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent min-h-[48px] px-4 sm:px-6 flex-shrink-0 text-muted-foreground data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                <span className="text-sm font-medium">Security</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Profile Tab */}
           <TabsContent value="profile">
