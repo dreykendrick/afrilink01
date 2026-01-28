@@ -15,7 +15,9 @@ import {
   ExternalLink,
   Copy,
   Check,
-  Download
+  Download,
+  RefreshCw,
+  Plus
 } from 'lucide-react';
 import { User } from '@/types';
 import {
@@ -42,6 +44,9 @@ interface DashboardNavProps {
   onNavigateToMarketplace?: () => void;
   onNavigateToHelp?: () => void;
   onWalletUpdate?: () => void;
+  availableRoles?: ('vendor' | 'affiliate')[];
+  onSwitchRole?: (role: 'vendor' | 'affiliate') => void;
+  onAddRole?: (role: 'vendor' | 'affiliate') => void;
 }
 
 export const DashboardNav = ({ 
@@ -51,7 +56,10 @@ export const DashboardNav = ({
   onNavigateToVerification,
   onNavigateToMarketplace,
   onNavigateToHelp,
-  onWalletUpdate
+  onWalletUpdate,
+  availableRoles = [],
+  onSwitchRole,
+  onAddRole
 }: DashboardNavProps) => {
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -161,28 +169,62 @@ export const DashboardNav = ({
         </div>
       </div>
 
-      {/* Switch Account - Coming Soon with toast */}
-      <DropdownMenuGroup className="p-2 border-b border-border">
-        <DropdownMenuItem 
-          onClick={() => {
-            import('@/hooks/use-toast').then(({ toast }) => {
-              toast({
-                title: "Coming Soon",
-                description: "Switch Account feature will be available soon.",
-              });
-            });
-          }}
-          className="cursor-pointer rounded-lg px-3 py-2.5 focus:bg-secondary/80"
-        >
-          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center mr-3">
-            <Users className="w-4 h-4 text-muted-foreground" />
+      {/* Switch Role Section */}
+      <div className="p-2 border-b border-border">
+        <div className="px-3 py-2">
+          <div className="flex items-center gap-2 mb-2">
+            <RefreshCw className="w-4 h-4 text-muted-foreground" />
+            <span className="font-medium text-sm">Switch Role</span>
           </div>
-          <div className="flex-1">
-            <span className="font-medium text-sm">Switch Account</span>
-            <p className="text-xs text-muted-foreground">Coming soon</p>
+          <div className="space-y-1.5">
+            {/* Current role */}
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-primary/10 border border-primary/30">
+              {currentUser.role === 'vendor' ? (
+                <Store className="w-4 h-4 text-primary" />
+              ) : (
+                <Users className="w-4 h-4 text-primary" />
+              )}
+              <span className="text-sm font-medium text-primary capitalize">{currentUser.role}</span>
+              <span className="text-xs text-primary/70 ml-auto">Active</span>
+            </div>
+            
+            {/* Other available role */}
+            {availableRoles.length > 1 ? (
+              availableRoles
+                .filter(role => role !== currentUser.role)
+                .map(role => (
+                  <button
+                    key={role}
+                    onClick={() => onSwitchRole?.(role)}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-secondary transition-colors text-left"
+                  >
+                    {role === 'vendor' ? (
+                      <Store className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    <span className="text-sm text-muted-foreground capitalize">{role}</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Switch</span>
+                  </button>
+                ))
+            ) : (
+              // Option to add another role
+              <button
+                onClick={() => {
+                  const newRole = currentUser.role === 'vendor' ? 'affiliate' : 'vendor';
+                  onAddRole?.(newRole);
+                }}
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-secondary transition-colors text-left border border-dashed border-border"
+              >
+                <Plus className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  Add {currentUser.role === 'vendor' ? 'Affiliate' : 'Vendor'} Role
+                </span>
+              </button>
+            )}
           </div>
-        </DropdownMenuItem>
-      </DropdownMenuGroup>
+        </div>
+      </div>
 
       {/* Sign Out */}
       <div className="p-2">

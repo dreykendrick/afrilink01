@@ -83,7 +83,7 @@ const updateUrlView = (view: View, role?: 'vendor' | 'affiliate' | null) => {
 };
 
 const IndexContent = () => {
-  const { user, loading: authLoading, userRole, signOut } = useAuth();
+  const { user, loading: authLoading, userRole, signOut, availableRoles, switchRole, addRole, refreshRoles } = useAuth();
   const { addToCart, setAffiliateCode } = useCart();
   // Bug Fix C: Initialize view from URL or default
   const [view, setViewState] = useState<View>(() => {
@@ -405,6 +405,28 @@ const IndexContent = () => {
     setProducts([]);
     setRoleAvatarUrl(null);
     showNotification('Logged out successfully');
+  };
+
+  const handleSwitchRole = async (newRole: 'vendor' | 'affiliate') => {
+    const success = await switchRole(newRole);
+    if (success) {
+      toast.success(`Switched to ${newRole} mode`);
+      // Reload data for the new role
+      await fetchUserData();
+    } else {
+      toast.error('Failed to switch role');
+    }
+  };
+
+  const handleAddRole = async (newRole: 'vendor' | 'affiliate') => {
+    const success = await addRole(newRole);
+    if (success) {
+      toast.success(`${newRole} role added! Complete your profile setup.`);
+      // This will trigger profile setup for the new role
+      await fetchUserData();
+    } else {
+      toast.error('Failed to add role');
+    }
   };
 
   const handleGenerateLink = async (productId: string) => {
@@ -775,6 +797,9 @@ const IndexContent = () => {
           onNavigateToMarketplace={() => handleNavigate('marketplace')}
           onNavigateToHelp={() => setView('help-support')}
           onWalletUpdate={fetchUserData}
+          availableRoles={availableRoles}
+          onSwitchRole={handleSwitchRole}
+          onAddRole={handleAddRole}
         />
         <PullToRefresh onRefresh={handleRefresh} disabled={dataLoading}>
           <div className="p-4 sm:p-6 lg:p-8">
