@@ -26,7 +26,7 @@ const roleCards = [
   },
 ];
 
-export const RoleSelection = ({ onSelect }: RoleSelectionProps) => {
+export const RoleSelection = ({ onSelect, onLogin }: RoleSelectionProps & { onLogin?: () => void }) => {
   return (
     <div className="min-h-screen bg-background px-4 py-10 sm:py-16">
       <div className="max-w-5xl mx-auto space-y-10">
@@ -55,6 +55,19 @@ export const RoleSelection = ({ onSelect }: RoleSelectionProps) => {
               </button>
             );
           })}
+        </div>
+        {/* Login option for existing accounts */}
+        <div className="text-center pt-4 border-t border-border animate-in fade-in duration-700" style={{ animationDelay: '300ms' }}>
+          <p className="text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={onLogin}
+              className="text-primary hover:underline font-semibold"
+            >
+              Sign In
+            </button>
+          </p>
         </div>
       </div>
     </div>
