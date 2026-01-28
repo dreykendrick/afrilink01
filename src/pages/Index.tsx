@@ -105,6 +105,8 @@ const IndexContent = () => {
   const setView = useCallback((newView: View, role?: 'vendor' | 'affiliate' | null) => {
     setViewState(newView);
     updateUrlView(newView, role);
+    // Auto-scroll to top when changing views
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
   
   // Marketplace filters
