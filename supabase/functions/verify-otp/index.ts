@@ -68,6 +68,8 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         phone_number: phone,
+        // Briq currently requires `app_key` (keep `developer_app_id` for compatibility)
+        app_key: developerAppId,
         developer_app_id: developerAppId,
         code: code,
       }),
