@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getUserFriendlyError } from '@/utils/errorMessages';
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -235,7 +236,7 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
       if (isMountedRef.current) {
         toast({
           title: 'Upload failed',
-          description: error.message || 'Failed to upload images',
+          description: getUserFriendlyError(error),
           variant: 'destructive'
         });
       }
@@ -395,7 +396,7 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
       if (isMountedRef.current) {
         toast({
           title: 'Error adding product',
-          description: error.message || 'Failed to add product. Please try again.',
+          description: getUserFriendlyError(error),
           variant: 'destructive'
         });
       }

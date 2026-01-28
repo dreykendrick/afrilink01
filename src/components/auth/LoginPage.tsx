@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { getUserFriendlyError } from '@/utils/errorMessages';
 
 interface LoginPageProps {
   onNavigate: (view: string) => void;
@@ -61,7 +62,7 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
         } else {
           toast({
             title: 'Login Failed',
-            description: error.message,
+            description: getUserFriendlyError(error.message),
             variant: 'destructive',
           });
         }
@@ -78,7 +79,7 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'An unexpected error occurred. Please try again.',
+        description: getUserFriendlyError(error),
         variant: 'destructive',
       });
     } finally {

@@ -6,6 +6,7 @@ import { calculateDelivery } from '@/utils/delivery';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { validateTZPhone } from '@/utils/phone';
+import { getUserFriendlyError } from '@/utils/errorMessages';
 
 const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
 
@@ -262,7 +263,7 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
       checkoutSessionRef.current = null; // Reset for next checkout
     } catch (error: any) {
       console.error('Checkout error:', error);
-      toast.error(error.message || 'Failed to place order');
+      toast.error(getUserFriendlyError(error));
       checkoutSessionRef.current = null; // Reset on error to allow retry
     } finally {
       setLoading(false);

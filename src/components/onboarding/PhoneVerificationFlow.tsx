@@ -8,6 +8,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validateTZPhone } from '@/utils/phone';
+import { getUserFriendlyError, friendlyErrors } from '@/utils/errorMessages';
 
 interface PhoneVerificationFlowProps {
   userId: string;
@@ -51,7 +52,7 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
       });
 
       if (otpError || !data?.success) {
-        throw otpError || new Error(data?.error || 'Unable to send OTP.');
+        throw otpError || new Error(friendlyErrors.otpSend);
       }
 
       setOtp('');
@@ -61,7 +62,7 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
       });
       setStep(2);
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to send OTP.', variant: 'destructive' });
+      toast({ title: 'Error', description: getUserFriendlyError(error, friendlyErrors.otpSend), variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -81,7 +82,7 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
       });
 
       if (verifyError || !data?.success) {
-        throw verifyError || new Error(data?.error || 'Invalid or expired code.');
+        throw verifyError || new Error(friendlyErrors.otpInvalid);
       }
 
       // Update profile as verified
@@ -94,7 +95,7 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
       });
       onComplete();
     } catch (error: any) {
-      toast({ title: 'Verification failed', description: error.message, variant: 'destructive' });
+      toast({ title: 'Verification failed', description: getUserFriendlyError(error, friendlyErrors.otpInvalid), variant: 'destructive' });
     } finally {
       setLoading(false);
     }
