@@ -1,27 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Globe, Megaphone, Store, Sparkles, LucideIcon } from 'lucide-react';
 
 interface OnboardingCarouselProps {
   onComplete: () => void;
 }
 
-const slides = [
+interface Slide {
+  headline: string;
+  subtext: string;
+  icon: LucideIcon;
+}
+
+const slides: Slide[] = [
   {
     headline: 'Welcome to AfriLink',
-    subtext: 'Africa’s first homegrown affiliate marketplace.',
+    subtext: "Africa's first homegrown affiliate marketplace.",
+    icon: Globe,
   },
   {
     headline: 'Sell without chasing customers',
     subtext: 'List your products once. Affiliates promote them everywhere.',
+    icon: Store,
   },
   {
     headline: 'Promote. Share. Earn.',
     subtext: 'Earn commissions by sharing products you believe in.',
+    icon: Megaphone,
   },
   {
     headline: 'No barriers. Just opportunity.',
-    subtext: 'Browse products. See earnings. Join when you’re ready.',
+    subtext: "Browse products. See earnings. Join when you're ready.",
+    icon: Sparkles,
   },
 ];
 
@@ -90,27 +100,35 @@ export const OnboardingCarousel = ({ onComplete }: OnboardingCarouselProps) => {
         className="flex-1 flex overflow-x-auto snap-x snap-mandatory scroll-smooth"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        {slides.map((slide, index) => (
-          <div
-            key={slide.headline}
-            className="min-w-full snap-center flex items-center justify-center px-6 py-10"
-          >
-            <div className="max-w-xl text-center space-y-4 animate-in fade-in slide-in-from-bottom-6 duration-700">
-              <h1 className="text-2xl sm:text-4xl font-bold">{slide.headline}</h1>
-              <p className="text-sm sm:text-lg text-foreground/70">{slide.subtext}</p>
-              {index === totalSlides - 1 && (
-                <Button
-                  onClick={onComplete}
-                  size="lg"
-                  className="mt-6 w-full sm:w-auto px-8 py-6 text-base sm:text-lg rounded-xl shadow-glow"
-                >
-                  Get Started
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
+        {slides.map((slide, index) => {
+          const Icon = slide.icon;
+          return (
+            <div
+              key={slide.headline}
+              className="min-w-full snap-center flex items-center justify-center px-6 py-10"
+            >
+              <div className="max-w-xl text-center space-y-4 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <div className="flex justify-center mb-2">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                    <Icon className="w-7 h-7 text-primary" />
+                  </div>
+                </div>
+                <h1 className="text-2xl sm:text-4xl font-bold">{slide.headline}</h1>
+                <p className="text-sm sm:text-lg text-foreground/70">{slide.subtext}</p>
+                {index === totalSlides - 1 && (
+                  <Button
+                    onClick={onComplete}
+                    size="lg"
+                    className="mt-6 w-full sm:w-auto px-8 py-6 text-base sm:text-lg rounded-xl shadow-glow"
+                  >
+                    Get Started
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="flex items-center justify-center gap-2 pb-8">{dots}</div>
