@@ -9,6 +9,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+// Tanzania cities
+const TANZANIA_CITIES = [
+  'Dar es Salaam', 'Mwanza', 'Arusha', 'Dodoma', 'Mbeya', 'Morogoro', 'Tanga', 'Kahama',
+  'Tabora', 'Zanzibar City', 'Kigoma', 'Sumbawanga', 'Kasulu', 'Songea', 'Musoma',
+  'Shinyanga', 'Iringa', 'Singida', 'Njombe', 'Bukoba', 'Moshi', 'Mpanda', 'Mtwara',
+  'Lindi', 'Babati', 'Korogwe', 'Kibaha', 'Geita', 'Bariadi', 'Handeni', 'Kondoa',
+  'Makambako', 'Chake Chake', 'Wete', 'Mbamba Bay', 'Kilosa', 'Ifakara', 'Nzega',
+  'Igunga', 'Uvinza', 'Kahama', 'Sengerema', 'Tarime', 'Masasi', 'Newala', 'Nachingwea',
+  'Tunduma', 'Kyela', 'Rujewa', 'Makete', 'Same', 'Mwanga', 'Rombo', 'Hai', 'Siha',
+  'Karatu', 'Monduli', 'Longido', 'Ngorongoro', 'Meatu', 'Maswa', 'Kwimba', 'Magu',
+  'Misungwi', 'Ukerewe', 'Butiama', 'Bunda', 'Serengeti', 'Rorya', 'Nyang\'hwale',
+  'Chato', 'Biharamulo', 'Muleba', 'Karagwe', 'Kyerwa', 'Misenyi', 'Ngara', 'Kakonko',
+  'Kibondo', 'Kasulu', 'Buhigwe', 'Urambo', 'Kaliua', 'Sikonge', 'Uyui', 'Nkasi',
+  'Kalambo', 'Sumbawanga', 'Mlele', 'Mpimbwe', 'Tanganyika', 'Nsimbo', 'Kilolo',
+  'Mufindi', 'Njombe', 'Wanging\'ombe', 'Makete', 'Ludewa', 'Songwe', 'Momba', 'Ileje',
+  'Mbozi', 'Mbarali', 'Rungwe', 'Busokelo', 'Kilombero', 'Ulanga', 'Malinyi', 'Gairo',
+  'Mvomero', 'Morogoro', 'Kilwa', 'Lindi', 'Ruangwa', 'Liwale', 'Nachingwea', 'Mtwara',
+  'Nanyumbu', 'Tandahimba', 'Newala', 'Masasi', 'Bagamoyo', 'Kisarawe', 'Mkuranga',
+  'Rufiji', 'Mafia', 'Temeke', 'Ilala', 'Kinondoni', 'Ubungo', 'Kigamboni'
+].sort();
+
 interface VendorProfileSetupProps {
   userId: string;
   onComplete: () => void;
@@ -132,22 +153,25 @@ export const VendorProfileSetup = ({ userId, onComplete }: VendorProfileSetupPro
               </div>
               <div className="space-y-2">
                 <Label htmlFor="city">City (public)</Label>
-                <Input
-                  id="city"
-                  value={city}
-                  onChange={(event) => setCity(event.target.value)}
-                  placeholder="Lagos"
-                  required
-                />
+                <Select value={city} onValueChange={setCity}>
+                  <SelectTrigger id="city">
+                    <SelectValue placeholder="Select city" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {TANZANIA_CITIES.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pickupLocation">Pickup location (private)</Label>
+              <Label htmlFor="pickupLocation">Location (private)</Label>
               <Input
                 id="pickupLocation"
                 value={pickupLocation}
                 onChange={(event) => setPickupLocation(event.target.value)}
-                placeholder="Warehouse address for dispatch only"
+                placeholder="Your address for dispatch only"
                 required
               />
             </div>
