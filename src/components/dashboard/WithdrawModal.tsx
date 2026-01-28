@@ -123,7 +123,7 @@ export const WithdrawModal = ({ isOpen, onClose, balance, onWithdrawSuccess }: W
           {/* Payment Method Selection */}
           <div className="space-y-2">
             <Label>Payment Method</Label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="flex flex-col gap-2">
               {paymentMethods.map((method) => {
                 const Icon = method.icon;
                 return (
@@ -131,14 +131,14 @@ export const WithdrawModal = ({ isOpen, onClose, balance, onWithdrawSuccess }: W
                     key={method.id}
                     type="button"
                     onClick={() => setSelectedMethod(method.id)}
-                    className={`p-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+                    className={`p-3 rounded-xl border-2 transition-all duration-200 flex items-center gap-3 ${
                       selectedMethod === method.id
                         ? 'border-primary bg-primary/10'
                         : 'border-border hover:border-primary/50'
                     }`}
                   >
-                    <Icon className={`w-6 h-6 ${selectedMethod === method.id ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <span className={`text-xs font-medium ${selectedMethod === method.id ? 'text-primary' : 'text-muted-foreground'}`}>
+                    <Icon className={`w-5 h-5 ${selectedMethod === method.id ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <span className={`text-sm font-medium ${selectedMethod === method.id ? 'text-primary' : 'text-muted-foreground'}`}>
                       {method.name}
                     </span>
                   </button>
