@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ShoppingCart, Search, X, Menu } from 'lucide-react';
+import { ShoppingCart, Search, Filter, ChevronDown } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface MarketplaceNavProps {
   searchTerm: string;
@@ -10,6 +11,10 @@ interface MarketplaceNavProps {
   categories: string[];
   onCartClick: () => void;
   onLogin: () => void;
+  commissionFilter: string;
+  setCommissionFilter: (value: string) => void;
+  priceFilter: string;
+  setPriceFilter: (value: string) => void;
 }
 
 export const MarketplaceNav = ({ 
@@ -19,10 +24,16 @@ export const MarketplaceNav = ({
   setSelectedCategory, 
   categories,
   onCartClick,
-  onLogin
+  onLogin,
+  commissionFilter,
+  setCommissionFilter,
+  priceFilter,
+  setPriceFilter
 }: MarketplaceNavProps) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const { totalItems } = useCart();
+
+  const hasActiveFilters = commissionFilter !== 'all' || priceFilter !== 'all';
 
   return (
     <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border">
@@ -44,6 +55,19 @@ export const MarketplaceNav = ({
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className={`relative p-2 sm:p-3 rounded-xl transition-colors ${
+                hasActiveFilters 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-secondary hover:bg-secondary/80'
+              }`}
+            >
+              <Filter className="w-5 h-5" />
+              {hasActiveFilters && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-afrilink-green rounded-full" />
+              )}
+            </button>
             <button
               onClick={onCartClick}
               className="relative p-2 sm:p-3 bg-secondary hover:bg-secondary/80 rounded-xl transition-colors"
@@ -70,6 +94,54 @@ export const MarketplaceNav = ({
           />
         </div>
 
+        {/* Filters Panel */}
+        {filtersOpen && (
+          <div className="mt-4 p-4 bg-card rounded-xl border border-border animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Commission</label>
+                <Select value={commissionFilter} onValueChange={setCommissionFilter}>
+                  <SelectTrigger className="bg-secondary border-border">
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="5+">5%+</SelectItem>
+                    <SelectItem value="10+">10%+</SelectItem>
+                    <SelectItem value="15+">15%+</SelectItem>
+                    <SelectItem value="20+">20%+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Price Range</label>
+                <Select value={priceFilter} onValueChange={setPriceFilter}>
+                  <SelectTrigger className="bg-secondary border-border">
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    <SelectItem value="all">All Prices</SelectItem>
+                    <SelectItem value="0-50000">Under 50,000 Tsh</SelectItem>
+                    <SelectItem value="50000-100000">50,000 - 100,000 Tsh</SelectItem>
+                    <SelectItem value="100000-500000">100,000 - 500,000 Tsh</SelectItem>
+                    <SelectItem value="500000+">500,000+ Tsh</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {hasActiveFilters && (
+              <button
+                onClick={() => {
+                  setCommissionFilter('all');
+                  setPriceFilter('all');
+                }}
+                className="mt-3 text-xs text-primary hover:underline"
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Categories */}
         <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
