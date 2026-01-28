@@ -68,7 +68,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         phone_number: phone,
-        developer_app_id: developerAppId,
+        app_key: developerAppId,
         code: code,
       }),
     });
