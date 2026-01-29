@@ -25,14 +25,48 @@ export const AffiliateProfileSetup = ({ userId, onComplete, onBack }: AffiliateP
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    
+    // Check file size
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: 'File too large',
         description: 'Upload an image smaller than 5MB.',
         variant: 'destructive',
       });
+      event.target.value = '';
       return;
     }
+    
+    // Check for supported image formats (reject HEIC which browsers can't display)
+    const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const fileExtension = file.name.toLowerCase().split('.').pop();
+    const isHeic = fileExtension === 'heic' || fileExtension === 'heif' || file.type === 'image/heic' || file.type === 'image/heif';
+    
+    if (isHeic) {
+      toast({
+        title: 'Unsupported format',
+        description: 'HEIC images are not supported. Please convert to JPG or PNG first.',
+        variant: 'destructive',
+      });
+      event.target.value = '';
+      return;
+    }
+    
+    if (!supportedTypes.includes(file.type) && !['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(fileExtension || '')) {
+      toast({
+        title: 'Unsupported format',
+        description: 'Please upload a JPG, PNG, WebP, or GIF image.',
+        variant: 'destructive',
+      });
+      event.target.value = '';
+      return;
+    }
+    
+    // Clean up previous preview URL to prevent memory leaks
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview);
+    }
+    
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
@@ -132,7 +166,7 @@ export const AffiliateProfileSetup = ({ userId, onComplete, onBack }: AffiliateP
                   <img src={avatarPreview} alt="Affiliate avatar preview" className="w-full h-full object-cover" />
                 </div>
               )}
-              <Input id="avatar" type="file" accept="image/*" onChange={handleAvatarChange} required />
+              <Input id="avatar" type="file" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" onChange={handleAvatarChange} required />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
