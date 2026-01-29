@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,9 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 interface AffiliateProfileSetupProps {
   userId: string;
   onComplete: () => void;
+  onBack?: () => void;
 }
 
-export const AffiliateProfileSetup = ({ userId, onComplete }: AffiliateProfileSetupProps) => {
+export const AffiliateProfileSetup = ({ userId, onComplete, onBack }: AffiliateProfileSetupProps) => {
   const { toast } = useToast();
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
@@ -89,7 +90,15 @@ export const AffiliateProfileSetup = ({ userId, onComplete }: AffiliateProfileSe
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-10">
       <Card className="w-full max-w-2xl animate-in fade-in zoom-in-95 duration-500">
-        <CardHeader>
+        <CardHeader className="space-y-2">
+          {onBack && (
+            <div className="flex items-center">
+              <Button variant="ghost" size="sm" onClick={onBack} className="px-2">
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back
+              </Button>
+            </div>
+          )}
           <CardTitle className="text-xl sm:text-2xl">Set up your affiliate profile</CardTitle>
           <CardDescription>
             Your profile helps vendors trust and collaborate with you.

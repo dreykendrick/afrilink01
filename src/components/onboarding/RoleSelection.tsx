@@ -1,4 +1,5 @@
-import { Store, Users, Compass } from 'lucide-react';
+import { ArrowLeft, Store, Users, Compass } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface RoleSelectionProps {
   onSelect: (role: 'vendor' | 'affiliate' | 'browse') => void;
@@ -26,10 +27,18 @@ const roleCards = [
   },
 ];
 
-export const RoleSelection = ({ onSelect, onLogin }: RoleSelectionProps & { onLogin?: () => void }) => {
+export const RoleSelection = ({ onSelect, onBack, onLogin }: RoleSelectionProps & { onLogin?: () => void }) => {
   return (
     <div className="min-h-screen bg-background px-4 py-10 sm:py-16">
       <div className="max-w-5xl mx-auto space-y-10">
+        {onBack && (
+          <div className="animate-in fade-in duration-500">
+            <Button variant="ghost" size="sm" onClick={onBack} className="px-2">
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
+          </div>
+        )}
         <div className="text-center space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <h2 className="text-2xl sm:text-4xl font-bold text-foreground">Choose your AfriLink path</h2>
           <p className="text-sm sm:text-lg text-muted-foreground">
