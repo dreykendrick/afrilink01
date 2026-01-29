@@ -103,7 +103,7 @@ export const HelpSupportPage = ({ currentUser, onBack }: HelpSupportPageProps) =
         {/* Quick Actions */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <a 
-            href="https://wa.me/255759881943"
+            href="https://wa.me/255759340243"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -134,7 +134,7 @@ export const HelpSupportPage = ({ currentUser, onBack }: HelpSupportPageProps) =
             </Card>
           </a>
           
-          <a href="tel:+255759881943">
+          <a href="tel:+255759340243">
             <Card className="border-border bg-card hover:bg-card/80 transition-colors cursor-pointer h-full">
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-afrilink-purple/10 flex items-center justify-center">
@@ -142,7 +142,7 @@ export const HelpSupportPage = ({ currentUser, onBack }: HelpSupportPageProps) =
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">Call Us</h3>
-                  <p className="text-sm text-muted-foreground">+255 759 881943</p>
+                  <p className="text-sm text-muted-foreground">+255 759 340 243</p>
                 </div>
               </CardContent>
             </Card>
