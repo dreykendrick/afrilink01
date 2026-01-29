@@ -14,23 +14,29 @@ export const languages = [
 
 export type LanguageCode = typeof languages[number]['code'];
 
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources: {
-      en: { translation: en },
-      sw: { translation: sw },
-      fr: { translation: fr },
-    },
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false,
-    },
-    detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
-    },
-  });
+// Only initialize if not already initialized
+if (!i18n.isInitialized) {
+  i18n
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .init({
+      resources: {
+        en: { translation: en },
+        sw: { translation: sw },
+        fr: { translation: fr },
+      },
+      fallbackLng: 'en',
+      interpolation: {
+        escapeValue: false,
+      },
+      detection: {
+        order: ['localStorage', 'navigator'],
+        caches: ['localStorage'],
+      },
+      react: {
+        useSuspense: false,
+      },
+    });
+}
 
 export default i18n;
