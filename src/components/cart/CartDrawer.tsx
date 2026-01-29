@@ -1,4 +1,5 @@
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '@/hooks/useCart';
 import { formatCurrency } from '@/utils/currency';
 
@@ -9,6 +10,7 @@ interface CartDrawerProps {
 }
 
 export const CartDrawer = ({ isOpen, onClose, onCheckout }: CartDrawerProps) => {
+  const { t } = useTranslation();
   const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
 
   if (!isOpen) return null;
@@ -23,7 +25,7 @@ export const CartDrawer = ({ isOpen, onClose, onCheckout }: CartDrawerProps) => 
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-bold text-foreground">Your Cart ({totalItems})</h2>
+            <h2 className="text-lg font-bold text-foreground">{t('cart.title')} ({totalItems})</h2>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-secondary rounded-lg transition-colors">
             <X className="w-5 h-5 text-muted-foreground" />
@@ -33,7 +35,7 @@ export const CartDrawer = ({ isOpen, onClose, onCheckout }: CartDrawerProps) => 
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <ShoppingBag className="w-16 h-16 text-muted-foreground/50 mb-4" />
-            <p className="text-muted-foreground">Your cart is empty</p>
+            <p className="text-muted-foreground">{t('cart.empty')}</p>
           </div>
         ) : (
           <>
@@ -72,14 +74,14 @@ export const CartDrawer = ({ isOpen, onClose, onCheckout }: CartDrawerProps) => 
 
             <div className="border-t border-border p-4 space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t('cart.subtotal')}</span>
                 <span className="text-xl font-bold text-foreground">{formatCurrency(totalPrice)}</span>
               </div>
               <button
                 onClick={onCheckout}
                 className="w-full py-3 bg-gradient-primary text-white rounded-xl font-bold hover:shadow-glow transition-all duration-300"
               >
-                Proceed to Checkout
+                {t('cart.checkout')}
               </button>
             </div>
           </>

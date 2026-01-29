@@ -1,4 +1,5 @@
 import { Home, Store, User, HelpCircle, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 interface MobileBottomNavProps {
@@ -8,12 +9,14 @@ interface MobileBottomNavProps {
 }
 
 export const MobileBottomNav = ({ activeTab, onNavigate, userRole }: MobileBottomNavProps) => {
+  const { t } = useTranslation();
+  
   const navItems = [
-    { id: 'dashboard' as const, icon: Home, label: 'Home', action: 'dashboard' as const },
-    { id: 'marketplace' as const, icon: Store, label: 'Market', action: 'marketplace' as const },
-    { id: 'settings' as const, icon: Settings, label: 'Settings', action: 'settings' as const },
-    { id: 'help' as const, icon: HelpCircle, label: 'Help', action: 'help-support' as const },
-    { id: 'profile' as const, icon: User, label: 'Verification', action: 'verification-manage' as const },
+    { id: 'dashboard' as const, icon: Home, label: t('nav.home'), action: 'dashboard' as const },
+    { id: 'marketplace' as const, icon: Store, label: t('nav.market'), action: 'marketplace' as const },
+    { id: 'settings' as const, icon: Settings, label: t('nav.settings'), action: 'settings' as const },
+    { id: 'help' as const, icon: HelpCircle, label: t('nav.help'), action: 'help-support' as const },
+    { id: 'profile' as const, icon: User, label: t('nav.verification'), action: 'verification-manage' as const },
   ];
 
   return (

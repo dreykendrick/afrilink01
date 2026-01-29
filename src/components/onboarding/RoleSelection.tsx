@@ -1,4 +1,5 @@
 import { ArrowLeft, Store, Users, Compass } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
 interface RoleSelectionProps {
@@ -6,28 +7,30 @@ interface RoleSelectionProps {
   onBack?: () => void;
 }
 
-const roleCards = [
-  {
-    role: 'vendor' as const,
-    title: 'Join as Vendor',
-    description: 'List products, manage sales, and grow your brand across Africa.',
-    icon: Store,
-  },
-  {
-    role: 'affiliate' as const,
-    title: 'Join as Affiliate',
-    description: 'Promote products and earn commissions with every conversion.',
-    icon: Users,
-  },
-  {
-    role: 'browse' as const,
-    title: 'Browse Marketplace',
-    description: 'Explore products, commissions, and trends without signing in.',
-    icon: Compass,
-  },
-];
-
 export const RoleSelection = ({ onSelect, onBack, onLogin }: RoleSelectionProps & { onLogin?: () => void }) => {
+  const { t } = useTranslation();
+
+  const roleCards = [
+    {
+      role: 'vendor' as const,
+      title: t('roleSelection.vendor.title'),
+      description: t('roleSelection.vendor.description'),
+      icon: Store,
+    },
+    {
+      role: 'affiliate' as const,
+      title: t('roleSelection.affiliate.title'),
+      description: t('roleSelection.affiliate.description'),
+      icon: Users,
+    },
+    {
+      role: 'browse' as const,
+      title: t('roleSelection.browse.title'),
+      description: t('roleSelection.browse.description'),
+      icon: Compass,
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background px-4 py-10 sm:py-16">
       <div className="max-w-5xl mx-auto space-y-10">
@@ -35,14 +38,14 @@ export const RoleSelection = ({ onSelect, onBack, onLogin }: RoleSelectionProps 
           <div className="animate-in fade-in duration-500">
             <Button variant="ghost" size="sm" onClick={onBack} className="px-2">
               <ArrowLeft className="w-4 h-4 mr-1" />
-              Back
+              {t('common.back')}
             </Button>
           </div>
         )}
         <div className="text-center space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <h2 className="text-2xl sm:text-4xl font-bold text-foreground">Choose your AfriLink path</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold text-foreground">{t('roleSelection.title')}</h2>
           <p className="text-sm sm:text-lg text-muted-foreground">
-            Every journey is equal. Pick what matches your goals today.
+            {t('roleSelection.subtitle')}
           </p>
         </div>
         <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
@@ -68,13 +71,13 @@ export const RoleSelection = ({ onSelect, onBack, onLogin }: RoleSelectionProps 
         {/* Login option for existing accounts */}
         <div className="text-center pt-4 border-t border-border animate-in fade-in duration-700" style={{ animationDelay: '300ms' }}>
           <p className="text-sm text-muted-foreground">
-            Already have an account?{' '}
+            {t('auth.hasAccount')}{' '}
             <button
               type="button"
               onClick={onLogin}
               className="text-primary hover:underline font-semibold"
             >
-              Sign In
+              {t('auth.login')}
             </button>
           </p>
         </div>

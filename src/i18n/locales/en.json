@@ -1,0 +1,322 @@
+{
+  "common": {
+    "appName": "AfriLink",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "error": "Error",
+    "success": "Success",
+    "noData": "No data available",
+    "retry": "Retry"
+  },
+  "nav": {
+    "home": "Home",
+    "marketplace": "Marketplace",
+    "market": "Market",
+    "settings": "Settings",
+    "help": "Help",
+    "verification": "Verification",
+    "signOut": "Sign Out",
+    "darkMode": "Dark Mode",
+    "switchRole": "Switch Role",
+    "wallet": "Wallet Balance",
+    "withdraw": "Withdraw",
+    "noFunds": "No funds",
+    "active": "Active"
+  },
+  "auth": {
+    "login": "Log In",
+    "signup": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "orContinueWith": "Or continue with",
+    "verifyEmail": "Verify Your Email",
+    "checkInbox": "Check your inbox for a verification link",
+    "resendVerification": "Resend Verification Email"
+  },
+  "landing": {
+    "hero": {
+      "title": "Connect, Sell & Earn",
+      "subtitle": "Join Tanzania's premier marketplace connecting vendors with affiliates",
+      "ctaVendor": "Start Selling",
+      "ctaAffiliate": "Become an Affiliate",
+      "ctaBrowse": "Browse Products"
+    },
+    "features": {
+      "title": "Why AfriLink?",
+      "vendors": {
+        "title": "For Vendors",
+        "description": "List your products and reach thousands of customers through our affiliate network"
+      },
+      "affiliates": {
+        "title": "For Affiliates",
+        "description": "Promote products you love and earn commissions on every sale"
+      },
+      "buyers": {
+        "title": "For Buyers",
+        "description": "Discover unique products from trusted local sellers"
+      }
+    }
+  },
+  "roleSelection": {
+    "title": "Choose Your Path",
+    "subtitle": "How would you like to use AfriLink?",
+    "vendor": {
+      "title": "Become a Vendor",
+      "description": "List and sell your products to customers across Tanzania"
+    },
+    "affiliate": {
+      "title": "Become an Affiliate",
+      "description": "Promote products and earn commissions on every sale"
+    },
+    "browse": {
+      "title": "Browse Marketplace",
+      "description": "Explore products without signing up"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "overview": "Overview",
+    "products": "Products",
+    "orders": "Orders",
+    "earnings": "Earnings",
+    "wallet": "Wallet",
+    "stats": {
+      "totalSales": "Total Sales",
+      "totalOrders": "Total Orders",
+      "pendingOrders": "Pending Orders",
+      "totalProducts": "Total Products",
+      "walletBalance": "Wallet Balance",
+      "commissionsEarned": "Commissions Earned",
+      "clicks": "Link Clicks",
+      "conversions": "Conversions",
+      "allTime": "All-time",
+      "thisMonth": "This month"
+    },
+    "vendor": {
+      "title": "Vendor Dashboard",
+      "addProduct": "Add Product",
+      "manageProducts": "Manage Products",
+      "viewOrders": "View Orders",
+      "noProducts": "You haven't added any products yet",
+      "startSelling": "Start by adding a product to get approved and go live"
+    },
+    "affiliate": {
+      "title": "Affiliate Dashboard",
+      "myLinks": "My Links",
+      "generateLink": "Generate Link",
+      "copyLink": "Copy Link",
+      "linkCopied": "Link copied to clipboard!",
+      "noLinks": "You haven't created any affiliate links yet"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account preferences",
+    "tabs": {
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "appearance": "Appearance",
+      "security": "Security"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "description": "Update your personal information",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "saveChanges": "Save Changes",
+      "saved": "Profile updated successfully!"
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "description": "Choose what notifications you receive",
+      "email": "Email Notifications",
+      "emailDesc": "Receive notifications via email",
+      "push": "Push Notifications",
+      "pushDesc": "Receive push notifications in browser",
+      "orders": "Order Updates",
+      "ordersDesc": "Get notified about order status changes",
+      "marketing": "Marketing Emails",
+      "marketingDesc": "Receive marketing and promotional emails",
+      "promotions": "Promotional Alerts",
+      "promotionsDesc": "Get alerts for deals and promotions"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize how AfriLink looks",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "language": "Language"
+    },
+    "security": {
+      "title": "Security",
+      "description": "Manage your security settings",
+      "changePassword": "Change Password",
+      "changePasswordDesc": "Update your password regularly for security",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorDesc": "Add an extra layer of security to your account",
+      "enable2FA": "Enable 2FA",
+      "dangerZone": "Danger Zone",
+      "deleteAccount": "Delete Account",
+      "deleteAccountDesc": "Permanently delete your account and all data"
+    }
+  },
+  "verification": {
+    "title": "Account Verification",
+    "subtitle": "Complete these steps to get verified",
+    "status": {
+      "verified": "Verified",
+      "pending": "Under Review",
+      "unverified": "Not Verified",
+      "rejected": "Rejected"
+    },
+    "steps": {
+      "email": "Email Verification",
+      "phone": "Phone Verification",
+      "photo": "Photo Verification",
+      "business": "Business Verification"
+    },
+    "reviewNote": "Reviews usually take up to 24 hours"
+  },
+  "marketplace": {
+    "title": "Marketplace",
+    "search": "Search products...",
+    "categories": "Categories",
+    "allCategories": "All Categories",
+    "noProducts": "No products found",
+    "addToCart": "Add to Cart",
+    "viewDetails": "View Details",
+    "filters": {
+      "sortBy": "Sort By",
+      "priceRange": "Price Range",
+      "newest": "Newest",
+      "priceLowHigh": "Price: Low to High",
+      "priceHighLow": "Price: High to Low"
+    }
+  },
+  "product": {
+    "price": "Price",
+    "commission": "Commission",
+    "description": "Description",
+    "category": "Category",
+    "vendor": "Vendor",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Delivery Fee",
+    "checkout": "Checkout",
+    "continueShopping": "Continue Shopping",
+    "remove": "Remove",
+    "quantity": "Quantity"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "customerInfo": "Customer Information",
+    "name": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "delivery": "Delivery Options",
+    "pickup": "Pick Up",
+    "homeDelivery": "Home Delivery",
+    "address": "Delivery Address",
+    "city": "City",
+    "placeOrder": "Place Order",
+    "processing": "Processing..."
+  },
+  "help": {
+    "title": "Help & Support",
+    "subtitle": "How can we help you?",
+    "searchPlaceholder": "Search for help...",
+    "quickActions": "Quick Actions",
+    "whatsapp": "WhatsApp",
+    "whatsappDesc": "Chat with us",
+    "call": "Call Us",
+    "email": "Email Support",
+    "emailDesc": "Send us a message",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "howToSell": "How do I start selling?",
+      "howToSellAnswer": "Sign up as a vendor, complete your profile, and add your products. Once approved, your products will be visible in the marketplace.",
+      "howToEarn": "How do I earn as an affiliate?",
+      "howToEarnAnswer": "Sign up as an affiliate, browse products, generate your unique affiliate links, and share them. You earn a commission on every sale made through your link.",
+      "howToWithdraw": "How do I withdraw my earnings?",
+      "howToWithdrawAnswer": "Go to your dashboard, check your wallet balance, and click withdraw. Choose your preferred payment method and enter the details."
+    }
+  },
+  "onboarding": {
+    "vendor": {
+      "title": "Set Up Your Vendor Profile",
+      "businessName": "Business Name",
+      "businessNamePlaceholder": "Enter your business name",
+      "vendorType": "Vendor Type",
+      "selectType": "Select vendor type",
+      "individual": "Individual Seller",
+      "business": "Registered Business",
+      "logo": "Business Logo",
+      "uploadLogo": "Upload Logo",
+      "about": "About Your Business",
+      "aboutPlaceholder": "Tell customers about your business...",
+      "location": "Location",
+      "city": "City",
+      "country": "Country",
+      "pickupLocation": "Pickup Location",
+      "pickupPlaceholder": "Enter your pickup address",
+      "submit": "Complete Setup"
+    },
+    "affiliate": {
+      "title": "Set Up Your Affiliate Profile",
+      "displayName": "Display Name",
+      "displayNamePlaceholder": "Enter your display name",
+      "avatar": "Profile Picture",
+      "uploadAvatar": "Upload Picture",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about yourself...",
+      "submit": "Complete Setup"
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Connection issue. Please check your internet.",
+    "unauthorized": "Please log in to continue.",
+    "notFound": "The requested resource was not found.",
+    "validation": "Please check your input and try again."
+  },
+  "withdraw": {
+    "title": "Withdraw Funds",
+    "amount": "Amount",
+    "availableBalance": "Available Balance",
+    "paymentMethod": "Payment Method",
+    "mobileMoneyNumber": "Mobile Money Number",
+    "bankAccount": "Bank Account Number",
+    "processing": "Processing...",
+    "submit": "Request Withdrawal",
+    "success": "Withdrawal request submitted!",
+    "minAmount": "Minimum withdrawal amount is"
+  }
+}

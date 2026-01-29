@@ -1,4 +1,5 @@
 import { ShoppingCart, DollarSign, Link2, Wallet, Package, TrendingUp, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 
@@ -9,6 +10,7 @@ interface LandingPageProps {
 }
 
 export const LandingPage = ({ products, onNavigate, onLogin }: LandingPageProps) => {
+  const { t } = useTranslation();
 
   const features = [
     {
@@ -37,7 +39,7 @@ export const LandingPage = ({ products, onNavigate, onLogin }: LandingPageProps)
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-primary rounded-lg sm:rounded-xl flex items-center justify-center shadow-glow">
                 <ShoppingCart className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <span className="text-xl sm:text-2xl font-bold text-foreground">AfriLink</span>
+              <span className="text-xl sm:text-2xl font-bold text-foreground">{t('common.appName')}</span>
             </div>
             
             {/* Desktop Sign In */}
@@ -45,7 +47,7 @@ export const LandingPage = ({ products, onNavigate, onLogin }: LandingPageProps)
               onClick={() => onNavigate('login')}
               className="hidden sm:block px-6 py-2 bg-gradient-primary text-white rounded-lg font-semibold hover:shadow-glow transition-all duration-300"
             >
-              Sign In
+              {t('auth.login')}
             </button>
 
             {/* Mobile Sign In Button */}
@@ -63,13 +65,13 @@ export const LandingPage = ({ products, onNavigate, onLogin }: LandingPageProps)
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20">
         <div className="text-center">
           <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-foreground mb-4 sm:mb-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            Africa's Premier
+            {t('landing.hero.title')}
             <span className="block bg-gradient-to-r from-afrilink-amber to-afrilink-orange bg-clip-text text-transparent">
-              Affiliate Marketplace
+              {t('landing.hero.subtitle').split(' ').slice(0, 3).join(' ')}
             </span>
           </h1>
           <p className="text-base sm:text-xl text-foreground/70 mb-8 sm:mb-12 max-w-2xl mx-auto px-2 animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-200">
-            Connect vendors, affiliates, and consumers. Automated payment splits with M-Pesa, Airtel Money & TigoPesa.
+            {t('landing.hero.subtitle')}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center px-2 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
             <button
@@ -77,21 +79,21 @@ export const LandingPage = ({ products, onNavigate, onLogin }: LandingPageProps)
               className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-primary text-white rounded-xl font-semibold hover:shadow-glow transition-all duration-300 flex items-center justify-center space-x-2 group"
             >
               <Package className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Start Selling</span>
+              <span>{t('landing.hero.ctaVendor')}</span>
             </button>
             <button
               onClick={() => onNavigate('role-selection')}
               className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-primary text-white rounded-xl font-semibold hover:shadow-glow transition-all duration-300 flex items-center justify-center space-x-2 group"
             >
               <TrendingUp className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Become Affiliate</span>
+              <span>{t('landing.hero.ctaAffiliate')}</span>
             </button>
             <button
               onClick={() => onNavigate('marketplace')}
               className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-primary text-white rounded-xl font-semibold hover:shadow-glow transition-all duration-300 flex items-center justify-center space-x-2 group"
             >
               <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Browse Products</span>
+              <span>{t('landing.hero.ctaBrowse')}</span>
             </button>
           </div>
         </div>
@@ -113,7 +115,7 @@ export const LandingPage = ({ products, onNavigate, onLogin }: LandingPageProps)
         </div>
 
         <div className="mt-12 sm:mt-24">
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 text-center">Featured Products</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 text-center">{t('marketplace.title')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {products.map((product, i) => (
               <div
@@ -127,7 +129,7 @@ export const LandingPage = ({ products, onNavigate, onLogin }: LandingPageProps)
                   <h3 className="text-base sm:text-lg font-bold text-foreground mb-2">{product.title}</h3>
                   <div className="flex justify-between items-center">
                     <span className="text-xl sm:text-2xl font-bold text-primary">{formatCurrency(product.price)}</span>
-                    <span className="text-xs sm:text-sm text-afrilink-green font-medium">{product.commission}% commission</span>
+                    <span className="text-xs sm:text-sm text-afrilink-green font-medium">{product.commission}% {t('product.commission').toLowerCase()}</span>
                   </div>
                 </div>
               </div>
