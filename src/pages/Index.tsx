@@ -100,6 +100,7 @@ const IndexContent = () => {
     return urlState.role;
   });
   const [postGrabProductId, setPostGrabProductId] = useState<string | null>(null);
+  const [isGuestBrowsing, setIsGuestBrowsing] = useState(false); // Track if user entered marketplace from role-selection
 
   // Bug Fix C: Wrapper to update view and URL together
   const setView = useCallback((newView: View, role?: 'vendor' | 'affiliate' | null) => {
@@ -618,6 +619,7 @@ const IndexContent = () => {
       <RoleSelection
         onSelect={(role) => {
           if (role === 'browse') {
+            setIsGuestBrowsing(true); // Mark as guest browsing
             handleNavigate('marketplace');
             return;
           }
@@ -880,7 +882,7 @@ const IndexContent = () => {
           categories={categories}
           onCartClick={() => setCartOpen(true)}
           onLogin={() => handleNavigate('login')}
-          onBack={!user ? () => setView('role-selection') : undefined}
+          onBack={isGuestBrowsing ? () => { setIsGuestBrowsing(false); setView('role-selection'); } : undefined}
           commissionFilter={commissionFilter}
           setCommissionFilter={setCommissionFilter}
           priceFilter={priceFilter}
