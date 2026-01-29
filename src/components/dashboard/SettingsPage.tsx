@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from 'next-themes';
+import { useTranslation } from 'react-i18next';
 import { 
   ArrowLeft, 
   User, 
@@ -25,6 +26,7 @@ import { User as UserType } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getUserFriendlyError } from '@/utils/errorMessages';
+import { languages, type LanguageCode } from '@/i18n/config';
 
 interface SettingsPageProps {
   currentUser: UserType;
@@ -34,9 +36,16 @@ interface SettingsPageProps {
 
 export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPageProps) => {
   const { theme, setTheme } = useTheme();
+  const { t, i18n } = useTranslation();
   const [saving, setSaving] = useState(false);
   const [fullName, setFullName] = useState(currentUser.name);
   const [phone, setPhone] = useState('');
+  const currentLanguage = (i18n.language?.substring(0, 2) || 'en') as LanguageCode;
+
+  const handleLanguageChange = (langCode: string) => {
+    i18n.changeLanguage(langCode);
+    toast.success(t('settings.profile.saved'));
+  };
   
   // Notification preferences
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -297,16 +306,17 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
                 </div>
 
                 <div className="space-y-3 sm:space-y-4">
-                  <Label className="text-sm sm:text-base">Language</Label>
-                  <Select defaultValue="en">
+                  <Label className="text-sm sm:text-base">{t('settings.appearance.language')}</Label>
+                  <Select value={currentLanguage} onValueChange={handleLanguageChange}>
                     <SelectTrigger className="w-full bg-secondary/50 h-12 sm:h-10">
-                      <SelectValue placeholder="Select language" />
+                      <SelectValue placeholder={t('settings.appearance.language')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="fr">Français</SelectItem>
-                      <SelectItem value="sw">Swahili</SelectItem>
-                      <SelectItem value="ar">العربية</SelectItem>
+                      {languages.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          {lang.nativeName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

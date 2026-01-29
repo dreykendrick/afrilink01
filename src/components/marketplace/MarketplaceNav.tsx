@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShoppingCart, Search, Filter, ChevronDown, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -32,6 +33,7 @@ export const MarketplaceNav = ({
   priceFilter,
   setPriceFilter
 }: MarketplaceNavProps) => {
+  const { t } = useTranslation();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { totalItems } = useCart();
 
@@ -46,13 +48,13 @@ export const MarketplaceNav = ({
               <button
                 onClick={onBack}
                 className="p-2 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-                aria-label="Go back"
+                aria-label={t('common.back')}
               >
                 <ArrowLeft className="w-5 h-5 text-foreground" />
               </button>
             )}
             <h1 className="text-xl sm:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap">
-              AfriLink
+              {t('common.appName')}
             </h1>
           </div>
           
@@ -60,7 +62,7 @@ export const MarketplaceNav = ({
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t('marketplace.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-foreground placeholder:text-muted-foreground transition-all"
@@ -100,7 +102,7 @@ export const MarketplaceNav = ({
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder={t('marketplace.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary text-foreground placeholder:text-muted-foreground"
@@ -112,13 +114,13 @@ export const MarketplaceNav = ({
           <div className="mt-4 p-4 bg-card rounded-xl border border-border animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Commission</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('product.commission')}</label>
                 <Select value={commissionFilter} onValueChange={setCommissionFilter}>
                   <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="All" />
+                    <SelectValue placeholder={t('marketplace.allCategories')} />
                   </SelectTrigger>
                   <SelectContent className="bg-card border-border">
-                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="all">{t('marketplace.allCategories')}</SelectItem>
                     <SelectItem value="5+">5%+</SelectItem>
                     <SelectItem value="10+">10%+</SelectItem>
                     <SelectItem value="15+">15%+</SelectItem>
@@ -127,13 +129,13 @@ export const MarketplaceNav = ({
                 </Select>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Price Range</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('marketplace.filters.priceRange')}</label>
                 <Select value={priceFilter} onValueChange={setPriceFilter}>
                   <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="All" />
+                    <SelectValue placeholder={t('marketplace.allCategories')} />
                   </SelectTrigger>
                   <SelectContent className="bg-card border-border">
-                    <SelectItem value="all">All Prices</SelectItem>
+                    <SelectItem value="all">{t('marketplace.allCategories')}</SelectItem>
                     <SelectItem value="0-50000">Under 50,000 Tsh</SelectItem>
                     <SelectItem value="50000-100000">50,000 - 100,000 Tsh</SelectItem>
                     <SelectItem value="100000-500000">100,000 - 500,000 Tsh</SelectItem>
@@ -150,7 +152,7 @@ export const MarketplaceNav = ({
                 }}
                 className="mt-3 text-xs text-primary hover:underline"
               >
-                Clear all filters
+                {t('common.cancel')}
               </button>
             )}
           </div>

@@ -1,0 +1,322 @@
+{
+  "common": {
+    "appName": "AfriLink",
+    "loading": "Inapakia...",
+    "save": "Hifadhi",
+    "cancel": "Ghairi",
+    "back": "Rudi",
+    "next": "Endelea",
+    "submit": "Wasilisha",
+    "delete": "Futa",
+    "edit": "Hariri",
+    "view": "Tazama",
+    "search": "Tafuta",
+    "filter": "Chuja",
+    "close": "Funga",
+    "yes": "Ndiyo",
+    "no": "Hapana",
+    "error": "Kosa",
+    "success": "Imefanikiwa",
+    "noData": "Hakuna taarifa",
+    "retry": "Jaribu tena"
+  },
+  "nav": {
+    "home": "Nyumbani",
+    "marketplace": "Soko",
+    "market": "Soko",
+    "settings": "Mipangilio",
+    "help": "Msaada",
+    "verification": "Uthibitisho",
+    "signOut": "Ondoka",
+    "darkMode": "Hali ya Giza",
+    "switchRole": "Badilisha Jukumu",
+    "wallet": "Salio la Pochi",
+    "withdraw": "Toa Pesa",
+    "noFunds": "Hakuna fedha",
+    "active": "Inatumika"
+  },
+  "auth": {
+    "login": "Ingia",
+    "signup": "Jisajili",
+    "email": "Barua pepe",
+    "password": "Nenosiri",
+    "confirmPassword": "Thibitisha Nenosiri",
+    "forgotPassword": "Umesahau Nenosiri?",
+    "resetPassword": "Weka Upya Nenosiri",
+    "noAccount": "Huna akaunti?",
+    "hasAccount": "Una akaunti tayari?",
+    "orContinueWith": "Au endelea na",
+    "verifyEmail": "Thibitisha Barua Pepe Yako",
+    "checkInbox": "Angalia kikasha chako kwa kiungo cha uthibitisho",
+    "resendVerification": "Tuma Tena Barua ya Uthibitisho"
+  },
+  "landing": {
+    "hero": {
+      "title": "Unganika, Uza na Pata",
+      "subtitle": "Jiunge na soko kuu la Tanzania linaloungananisha wauzaji na washirika",
+      "ctaVendor": "Anza Kuuza",
+      "ctaAffiliate": "Kuwa Mshirika",
+      "ctaBrowse": "Vinjari Bidhaa"
+    },
+    "features": {
+      "title": "Kwa Nini AfriLink?",
+      "vendors": {
+        "title": "Kwa Wauzaji",
+        "description": "Orodhesha bidhaa zako na ufikie maelfu ya wateja kupitia mtandao wetu wa washirika"
+      },
+      "affiliates": {
+        "title": "Kwa Washirika",
+        "description": "Tangaza bidhaa unazozipenda na upate kamisheni kwa kila mauzo"
+      },
+      "buyers": {
+        "title": "Kwa Wanunuzi",
+        "description": "Gundua bidhaa za kipekee kutoka kwa wauzaji wa ndani wanaoaminika"
+      }
+    }
+  },
+  "roleSelection": {
+    "title": "Chagua Njia Yako",
+    "subtitle": "Ungependa kutumia AfriLink vipi?",
+    "vendor": {
+      "title": "Kuwa Muuzaji",
+      "description": "Orodhesha na uuze bidhaa zako kwa wateja kote Tanzania"
+    },
+    "affiliate": {
+      "title": "Kuwa Mshirika",
+      "description": "Tangaza bidhaa na upate kamisheni kwa kila mauzo"
+    },
+    "browse": {
+      "title": "Vinjari Soko",
+      "description": "Chunguza bidhaa bila kujisajili"
+    }
+  },
+  "dashboard": {
+    "welcome": "Karibu tena",
+    "overview": "Muhtasari",
+    "products": "Bidhaa",
+    "orders": "Maagizo",
+    "earnings": "Mapato",
+    "wallet": "Pochi",
+    "stats": {
+      "totalSales": "Mauzo Yote",
+      "totalOrders": "Maagizo Yote",
+      "pendingOrders": "Maagizo Yanayosubiri",
+      "totalProducts": "Bidhaa Zote",
+      "walletBalance": "Salio la Pochi",
+      "commissionsEarned": "Kamisheni Zilizopatikana",
+      "clicks": "Mibofyo ya Viungo",
+      "conversions": "Ubadilishaji",
+      "allTime": "Wakati wote",
+      "thisMonth": "Mwezi huu"
+    },
+    "vendor": {
+      "title": "Dashibodi ya Muuzaji",
+      "addProduct": "Ongeza Bidhaa",
+      "manageProducts": "Simamia Bidhaa",
+      "viewOrders": "Tazama Maagizo",
+      "noProducts": "Bado hujaongeza bidhaa yoyote",
+      "startSelling": "Anza kwa kuongeza bidhaa ili uidhinishwe na kuanza"
+    },
+    "affiliate": {
+      "title": "Dashibodi ya Mshirika",
+      "myLinks": "Viungo Vyangu",
+      "generateLink": "Tengeneza Kiungo",
+      "copyLink": "Nakili Kiungo",
+      "linkCopied": "Kiungo kimenakiliwa!",
+      "noLinks": "Bado hujaunda viungo vya washirika"
+    }
+  },
+  "settings": {
+    "title": "Mipangilio",
+    "subtitle": "Simamia mapendeleo ya akaunti yako",
+    "tabs": {
+      "profile": "Wasifu",
+      "notifications": "Arifa",
+      "appearance": "Mwonekano",
+      "security": "Usalama"
+    },
+    "profile": {
+      "title": "Taarifa za Wasifu",
+      "description": "Sasisha taarifa zako binafsi",
+      "fullName": "Jina Kamili",
+      "email": "Barua Pepe",
+      "phone": "Nambari ya Simu",
+      "saveChanges": "Hifadhi Mabadiliko",
+      "saved": "Wasifu umesasishwa!"
+    },
+    "notifications": {
+      "title": "Mapendeleo ya Arifa",
+      "description": "Chagua arifa unazopokea",
+      "email": "Arifa za Barua Pepe",
+      "emailDesc": "Pokea arifa kupitia barua pepe",
+      "push": "Arifa za Push",
+      "pushDesc": "Pokea arifa za push kwenye kivinjari",
+      "orders": "Sasisho za Maagizo",
+      "ordersDesc": "Arifiwa kuhusu mabadiliko ya hali ya agizo",
+      "marketing": "Barua za Masoko",
+      "marketingDesc": "Pokea barua za masoko na matangazo",
+      "promotions": "Arifa za Ofa",
+      "promotionsDesc": "Pokea arifa za ofa na punguzo"
+    },
+    "appearance": {
+      "title": "Mwonekano",
+      "description": "Badilisha mwonekano wa AfriLink",
+      "theme": "Mandhari",
+      "light": "Mwanga",
+      "dark": "Giza",
+      "system": "Mfumo",
+      "language": "Lugha"
+    },
+    "security": {
+      "title": "Usalama",
+      "description": "Simamia mipangilio ya usalama",
+      "changePassword": "Badilisha Nenosiri",
+      "changePasswordDesc": "Sasisha nenosiri lako mara kwa mara kwa usalama",
+      "twoFactor": "Uthibitisho wa Hatua Mbili",
+      "twoFactorDesc": "Ongeza safu ya ziada ya usalama kwa akaunti yako",
+      "enable2FA": "Washa 2FA",
+      "dangerZone": "Eneo la Hatari",
+      "deleteAccount": "Futa Akaunti",
+      "deleteAccountDesc": "Futa akaunti yako na data zote milele"
+    }
+  },
+  "verification": {
+    "title": "Uthibitisho wa Akaunti",
+    "subtitle": "Kamilisha hatua hizi ili uthibitishwe",
+    "status": {
+      "verified": "Imethibitishwa",
+      "pending": "Inakaguliwa",
+      "unverified": "Haijathibitishwa",
+      "rejected": "Imekataliwa"
+    },
+    "steps": {
+      "email": "Uthibitisho wa Barua Pepe",
+      "phone": "Uthibitisho wa Simu",
+      "photo": "Uthibitisho wa Picha",
+      "business": "Uthibitisho wa Biashara"
+    },
+    "reviewNote": "Ukaguzi kawaida huchukua hadi masaa 24"
+  },
+  "marketplace": {
+    "title": "Soko",
+    "search": "Tafuta bidhaa...",
+    "categories": "Kategoria",
+    "allCategories": "Kategoria Zote",
+    "noProducts": "Hakuna bidhaa zilizopatikana",
+    "addToCart": "Ongeza Kwenye Kikapu",
+    "viewDetails": "Tazama Maelezo",
+    "filters": {
+      "sortBy": "Panga Kwa",
+      "priceRange": "Kiwango cha Bei",
+      "newest": "Mpya Zaidi",
+      "priceLowHigh": "Bei: Chini hadi Juu",
+      "priceHighLow": "Bei: Juu hadi Chini"
+    }
+  },
+  "product": {
+    "price": "Bei",
+    "commission": "Kamisheni",
+    "description": "Maelezo",
+    "category": "Kategoria",
+    "vendor": "Muuzaji",
+    "addToCart": "Ongeza Kwenye Kikapu",
+    "buyNow": "Nunua Sasa",
+    "outOfStock": "Haipo Stokini",
+    "inStock": "Ipo Stokini"
+  },
+  "cart": {
+    "title": "Kikapu Chako",
+    "empty": "Kikapu chako ni tupu",
+    "total": "Jumla",
+    "subtotal": "Jumla Ndogo",
+    "deliveryFee": "Ada ya Usafirishaji",
+    "checkout": "Lipia",
+    "continueShopping": "Endelea Kununua",
+    "remove": "Ondoa",
+    "quantity": "Idadi"
+  },
+  "checkout": {
+    "title": "Lipia",
+    "customerInfo": "Taarifa za Mteja",
+    "name": "Jina Kamili",
+    "email": "Barua Pepe",
+    "phone": "Nambari ya Simu",
+    "delivery": "Chaguo za Usafirishaji",
+    "pickup": "Chukua Mwenyewe",
+    "homeDelivery": "Peleka Nyumbani",
+    "address": "Anwani ya Usafirishaji",
+    "city": "Jiji",
+    "placeOrder": "Weka Agizo",
+    "processing": "Inashughulika..."
+  },
+  "help": {
+    "title": "Msaada na Usaidizi",
+    "subtitle": "Tunawezaje kukusaidia?",
+    "searchPlaceholder": "Tafuta msaada...",
+    "quickActions": "Vitendo vya Haraka",
+    "whatsapp": "WhatsApp",
+    "whatsappDesc": "Ongea nasi",
+    "call": "Tupigie Simu",
+    "email": "Msaada wa Barua Pepe",
+    "emailDesc": "Tutumie ujumbe",
+    "faq": {
+      "title": "Maswali Yanayoulizwa Mara kwa Mara",
+      "howToSell": "Ninaanzaje kuuza?",
+      "howToSellAnswer": "Jisajili kama muuzaji, kamilisha wasifu wako, na uongeze bidhaa zako. Ukishaidhinishwa, bidhaa zako zitaonekana sokoni.",
+      "howToEarn": "Ninapata vipi kama mshirika?",
+      "howToEarnAnswer": "Jisajili kama mshirika, vinjari bidhaa, tengeneza viungo vyako vya kipekee, na uvishiriki. Unapata kamisheni kwa kila mauzo yanayofanywa kupitia kiungo chako.",
+      "howToWithdraw": "Ninatoa vipi mapato yangu?",
+      "howToWithdrawAnswer": "Nenda kwenye dashibodi yako, angalia salio la pochi yako, na ubonyeze toa pesa. Chagua njia yako ya malipo unayoipendelea na uweke maelezo."
+    }
+  },
+  "onboarding": {
+    "vendor": {
+      "title": "Weka Wasifu Wako wa Muuzaji",
+      "businessName": "Jina la Biashara",
+      "businessNamePlaceholder": "Ingiza jina la biashara yako",
+      "vendorType": "Aina ya Muuzaji",
+      "selectType": "Chagua aina ya muuzaji",
+      "individual": "Muuzaji Binafsi",
+      "business": "Biashara Iliyosajiliwa",
+      "logo": "Nembo ya Biashara",
+      "uploadLogo": "Pakia Nembo",
+      "about": "Kuhusu Biashara Yako",
+      "aboutPlaceholder": "Waambie wateja kuhusu biashara yako...",
+      "location": "Mahali",
+      "city": "Jiji",
+      "country": "Nchi",
+      "pickupLocation": "Mahali pa Kuchukua",
+      "pickupPlaceholder": "Ingiza anwani yako ya kuchukua",
+      "submit": "Kamilisha Usanidi"
+    },
+    "affiliate": {
+      "title": "Weka Wasifu Wako wa Mshirika",
+      "displayName": "Jina la Kuonyesha",
+      "displayNamePlaceholder": "Ingiza jina lako la kuonyesha",
+      "avatar": "Picha ya Wasifu",
+      "uploadAvatar": "Pakia Picha",
+      "bio": "Wasifu",
+      "bioPlaceholder": "Tuambie kuhusu wewe mwenyewe...",
+      "submit": "Kamilisha Usanidi"
+    }
+  },
+  "errors": {
+    "generic": "Kuna tatizo limetokea. Tafadhali jaribu tena.",
+    "network": "Tatizo la muunganisho. Tafadhali angalia mtandao wako.",
+    "unauthorized": "Tafadhali ingia ili kuendelea.",
+    "notFound": "Rasilimali iliyoombwa haijapatikana.",
+    "validation": "Tafadhali angalia maingizo yako na ujaribu tena."
+  },
+  "withdraw": {
+    "title": "Toa Fedha",
+    "amount": "Kiasi",
+    "availableBalance": "Salio Linalopatikana",
+    "paymentMethod": "Njia ya Malipo",
+    "mobileMoneyNumber": "Nambari ya Pesa za Simu",
+    "bankAccount": "Nambari ya Akaunti ya Benki",
+    "processing": "Inashughulika...",
+    "submit": "Omba Kutoa",
+    "success": "Ombi la kutoa limewasilishwa!",
+    "minAmount": "Kiwango cha chini cha kutoa ni"
+  }
+}

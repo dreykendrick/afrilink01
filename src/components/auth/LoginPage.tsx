@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShoppingCart, Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,17 +13,18 @@ interface LoginPageProps {
   onNavigate: (view: string) => void;
 }
 
-const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
 export const LoginPage = ({ onNavigate }: LoginPageProps) => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const loginSchema = z.object({
+    email: z.string().email(t('errors.validation')),
+    password: z.string().min(6, t('errors.validation')),
+  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +33,7 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
     const validation = loginSchema.safeParse({ email, password });
     if (!validation.success) {
       toast({
-        title: 'Validation Error',
+        title: t('common.error'),
         description: validation.error.errors[0].message,
         variant: 'destructive',
       });
@@ -49,19 +51,19 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           toast({
-            title: 'Login Failed',
-            description: 'Invalid email or password. Please try again.',
+            title: t('common.error'),
+            description: t('errors.validation'),
             variant: 'destructive',
           });
         } else if (error.message.includes('Email not confirmed')) {
           toast({
-            title: 'Email Not Verified',
-            description: 'Please check your email and verify your account.',
+            title: t('auth.verifyEmail'),
+            description: t('auth.checkInbox'),
             variant: 'destructive',
           });
         } else {
           toast({
-            title: 'Login Failed',
+            title: t('common.error'),
             description: getUserFriendlyError(error.message),
             variant: 'destructive',
           });
@@ -71,14 +73,14 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
 
       if (data.user) {
         toast({
-          title: 'Welcome back!',
-          description: 'You have successfully logged in.',
+          title: t('common.success'),
+          description: t('dashboard.welcome') + '!',
         });
         onNavigate('dashboard');
       }
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: t('common.error'),
         description: getUserFriendlyError(error),
         variant: 'destructive',
       });
@@ -95,13 +97,13 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
             <div className="w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4 shadow-glow">
               <ShoppingCart className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-foreground">Welcome Back</h2>
-            <p className="text-muted-foreground mt-2">Sign in to your account</p>
+            <h2 className="text-3xl font-bold text-foreground">{t('dashboard.welcome')}</h2>
+            <p className="text-muted-foreground mt-2">{t('auth.login')}</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -117,7 +119,7 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -147,10 +149,10 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Signing in...
+                  {t('common.loading')}
                 </>
               ) : (
-                'Sign In'
+                t('auth.login')
               )}
             </Button>
           </form>
@@ -160,23 +162,23 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
               onClick={() => onNavigate('landing')}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              ← Back to Home
+              ← {t('common.back')}
             </button>
             <button
               onClick={() => onNavigate('forgot-password')}
               className="text-sm text-primary hover:underline"
             >
-              Forgot Password?
+              {t('auth.forgotPassword')}
             </button>
           </div>
 
           <div className="text-center text-sm mt-4 pt-4 border-t border-border">
-            Don't have an account?{' '}
+            {t('auth.noAccount')}{' '}
             <button
               onClick={() => onNavigate('role-selection')}
               className="text-primary hover:underline font-semibold"
             >
-              Sign Up
+              {t('auth.signup')}
             </button>
           </div>
         </div>

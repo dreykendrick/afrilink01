@@ -1,0 +1,322 @@
+{
+  "common": {
+    "appName": "AfriLink",
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Soumettre",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "error": "Erreur",
+    "success": "Succès",
+    "noData": "Aucune donnée disponible",
+    "retry": "Réessayer"
+  },
+  "nav": {
+    "home": "Accueil",
+    "marketplace": "Marché",
+    "market": "Marché",
+    "settings": "Paramètres",
+    "help": "Aide",
+    "verification": "Vérification",
+    "signOut": "Déconnexion",
+    "darkMode": "Mode Sombre",
+    "switchRole": "Changer de Rôle",
+    "wallet": "Solde du Portefeuille",
+    "withdraw": "Retirer",
+    "noFunds": "Pas de fonds",
+    "active": "Actif"
+  },
+  "auth": {
+    "login": "Connexion",
+    "signup": "Inscription",
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "forgotPassword": "Mot de passe oublié?",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "noAccount": "Pas de compte?",
+    "hasAccount": "Déjà un compte?",
+    "orContinueWith": "Ou continuer avec",
+    "verifyEmail": "Vérifiez votre email",
+    "checkInbox": "Consultez votre boîte de réception pour le lien de vérification",
+    "resendVerification": "Renvoyer l'email de vérification"
+  },
+  "landing": {
+    "hero": {
+      "title": "Connectez, Vendez et Gagnez",
+      "subtitle": "Rejoignez le premier marché de Tanzanie connectant vendeurs et affiliés",
+      "ctaVendor": "Commencer à Vendre",
+      "ctaAffiliate": "Devenir Affilié",
+      "ctaBrowse": "Parcourir les Produits"
+    },
+    "features": {
+      "title": "Pourquoi AfriLink?",
+      "vendors": {
+        "title": "Pour les Vendeurs",
+        "description": "Listez vos produits et atteignez des milliers de clients via notre réseau d'affiliés"
+      },
+      "affiliates": {
+        "title": "Pour les Affiliés",
+        "description": "Promouvez les produits que vous aimez et gagnez des commissions sur chaque vente"
+      },
+      "buyers": {
+        "title": "Pour les Acheteurs",
+        "description": "Découvrez des produits uniques de vendeurs locaux de confiance"
+      }
+    }
+  },
+  "roleSelection": {
+    "title": "Choisissez Votre Voie",
+    "subtitle": "Comment souhaitez-vous utiliser AfriLink?",
+    "vendor": {
+      "title": "Devenir Vendeur",
+      "description": "Listez et vendez vos produits aux clients à travers la Tanzanie"
+    },
+    "affiliate": {
+      "title": "Devenir Affilié",
+      "description": "Promouvez des produits et gagnez des commissions sur chaque vente"
+    },
+    "browse": {
+      "title": "Parcourir le Marché",
+      "description": "Explorez les produits sans vous inscrire"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenue",
+    "overview": "Aperçu",
+    "products": "Produits",
+    "orders": "Commandes",
+    "earnings": "Revenus",
+    "wallet": "Portefeuille",
+    "stats": {
+      "totalSales": "Ventes Totales",
+      "totalOrders": "Commandes Totales",
+      "pendingOrders": "Commandes en Attente",
+      "totalProducts": "Total Produits",
+      "walletBalance": "Solde du Portefeuille",
+      "commissionsEarned": "Commissions Gagnées",
+      "clicks": "Clics sur les Liens",
+      "conversions": "Conversions",
+      "allTime": "Depuis toujours",
+      "thisMonth": "Ce mois"
+    },
+    "vendor": {
+      "title": "Tableau de Bord Vendeur",
+      "addProduct": "Ajouter un Produit",
+      "manageProducts": "Gérer les Produits",
+      "viewOrders": "Voir les Commandes",
+      "noProducts": "Vous n'avez pas encore ajouté de produits",
+      "startSelling": "Commencez par ajouter un produit pour être approuvé et publié"
+    },
+    "affiliate": {
+      "title": "Tableau de Bord Affilié",
+      "myLinks": "Mes Liens",
+      "generateLink": "Générer un Lien",
+      "copyLink": "Copier le Lien",
+      "linkCopied": "Lien copié!",
+      "noLinks": "Vous n'avez pas encore créé de liens d'affiliation"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez les préférences de votre compte",
+    "tabs": {
+      "profile": "Profil",
+      "notifications": "Notifications",
+      "appearance": "Apparence",
+      "security": "Sécurité"
+    },
+    "profile": {
+      "title": "Informations du Profil",
+      "description": "Mettez à jour vos informations personnelles",
+      "fullName": "Nom Complet",
+      "email": "Email",
+      "phone": "Numéro de Téléphone",
+      "saveChanges": "Enregistrer les Modifications",
+      "saved": "Profil mis à jour avec succès!"
+    },
+    "notifications": {
+      "title": "Préférences de Notifications",
+      "description": "Choisissez les notifications que vous recevez",
+      "email": "Notifications par Email",
+      "emailDesc": "Recevoir des notifications par email",
+      "push": "Notifications Push",
+      "pushDesc": "Recevoir des notifications push dans le navigateur",
+      "orders": "Mises à Jour des Commandes",
+      "ordersDesc": "Être notifié des changements de statut des commandes",
+      "marketing": "Emails Marketing",
+      "marketingDesc": "Recevoir des emails marketing et promotionnels",
+      "promotions": "Alertes Promotionnelles",
+      "promotionsDesc": "Recevoir des alertes pour les offres et promotions"
+    },
+    "appearance": {
+      "title": "Apparence",
+      "description": "Personnalisez l'apparence d'AfriLink",
+      "theme": "Thème",
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système",
+      "language": "Langue"
+    },
+    "security": {
+      "title": "Sécurité",
+      "description": "Gérez vos paramètres de sécurité",
+      "changePassword": "Changer le Mot de Passe",
+      "changePasswordDesc": "Mettez à jour votre mot de passe régulièrement pour la sécurité",
+      "twoFactor": "Authentification à Deux Facteurs",
+      "twoFactorDesc": "Ajoutez une couche supplémentaire de sécurité à votre compte",
+      "enable2FA": "Activer 2FA",
+      "dangerZone": "Zone Dangereuse",
+      "deleteAccount": "Supprimer le Compte",
+      "deleteAccountDesc": "Supprimer définitivement votre compte et toutes les données"
+    }
+  },
+  "verification": {
+    "title": "Vérification du Compte",
+    "subtitle": "Complétez ces étapes pour être vérifié",
+    "status": {
+      "verified": "Vérifié",
+      "pending": "En Cours de Révision",
+      "unverified": "Non Vérifié",
+      "rejected": "Rejeté"
+    },
+    "steps": {
+      "email": "Vérification Email",
+      "phone": "Vérification Téléphone",
+      "photo": "Vérification Photo",
+      "business": "Vérification Entreprise"
+    },
+    "reviewNote": "Les révisions prennent généralement jusqu'à 24 heures"
+  },
+  "marketplace": {
+    "title": "Marché",
+    "search": "Rechercher des produits...",
+    "categories": "Catégories",
+    "allCategories": "Toutes les Catégories",
+    "noProducts": "Aucun produit trouvé",
+    "addToCart": "Ajouter au Panier",
+    "viewDetails": "Voir les Détails",
+    "filters": {
+      "sortBy": "Trier Par",
+      "priceRange": "Gamme de Prix",
+      "newest": "Plus Récents",
+      "priceLowHigh": "Prix: Croissant",
+      "priceHighLow": "Prix: Décroissant"
+    }
+  },
+  "product": {
+    "price": "Prix",
+    "commission": "Commission",
+    "description": "Description",
+    "category": "Catégorie",
+    "vendor": "Vendeur",
+    "addToCart": "Ajouter au Panier",
+    "buyNow": "Acheter Maintenant",
+    "outOfStock": "Rupture de Stock",
+    "inStock": "En Stock"
+  },
+  "cart": {
+    "title": "Votre Panier",
+    "empty": "Votre panier est vide",
+    "total": "Total",
+    "subtotal": "Sous-total",
+    "deliveryFee": "Frais de Livraison",
+    "checkout": "Paiement",
+    "continueShopping": "Continuer les Achats",
+    "remove": "Supprimer",
+    "quantity": "Quantité"
+  },
+  "checkout": {
+    "title": "Paiement",
+    "customerInfo": "Informations Client",
+    "name": "Nom Complet",
+    "email": "Email",
+    "phone": "Numéro de Téléphone",
+    "delivery": "Options de Livraison",
+    "pickup": "Retrait",
+    "homeDelivery": "Livraison à Domicile",
+    "address": "Adresse de Livraison",
+    "city": "Ville",
+    "placeOrder": "Passer la Commande",
+    "processing": "Traitement en cours..."
+  },
+  "help": {
+    "title": "Aide et Support",
+    "subtitle": "Comment pouvons-nous vous aider?",
+    "searchPlaceholder": "Rechercher de l'aide...",
+    "quickActions": "Actions Rapides",
+    "whatsapp": "WhatsApp",
+    "whatsappDesc": "Discutez avec nous",
+    "call": "Appelez-nous",
+    "email": "Support Email",
+    "emailDesc": "Envoyez-nous un message",
+    "faq": {
+      "title": "Questions Fréquemment Posées",
+      "howToSell": "Comment commencer à vendre?",
+      "howToSellAnswer": "Inscrivez-vous en tant que vendeur, complétez votre profil et ajoutez vos produits. Une fois approuvé, vos produits seront visibles sur le marché.",
+      "howToEarn": "Comment gagner en tant qu'affilié?",
+      "howToEarnAnswer": "Inscrivez-vous en tant qu'affilié, parcourez les produits, générez vos liens d'affiliation uniques et partagez-les. Vous gagnez une commission sur chaque vente effectuée via votre lien.",
+      "howToWithdraw": "Comment retirer mes gains?",
+      "howToWithdrawAnswer": "Allez sur votre tableau de bord, vérifiez le solde de votre portefeuille et cliquez sur retirer. Choisissez votre méthode de paiement préférée et entrez les détails."
+    }
+  },
+  "onboarding": {
+    "vendor": {
+      "title": "Configurez Votre Profil Vendeur",
+      "businessName": "Nom de l'Entreprise",
+      "businessNamePlaceholder": "Entrez le nom de votre entreprise",
+      "vendorType": "Type de Vendeur",
+      "selectType": "Sélectionnez le type de vendeur",
+      "individual": "Vendeur Individuel",
+      "business": "Entreprise Enregistrée",
+      "logo": "Logo de l'Entreprise",
+      "uploadLogo": "Télécharger le Logo",
+      "about": "À Propos de Votre Entreprise",
+      "aboutPlaceholder": "Parlez de votre entreprise aux clients...",
+      "location": "Emplacement",
+      "city": "Ville",
+      "country": "Pays",
+      "pickupLocation": "Lieu de Retrait",
+      "pickupPlaceholder": "Entrez votre adresse de retrait",
+      "submit": "Terminer la Configuration"
+    },
+    "affiliate": {
+      "title": "Configurez Votre Profil Affilié",
+      "displayName": "Nom d'Affichage",
+      "displayNamePlaceholder": "Entrez votre nom d'affichage",
+      "avatar": "Photo de Profil",
+      "uploadAvatar": "Télécharger la Photo",
+      "bio": "Bio",
+      "bioPlaceholder": "Parlez-nous de vous...",
+      "submit": "Terminer la Configuration"
+    }
+  },
+  "errors": {
+    "generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "network": "Problème de connexion. Veuillez vérifier votre internet.",
+    "unauthorized": "Veuillez vous connecter pour continuer.",
+    "notFound": "La ressource demandée n'a pas été trouvée.",
+    "validation": "Veuillez vérifier vos entrées et réessayer."
+  },
+  "withdraw": {
+    "title": "Retirer des Fonds",
+    "amount": "Montant",
+    "availableBalance": "Solde Disponible",
+    "paymentMethod": "Méthode de Paiement",
+    "mobileMoneyNumber": "Numéro Mobile Money",
+    "bankAccount": "Numéro de Compte Bancaire",
+    "processing": "Traitement en cours...",
+    "submit": "Demander un Retrait",
+    "success": "Demande de retrait soumise!",
+    "minAmount": "Le montant minimum de retrait est"
+  }
+}
