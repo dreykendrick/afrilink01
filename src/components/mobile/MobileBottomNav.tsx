@@ -13,7 +13,7 @@ export const MobileBottomNav = ({ activeTab, onNavigate, userRole }: MobileBotto
     { id: 'marketplace' as const, icon: Store, label: 'Market', action: 'marketplace' as const },
     { id: 'settings' as const, icon: Settings, label: 'Settings', action: 'settings' as const },
     { id: 'help' as const, icon: HelpCircle, label: 'Help', action: 'help-support' as const },
-    { id: 'profile' as const, icon: User, label: 'Profile', action: 'verification-manage' as const },
+    { id: 'profile' as const, icon: User, label: 'Verification', action: 'verification-manage' as const },
   ];
 
   return (
