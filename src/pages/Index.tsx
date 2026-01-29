@@ -880,6 +880,7 @@ const IndexContent = () => {
           categories={categories}
           onCartClick={() => setCartOpen(true)}
           onLogin={() => handleNavigate('login')}
+          onBack={!user ? () => setView('role-selection') : undefined}
           commissionFilter={commissionFilter}
           setCommissionFilter={setCommissionFilter}
           priceFilter={priceFilter}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShoppingCart, Search, Filter, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Search, Filter, ChevronDown, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -11,6 +11,7 @@ interface MarketplaceNavProps {
   categories: string[];
   onCartClick: () => void;
   onLogin: () => void;
+  onBack?: () => void;
   commissionFilter: string;
   setCommissionFilter: (value: string) => void;
   priceFilter: string;
@@ -25,6 +26,7 @@ export const MarketplaceNav = ({
   categories,
   onCartClick,
   onLogin,
+  onBack,
   commissionFilter,
   setCommissionFilter,
   priceFilter,
@@ -39,9 +41,20 @@ export const MarketplaceNav = ({
     <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between gap-4">
-          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap">
-            AfriLink
-          </h1>
+          <div className="flex items-center gap-2">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="p-2 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent whitespace-nowrap">
+              AfriLink
+            </h1>
+          </div>
           
           <div className="hidden md:flex flex-1 max-w-xl relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
