@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -34,9 +34,10 @@ const TANZANIA_CITIES = [
 interface VendorProfileSetupProps {
   userId: string;
   onComplete: () => void;
+  onBack?: () => void;
 }
 
-export const VendorProfileSetup = ({ userId, onComplete }: VendorProfileSetupProps) => {
+export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfileSetupProps) => {
   const { toast } = useToast();
   const [businessName, setBusinessName] = useState('');
   const [vendorType, setVendorType] = useState<'individual' | 'business'>('individual');
@@ -121,7 +122,15 @@ export const VendorProfileSetup = ({ userId, onComplete }: VendorProfileSetupPro
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-10">
       <Card className="w-full max-w-2xl animate-in fade-in zoom-in-95 duration-500">
-        <CardHeader>
+        <CardHeader className="space-y-2">
+          {onBack && (
+            <div className="flex items-center">
+              <Button variant="ghost" size="sm" onClick={onBack} className="px-2">
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back
+              </Button>
+            </div>
+          )}
           <CardTitle className="text-xl sm:text-2xl">Complete your vendor profile</CardTitle>
           <CardDescription>
             This information appears publicly on your vendor and product pages.

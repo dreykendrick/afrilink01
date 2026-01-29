@@ -624,6 +624,7 @@ const IndexContent = () => {
           setOnboardingRole(role);
           setView('onboarding-register', role); // Bug Fix C: pass role to URL
         }}
+        onBack={() => setView('landing')}
         onLogin={() => setView('login')}
       />
     );
@@ -676,6 +677,7 @@ const IndexContent = () => {
           fetchUserData();
           setView('dashboard');
         }}
+        onBack={() => setView('role-selection')}
       />
     );
   }
@@ -694,6 +696,7 @@ const IndexContent = () => {
           fetchUserData();
           setView('marketplace');
         }}
+        onBack={() => setView('role-selection')}
       />
     );
   }
