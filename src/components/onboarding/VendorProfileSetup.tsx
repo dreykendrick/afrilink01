@@ -64,10 +64,10 @@ export const VendorProfileSetup = ({ userId, onComplete }: VendorProfileSetupPro
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!businessName || !city || !pickupLocation) {
+    if (!businessName || !city || !pickupLocation || !logoFile) {
       toast({
         title: 'Missing details',
-        description: 'Business name, city, and pickup location are required.',
+        description: 'Business name, city, pickup location, and profile image are required.',
         variant: 'destructive',
       });
       return;
@@ -186,13 +186,13 @@ export const VendorProfileSetup = ({ userId, onComplete }: VendorProfileSetupPro
               />
             </div>
             <div className="space-y-3">
-              <Label htmlFor="logo">Profile image / logo</Label>
+              <Label htmlFor="logo">Profile image / logo <span className="text-destructive">*</span></Label>
               {logoPreview && (
                 <div className="w-28 h-28 rounded-2xl border border-border overflow-hidden">
                   <img src={logoPreview} alt="Vendor logo preview" className="w-full h-full object-cover" />
                 </div>
               )}
-              <Input id="logo" type="file" accept="image/*" onChange={handleLogoChange} />
+              <Input id="logo" type="file" accept="image/*" onChange={handleLogoChange} required />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
