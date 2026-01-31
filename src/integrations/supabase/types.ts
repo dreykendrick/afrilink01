@@ -186,6 +186,66 @@ export type Database = {
           },
         ]
       }
+      cross_city_fees: {
+        Row: {
+          created_at: string
+          fee: number
+          from_city: string
+          id: string
+          is_active: boolean
+          to_city: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          fee?: number
+          from_city: string
+          id?: string
+          is_active?: boolean
+          to_city: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          fee?: number
+          from_city?: string
+          id?: string
+          is_active?: boolean
+          to_city?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      delivery_zones: {
+        Row: {
+          base_fee: number
+          city: string
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          zone_name: string
+        }
+        Insert: {
+          base_fee?: number
+          city: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          zone_name: string
+        }
+        Update: {
+          base_fee?: number
+          city?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          zone_name?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -275,6 +335,8 @@ export type Database = {
       orders: {
         Row: {
           affiliate_link_id: string | null
+          buyer_notes: string | null
+          checkout_session_id: string | null
           confirmation_token: string | null
           created_at: string
           customer_email: string
@@ -286,12 +348,17 @@ export type Database = {
           delivery_fee: number | null
           delivery_type: string | null
           id: string
+          payment_reference: string | null
+          payment_status: string | null
           status: string
           total_amount: number
           updated_at: string
+          vendor_notified_at: string | null
         }
         Insert: {
           affiliate_link_id?: string | null
+          buyer_notes?: string | null
+          checkout_session_id?: string | null
           confirmation_token?: string | null
           created_at?: string
           customer_email: string
@@ -303,12 +370,17 @@ export type Database = {
           delivery_fee?: number | null
           delivery_type?: string | null
           id?: string
+          payment_reference?: string | null
+          payment_status?: string | null
           status?: string
           total_amount?: number
           updated_at?: string
+          vendor_notified_at?: string | null
         }
         Update: {
           affiliate_link_id?: string | null
+          buyer_notes?: string | null
+          checkout_session_id?: string | null
           confirmation_token?: string | null
           created_at?: string
           customer_email?: string
@@ -320,9 +392,12 @@ export type Database = {
           delivery_fee?: number | null
           delivery_type?: string | null
           id?: string
+          payment_reference?: string | null
+          payment_status?: string | null
           status?: string
           total_amount?: number
           updated_at?: string
+          vendor_notified_at?: string | null
         }
         Relationships: [
           {
@@ -346,6 +421,7 @@ export type Database = {
           is_available: boolean
           price: number
           sales: number
+          slug: string | null
           status: string
           title: string
           updated_at: string
@@ -362,6 +438,7 @@ export type Database = {
           is_available?: boolean
           price?: number
           sales?: number
+          slug?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -378,6 +455,7 @@ export type Database = {
           is_available?: boolean
           price?: number
           sales?: number
+          slug?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -499,6 +577,63 @@ export type Database = {
           {
             foreignKeyName: "user_roles_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_notifications_log: {
+        Row: {
+          created_at: string
+          id: string
+          message_content: string | null
+          notification_type: string
+          order_id: string
+          provider: string | null
+          provider_response: Json | null
+          recipient_phone: string
+          sent_at: string | null
+          status: string
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_content?: string | null
+          notification_type?: string
+          order_id: string
+          provider?: string | null
+          provider_response?: Json | null
+          recipient_phone: string
+          sent_at?: string | null
+          status?: string
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_content?: string | null
+          notification_type?: string
+          order_id?: string
+          provider?: string | null
+          provider_response?: Json | null
+          recipient_phone?: string
+          sent_at?: string | null
+          status?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_notifications_log_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_notifications_log_vendor_id_fkey"
+            columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
