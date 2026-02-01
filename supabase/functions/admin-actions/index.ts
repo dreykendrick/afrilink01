@@ -13,6 +13,37 @@ interface AdminActionRequest {
   notes?: string;
 }
 
+// Helper function to create notifications
+async function createNotification(
+  supabase: any, 
+  userId: string, 
+  title: string, 
+  message: string, 
+  type: string = 'info',
+  link?: string
+) {
+  try {
+    const { error } = await supabase
+      .from('notifications')
+      .insert({
+        user_id: userId,
+        title,
+        message,
+        type,
+        link,
+        read: false
+      });
+    
+    if (error) {
+      console.error('Failed to create notification:', error);
+    } else {
+      console.log(`Notification created for user ${userId}: ${title}`);
+    }
+  } catch (err) {
+    console.error('Notification creation error:', err);
+  }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -29,14 +60,19 @@ Deno.serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     
-    const supabase = createClient(supabaseUrl, supabaseKey, {
+    // Use anon key with auth header for admin verification
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
     });
 
+    // Use service role for database operations (to bypass RLS for notifications)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     // Verify admin role - get user from token
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
     
     if (userError || !user) {
       console.error('Auth error:', userError);
@@ -46,10 +82,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    const userId = user.id;
+    const adminUserId = user.id;
 
     // Check if user is admin
-    const { data: isAdmin } = await supabase.rpc('is_admin', { _user_id: userId });
+    const { data: isAdmin } = await supabase.rpc('is_admin', { _user_id: adminUserId });
     
     if (!isAdmin) {
       return new Response(
@@ -85,6 +121,18 @@ Deno.serve(async (req) => {
         if (error) throw error;
         newData = updated;
         result = { success: true, product: updated };
+
+        // Send notification to vendor
+        if (product?.vendor_id) {
+          await createNotification(
+            supabase,
+            product.vendor_id,
+            '🎉 Product Approved!',
+            `Your product "${product.title}" has been approved and is now live on the marketplace.`,
+            'success',
+            '/dashboard'
+          );
+        }
         break;
       }
 
@@ -106,6 +154,19 @@ Deno.serve(async (req) => {
         if (error) throw error;
         newData = updated;
         result = { success: true, product: updated };
+
+        // Send notification to vendor
+        if (product?.vendor_id) {
+          const reason = notes || 'Please review our product guidelines and resubmit.';
+          await createNotification(
+            supabase,
+            product.vendor_id,
+            '❌ Product Not Approved',
+            `Your product "${product.title}" was not approved. Reason: ${reason}`,
+            'error',
+            '/dashboard'
+          );
+        }
         break;
       }
 
@@ -127,6 +188,18 @@ Deno.serve(async (req) => {
         if (error) throw error;
         newData = updated;
         result = { success: true, product: updated };
+
+        // Send notification to vendor
+        if (product?.vendor_id) {
+          await createNotification(
+            supabase,
+            product.vendor_id,
+            '⚠️ Product Taken Down',
+            `Your product "${product.title}" has been removed from the marketplace. ${notes || 'Please contact support for more details.'}`,
+            'warning',
+            '/dashboard'
+          );
+        }
         break;
       }
 
@@ -148,6 +221,18 @@ Deno.serve(async (req) => {
         if (error) throw error;
         newData = updated;
         result = { success: true, product: updated };
+
+        // Send notification to vendor
+        if (product?.vendor_id) {
+          await createNotification(
+            supabase,
+            product.vendor_id,
+            '✅ Takedown Request Rejected',
+            `The takedown request for "${product.title}" was rejected. Your product remains live on the marketplace.`,
+            'info',
+            '/dashboard'
+          );
+        }
         break;
       }
 
@@ -194,6 +279,17 @@ Deno.serve(async (req) => {
                 display_name: application.full_name
               });
           }
+
+          // Send notification to user
+          const roleLabel = application.role === 'vendor' ? 'Vendor' : 'Affiliate';
+          await createNotification(
+            supabase,
+            application.user_id,
+            `🎉 ${roleLabel} Application Approved!`,
+            `Congratulations! Your ${roleLabel.toLowerCase()} application has been approved. You can now access your ${roleLabel.toLowerCase()} dashboard.`,
+            'success',
+            '/dashboard'
+          );
         }
 
         newData = updated;
@@ -219,6 +315,20 @@ Deno.serve(async (req) => {
         if (error) throw error;
         newData = updated;
         result = { success: true, application: updated };
+
+        // Send notification to user
+        if (application) {
+          const roleLabel = application.role === 'vendor' ? 'Vendor' : 'Affiliate';
+          const reason = notes || 'Please ensure all requirements are met and try again.';
+          await createNotification(
+            supabase,
+            application.user_id,
+            `❌ ${roleLabel} Application Not Approved`,
+            `Your ${roleLabel.toLowerCase()} application was not approved. Reason: ${reason}`,
+            'error',
+            undefined
+          );
+        }
         break;
       }
 
@@ -242,15 +352,20 @@ Deno.serve(async (req) => {
 
         // If approved, deduct from wallet and create transaction
         if (newStatus === 'approved' && withdrawal) {
-          await supabase
+          // Get current balance and update
+          const { data: profile } = await supabase
             .from('profiles')
-            .update({ 
-              wallet_balance: supabase.rpc('subtract_balance', { 
-                user_id: withdrawal.user_id, 
-                amount: withdrawal.amount 
-              }) 
-            })
-            .eq('id', withdrawal.user_id);
+            .select('wallet_balance')
+            .eq('id', withdrawal.user_id)
+            .single();
+
+          if (profile) {
+            const newBalance = (profile.wallet_balance || 0) - withdrawal.amount;
+            await supabase
+              .from('profiles')
+              .update({ wallet_balance: newBalance })
+              .eq('id', withdrawal.user_id);
+          }
 
           await supabase
             .from('transactions')
@@ -261,6 +376,27 @@ Deno.serve(async (req) => {
               description: `Withdrawal processed via ${withdrawal.payment_method}`,
               reference_id: withdrawal.id
             });
+
+          // Send approval notification
+          await createNotification(
+            supabase,
+            withdrawal.user_id,
+            '💰 Withdrawal Approved!',
+            `Your withdrawal of ${withdrawal.amount} TZS has been approved and will be processed via ${withdrawal.payment_method}.`,
+            'success',
+            '/dashboard'
+          );
+        } else if (newStatus === 'rejected' && withdrawal) {
+          // Send rejection notification
+          const reason = notes || 'Please contact support for more details.';
+          await createNotification(
+            supabase,
+            withdrawal.user_id,
+            '❌ Withdrawal Rejected',
+            `Your withdrawal request of ${withdrawal.amount} TZS was rejected. Reason: ${reason}`,
+            'error',
+            '/dashboard'
+          );
         }
 
         newData = updated;
@@ -271,14 +407,15 @@ Deno.serve(async (req) => {
       case 'update_order_status': {
         const { data: order } = await supabase
           .from('orders')
-          .select('*')
+          .select('*, order_items(*, products(vendor_id, title))')
           .eq('id', targetId)
           .single();
         oldData = order;
 
+        const newOrderStatus = data?.status as string;
         const { data: updated, error } = await supabase
           .from('orders')
-          .update({ status: data?.status })
+          .update({ status: newOrderStatus })
           .eq('id', targetId)
           .select()
           .single();
@@ -286,6 +423,27 @@ Deno.serve(async (req) => {
         if (error) throw error;
         newData = updated;
         result = { success: true, order: updated };
+
+        // Notify vendors about order status changes
+        if (order?.order_items) {
+          const vendorIds = new Set<string>();
+          order.order_items.forEach((item: any) => {
+            if (item.products?.vendor_id) {
+              vendorIds.add(item.products.vendor_id);
+            }
+          });
+
+          for (const vendorId of vendorIds) {
+            await createNotification(
+              supabase,
+              vendorId,
+              `📦 Order Status Updated`,
+              `Order #${order.id.slice(0, 8)} status changed to: ${newOrderStatus}`,
+              'info',
+              '/dashboard'
+            );
+          }
+        }
         break;
       }
 
@@ -310,6 +468,51 @@ Deno.serve(async (req) => {
         if (error) throw error;
         newData = updated;
         result = { success: true, profile: updated };
+
+        // Send verification approved notification
+        await createNotification(
+          supabase,
+          targetId!,
+          '✅ Verification Approved!',
+          'Your identity has been verified successfully. You now have full access to all platform features.',
+          'success',
+          '/dashboard'
+        );
+        break;
+      }
+
+      case 'reject_verification': {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', targetId)
+          .single();
+        oldData = profile;
+
+        const { data: updated, error } = await supabase
+          .from('profiles')
+          .update({ 
+            verification_status: 'rejected',
+            photo_verified: false 
+          })
+          .eq('id', targetId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        newData = updated;
+        result = { success: true, profile: updated };
+
+        // Send verification rejected notification
+        const reason = notes || 'Please ensure your photo is clear and matches our guidelines.';
+        await createNotification(
+          supabase,
+          targetId!,
+          '❌ Verification Not Approved',
+          `Your identity verification was not approved. Reason: ${reason}. Please resubmit your verification photo.`,
+          'error',
+          '/dashboard/settings'
+        );
         break;
       }
 
@@ -362,7 +565,7 @@ Deno.serve(async (req) => {
       await supabase
         .from('admin_actions')
         .insert({
-          admin_id: userId,
+          admin_id: adminUserId,
           action_type: action,
           target_table: targetTable,
           target_id: targetId,
@@ -372,7 +575,7 @@ Deno.serve(async (req) => {
         });
     }
 
-    console.log(`Admin action completed: ${action} by ${userId}`);
+    console.log(`Admin action completed: ${action} by ${adminUserId}`);
 
     return new Response(
       JSON.stringify(result),
