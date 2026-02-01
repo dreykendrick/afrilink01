@@ -109,6 +109,48 @@ Deno.serve(async (req) => {
         break;
       }
 
+      case 'approve_takedown': {
+        const { data: product } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', targetId)
+          .single();
+        oldData = product;
+
+        const { data: updated, error } = await supabase
+          .from('products')
+          .update({ status: 'taken_down' })
+          .eq('id', targetId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        newData = updated;
+        result = { success: true, product: updated };
+        break;
+      }
+
+      case 'reject_takedown': {
+        const { data: product } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', targetId)
+          .single();
+        oldData = product;
+
+        const { data: updated, error } = await supabase
+          .from('products')
+          .update({ status: 'approved' })
+          .eq('id', targetId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        newData = updated;
+        result = { success: true, product: updated };
+        break;
+      }
+
       case 'approve_application': {
         const { data: application } = await supabase
           .from('applications')
