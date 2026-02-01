@@ -35,18 +35,18 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } }
     });
 
-    // Verify admin role
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    // Verify admin role - get user from token
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    if (claimsError || !claims?.claims) {
+    if (userError || !user) {
+      console.error('Auth error:', userError);
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const userId = claims.claims.sub as string;
+    const userId = user.id;
 
     // Check if user is admin
     const { data: isAdmin } = await supabase.rpc('is_admin', { _user_id: userId });
