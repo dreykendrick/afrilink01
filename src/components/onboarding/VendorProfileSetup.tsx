@@ -133,7 +133,7 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
         about,
         logo_url: logoUrl,
         verification_status: 'pending',
-      }) as unknown as Promise<{ error: any }>);
+      }, { onConflict: 'user_id' }) as unknown as Promise<{ error: any }>);
 
       if (error) throw error;
 
