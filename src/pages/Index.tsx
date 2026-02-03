@@ -126,6 +126,7 @@ const IndexContent = () => {
   const [affiliateStats, setAffiliateStats] = useState<AffiliateStats>({ commission: 0, clicks: 0, conversions: 0, rate: 0 });
   const [affiliateLinks, setAffiliateLinks] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
+  const [isRoleSwitching, setIsRoleSwitching] = useState(false);
 
   // Mobile-optimized refresh handler
   const handleRefresh = useCallback(async () => {
@@ -423,24 +424,34 @@ const IndexContent = () => {
   };
 
   const handleSwitchRole = async (newRole: 'vendor' | 'affiliate') => {
-    const success = await switchRole(newRole);
-    if (success) {
-      toast.success(`Switched to ${newRole} mode`);
-      // Reload data for the new role
-      await fetchUserData();
-    } else {
-      toast.error('Failed to switch role');
+    setIsRoleSwitching(true);
+    try {
+      const success = await switchRole(newRole);
+      if (success) {
+        toast.success(`Switched to ${newRole} mode`);
+        // Reload data for the new role
+        await fetchUserData();
+      } else {
+        toast.error('Failed to switch role');
+      }
+    } finally {
+      setIsRoleSwitching(false);
     }
   };
 
   const handleAddRole = async (newRole: 'vendor' | 'affiliate') => {
-    const success = await addRole(newRole);
-    if (success) {
-      toast.success(`${newRole} role added! Complete your profile setup.`);
-      // This will trigger profile setup for the new role
-      await fetchUserData();
-    } else {
-      toast.error('Failed to add role');
+    setIsRoleSwitching(true);
+    try {
+      const success = await addRole(newRole);
+      if (success) {
+        toast.success(`${newRole} role added! Complete your profile setup.`);
+        // This will trigger profile setup for the new role
+        await fetchUserData();
+      } else {
+        toast.error('Failed to add role');
+      }
+    } finally {
+      setIsRoleSwitching(false);
     }
   };
 
@@ -586,7 +597,7 @@ const IndexContent = () => {
     return matchesSearch && matchesCategory && matchesCommission && matchesPrice;
   });
 
-  if (authLoading) {
+  if (authLoading || isRoleSwitching) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
