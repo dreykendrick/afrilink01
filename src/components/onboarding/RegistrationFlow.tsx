@@ -8,6 +8,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validateTZPhone } from '@/utils/phone';
+import { getAppUrl } from '@/utils/appUrl';
 
 interface RegistrationFlowProps {
   role: 'vendor' | 'affiliate';
@@ -79,7 +80,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${getAppUrl()}/`,
         },
       });
 

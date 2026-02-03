@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { getAppUrl } from '@/utils/appUrl';
 
 interface ForgotPasswordPageProps {
   onNavigate: (view: string) => void;
@@ -38,7 +39,7 @@ export const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${getAppUrl()}/reset-password`,
       });
 
       if (error) {

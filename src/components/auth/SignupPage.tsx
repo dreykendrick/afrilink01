@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ShoppingCart, ArrowLeft, Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { getUserFriendlyError } from '@/utils/errorMessages';
+import { getAppUrl } from '@/utils/appUrl';
 
 interface SignupPageProps {
   onNavigate: (view: string) => void;
@@ -52,7 +53,7 @@ export const SignupPage = ({ onNavigate, onSignupSuccess }: SignupPageProps) => 
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: `${getAppUrl()}/`
         }
       });
 
