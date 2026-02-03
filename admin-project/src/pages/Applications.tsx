@@ -56,42 +56,57 @@ const Applications = () => {
   };
 
   const handleApplication = async (application: Application, approved: boolean) => {
-    const status = approved ? 'approved' : 'rejected';
+    const action = approved ? 'approve_application' : 'reject_application';
 
-    // Update application status
-    const { error: updateError } = await supabase
-      .from('applications')
-      .update({ status })
-      .eq('id', application.id);
+    try {
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        toast({
+          title: 'Error',
+          description: 'You must be logged in to perform this action',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-    if (updateError) {
+      // Use admin-actions edge function
+      const adminActionsUrl = import.meta.env.VITE_ADMIN_ACTIONS_URL || 
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`;
+
+      const response = await fetch(adminActionsUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          action,
+          targetTable: 'applications',
+          targetId: application.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update application');
+      }
+
+      toast({
+        title: 'Success',
+        description: `Application ${approved ? 'approved' : 'rejected'} successfully`,
+      });
+      fetchApplications();
+    } catch (error: any) {
+      console.error('Error handling application:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update application',
+        description: error.message || 'Failed to update application',
         variant: 'destructive',
       });
-      return;
     }
-
-    // If approved, add user role
-    if (approved) {
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: application.user_id,
-          role: application.role,
-        });
-
-      if (roleError && !roleError.message.includes('duplicate')) {
-        console.error('Error adding role:', roleError);
-      }
-    }
-
-    toast({
-      title: 'Success',
-      description: `Application ${status}`,
-    });
-    fetchApplications();
   };
 
   const getStatusBadge = (status: string) => {
