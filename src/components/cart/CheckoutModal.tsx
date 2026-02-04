@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { validateTZPhone } from '@/utils/phone';
 import { getUserFriendlyError } from '@/utils/errorMessages';
-import { getAppUrl } from '@/utils/appUrl';
+import { getAppUrlAsync } from '@/utils/appUrl';
 
 const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
 
@@ -252,7 +252,8 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
         });
       }
 
-      const confirmationLink = `${getAppUrl()}/confirm/${order.id}?token=${confirmationToken}`;
+      const appUrl = await getAppUrlAsync();
+      const confirmationLink = `${appUrl}/confirm/${order.id}?token=${confirmationToken}`;
       setReceipt({
         orderId: order.id,
         totalAmount: grandTotal,

@@ -33,7 +33,7 @@ import { User, Product, VendorStats, AffiliateStats } from '@/types';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getProductSlug } from '@/utils/slug';
-import { getAppUrl } from '@/utils/appUrl';
+import { getAppUrl, getAppUrlAsync } from '@/utils/appUrl';
 
 type View =
   | 'landing'
@@ -470,7 +470,11 @@ const IndexContent = () => {
     const existingLink = affiliateLinks.find(l => l.product_id === productId);
     if (existingLink) {
       const slug = getProductSlug(product.title, product.id);
-      const link = `${getAppUrl()}/p/${slug}?ref=${existingLink.code}`;
+      let appUrl = getAppUrl();
+      if (appUrl === window.location.origin) {
+        appUrl = await getAppUrlAsync();
+      }
+      const link = `${appUrl}/p/${slug}?ref=${existingLink.code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link copied to clipboard!');
       return;
@@ -494,7 +498,11 @@ const IndexContent = () => {
 
       setAffiliateLinks(prev => [...prev, data]);
       const slug = getProductSlug(product.title, product.id);
-      const link = `${getAppUrl()}/p/${slug}?ref=${code}`;
+      let appUrl = getAppUrl();
+      if (appUrl === window.location.origin) {
+        appUrl = await getAppUrlAsync();
+      }
+      const link = `${appUrl}/p/${slug}?ref=${code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link generated and copied!');
     } catch (error: any) {

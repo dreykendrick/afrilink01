@@ -8,7 +8,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validateTZPhone } from '@/utils/phone';
-import { getAppUrl } from '@/utils/appUrl';
+import { getAppUrlAsync } from '@/utils/appUrl';
 
 interface RegistrationFlowProps {
   role: 'vendor' | 'affiliate';
@@ -73,6 +73,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
 
     setLoading(true);
     try {
+      const appUrl = await getAppUrlAsync();
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -80,7 +81,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: `${getAppUrl()}/`,
+          emailRedirectTo: `${appUrl}/`,
         },
       });
 
