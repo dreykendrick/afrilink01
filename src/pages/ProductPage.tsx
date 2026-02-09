@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { ShieldCheck, Truck } from 'lucide-react';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { ShieldCheck, Truck, Link2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/hooks/useCart';
 import { formatCurrency } from '@/utils/currency';
@@ -13,19 +13,29 @@ interface VendorProfile {
   verification_status?: string | null;
 }
 
+// Check if user has affiliate attribution for checkout
+const hasAffiliateAttribution = (): boolean => {
+  const affiliateCode = localStorage.getItem('affiliateCode');
+  return Boolean(affiliateCode);
+};
+
 export const ProductPage = () => {
   const { slug } = useParams();
   const [searchParams] = useSearchParams();
-  const { addToCart, setAffiliateCode } = useCart();
+  const { addToCart, setAffiliateCode, affiliateCode } = useCart();
   const [product, setProduct] = useState<any | null>(null);
   const [vendorProfile, setVendorProfile] = useState<VendorProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [hasAffiliateRef, setHasAffiliateRef] = useState(false);
 
   useEffect(() => {
     const ref = searchParams.get('ref');
     if (ref) {
       setAffiliateCode(ref);
+      setHasAffiliateRef(true);
+      // Note: useCart already stores this in localStorage as 'affiliateCode'
+      
       supabase
         .from('affiliate_links')
         .select('id, clicks')
@@ -39,6 +49,11 @@ export const ProductPage = () => {
               .eq('id', data.id);
           }
         });
+    } else {
+      // Check if we have a stored affiliate code from previous visit
+      if (hasAffiliateAttribution()) {
+        setHasAffiliateRef(true);
+      }
     }
   }, [searchParams, setAffiliateCode]);
 
@@ -93,6 +108,12 @@ export const ProductPage = () => {
   }
 
   const handleBuyNow = () => {
+    // Check for affiliate attribution
+    if (!hasAffiliateRef && !hasAffiliateAttribution()) {
+      toast.error('Checkout is available only via affiliate link');
+      return;
+    }
+    
     addToCart({
       id: product.id,
       title: product.title,
@@ -104,6 +125,8 @@ export const ProductPage = () => {
     });
     setCheckoutOpen(true);
   };
+
+  const canCheckout = hasAffiliateRef || hasAffiliateAttribution();
 
   return (
     <div className="min-h-screen bg-background">
@@ -158,12 +181,30 @@ export const ProductPage = () => {
                 <span className="text-foreground font-medium">Payment methods:</span> Card, Mobile Money
               </div>
             </div>
-            <button
-              onClick={handleBuyNow}
-              className="w-full py-3 bg-gradient-primary text-white rounded-xl font-bold hover:shadow-glow transition-all duration-300"
-            >
-              Buy Now
-            </button>
+            {canCheckout ? (
+              <button
+                onClick={handleBuyNow}
+                className="w-full py-3 bg-gradient-primary text-white rounded-xl font-bold hover:shadow-glow transition-all duration-300"
+              >
+                Buy Now
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-amber-600 dark:text-amber-400">
+                    Checkout is available only via affiliate link. Ask a friend for their referral link!
+                  </div>
+                </div>
+                <button
+                  disabled
+                  className="w-full py-3 bg-muted text-muted-foreground rounded-xl font-bold cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <Link2 className="w-4 h-4" />
+                  Buy via Affiliate Link
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
