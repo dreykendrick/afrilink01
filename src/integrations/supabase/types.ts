@@ -270,6 +270,64 @@ export type Database = {
         }
         Relationships: []
       }
+      ledger_entries: {
+        Row: {
+          amount: number
+          created_at: string
+          entry_type: string
+          id: string
+          metadata: Json | null
+          order_id: string | null
+          payment_id: string | null
+          reason: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          entry_type: string
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          payment_id?: string | null
+          reason: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          entry_type?: string
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          payment_id?: string | null
+          reason?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -429,6 +487,123 @@ export type Database = {
             columns: ["affiliate_link_id"]
             isOneToOne: false
             referencedRelation: "affiliate_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount_gross: number
+          created_at: string
+          currency: string
+          id: string
+          idempotency_key: string
+          mode: string
+          order_id: string
+          provider: string
+          provider_payment_id: string | null
+          raw_payload: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_gross: number
+          created_at?: string
+          currency?: string
+          id?: string
+          idempotency_key: string
+          mode?: string
+          order_id: string
+          provider?: string
+          provider_payment_id?: string | null
+          raw_payload?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_gross?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          idempotency_key?: string
+          mode?: string
+          order_id?: string
+          provider?: string
+          provider_payment_id?: string | null
+          raw_payload?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_requests: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          created_at: string
+          destination_details: Json
+          destination_type: string
+          id: string
+          processed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          created_at?: string
+          destination_details: Json
+          destination_type: string
+          id?: string
+          processed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          destination_details?: Json
+          destination_type?: string
+          id?: string
+          processed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_requests_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_requests_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
             referencedColumns: ["id"]
           },
         ]
@@ -717,6 +892,39 @@ export type Database = {
           },
         ]
       }
+      wallets: {
+        Row: {
+          available_balance: number
+          created_at: string
+          currency: string
+          id: string
+          owner_id: string | null
+          owner_type: string
+          pending_balance: number
+          updated_at: string
+        }
+        Insert: {
+          available_balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          owner_id?: string | null
+          owner_type: string
+          pending_balance?: number
+          updated_at?: string
+        }
+        Update: {
+          available_balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          owner_id?: string | null
+          owner_type?: string
+          pending_balance?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       withdrawals: {
         Row: {
           amount: number
@@ -764,6 +972,10 @@ export type Database = {
     }
     Functions: {
       generate_slug: { Args: { p_title: string }; Returns: string }
+      get_or_create_wallet: {
+        Args: { p_currency?: string; p_owner_id: string; p_owner_type: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
