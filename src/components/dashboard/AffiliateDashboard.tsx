@@ -4,6 +4,7 @@ import { User, Product, AffiliateStats } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { StatsCard } from './StatsCard';
 import { ProductImagesModal } from './ProductImagesModal';
+import { WalletSection } from './WalletSection';
 
 interface AffiliateDashboardProps {
   currentUser: User;
@@ -11,10 +12,12 @@ interface AffiliateDashboardProps {
   stats: AffiliateStats;
   onGenerateLink: (productId: string) => void;
   onVerify: () => void;
+  onRefresh?: () => void;
 }
 
-export const AffiliateDashboard = ({ currentUser, products, stats, onGenerateLink, onVerify }: AffiliateDashboardProps) => {
+export const AffiliateDashboard = ({ currentUser, products, stats, onGenerateLink, onVerify, onRefresh }: AffiliateDashboardProps) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  
   return (
     <>
       <div className="mb-6 sm:mb-8 animate-in fade-in slide-in-from-top-3 duration-500">
@@ -27,6 +30,11 @@ export const AffiliateDashboard = ({ currentUser, products, stats, onGenerateLin
         <StatsCard icon={Eye} value={stats.clicks} label="Total Clicks" gradient="from-afrilink-blue to-cyan-600" />
         <StatsCard icon={CheckCircle} value={stats.conversions} label="Conversions" gradient="from-afrilink-purple to-afrilink-pink" />
         <StatsCard icon={TrendingUp} value={`${stats.rate}%`} label="Conversion Rate" gradient="from-afrilink-amber to-afrilink-orange" />
+      </div>
+
+      {/* Wallet Section */}
+      <div className="mb-6 sm:mb-8">
+        <WalletSection walletType="AFFILIATE" onBalanceChange={onRefresh} />
       </div>
 
       <div className="bg-card rounded-xl sm:rounded-2xl border border-border p-4 sm:p-6 shadow-card mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
