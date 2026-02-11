@@ -4,7 +4,7 @@ import { User, Product, AffiliateStats } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { StatsCard } from './StatsCard';
 import { ProductImagesModal } from './ProductImagesModal';
-import { WalletSection } from './WalletSection';
+
 
 interface AffiliateDashboardProps {
   currentUser: User;
@@ -32,10 +32,7 @@ export const AffiliateDashboard = ({ currentUser, products, stats, onGenerateLin
         <StatsCard icon={TrendingUp} value={`${stats.rate}%`} label="Conversion Rate" gradient="from-afrilink-amber to-afrilink-orange" />
       </div>
 
-      {/* Wallet Section */}
-      <div className="mb-6 sm:mb-8">
-        <WalletSection walletType="AFFILIATE" onBalanceChange={onRefresh} />
-      </div>
+
 
       <div className="bg-card rounded-xl sm:rounded-2xl border border-border p-4 sm:p-6 shadow-card mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
         <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4 sm:mb-6">Products to Promote</h2>

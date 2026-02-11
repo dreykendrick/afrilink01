@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { 
   ShoppingCart, 
@@ -17,7 +17,9 @@ import {
   Check,
   Download,
   RefreshCw,
-  Plus
+  Plus,
+  History,
+  Loader2
 } from 'lucide-react';
 import { User } from '@/types';
 import {
@@ -34,7 +36,9 @@ import { Badge } from '@/components/ui/badge';
 import { NotificationDropdown } from './NotificationDropdown';
 import { formatCurrency } from '@/utils/currency';
 import { Switch } from '@/components/ui/switch';
-import { WithdrawModal } from './WithdrawModal';
+import { NewWithdrawModal } from './NewWithdrawModal';
+import { LedgerHistory } from './LedgerHistory';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardNavProps {
   currentUser: User;
@@ -62,9 +66,46 @@ export const DashboardNav = ({
   onAddRole
 }: DashboardNavProps) => {
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+  const [showLedger, setShowLedger] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [walletPending, setWalletPending] = useState<number>(0);
+  const [walletLoading, setWalletLoading] = useState(true);
   const { theme, setTheme } = useTheme();
   const isDarkMode = theme === 'dark';
+
+  const walletType = currentUser.role === 'vendor' ? 'VENDOR' : 'AFFILIATE';
+
+  const fetchWallet = async () => {
+    try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) return;
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-api/wallet?type=${walletType}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${session.data.session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (response.ok) {
+        const result = await response.json();
+        setWalletBalance(result.wallet?.available_balance || 0);
+        setWalletPending(result.wallet?.pending_balance || 0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch wallet:', error);
+    } finally {
+      setWalletLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWallet();
+  }, [walletType]);
+
+  const canWithdraw = walletBalance >= 20000;
 
   const toggleTheme = (checked: boolean) => {
     setTheme(checked ? 'dark' : 'light');
@@ -126,30 +167,51 @@ export const DashboardNav = ({
         </div>
       </div>
 
-      {/* Wallet Balance with Withdraw button */}
+      {/* Wallet Balance with Withdraw + History */}
       <div className="px-4 py-3 border-b border-border">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-afrilink-green/10 flex items-center justify-center">
               <Wallet className="w-4 h-4 text-afrilink-green" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Wallet Balance</p>
-              <p className="font-bold text-foreground">{formatCurrency(currentUser.wallet)}</p>
+              <p className="text-xs text-muted-foreground">Available Balance</p>
+              {walletLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              ) : (
+                <p className="font-bold text-foreground">{formatCurrency(walletBalance)}</p>
+              )}
             </div>
           </div>
-          {currentUser.wallet > 0 ? (
+          {!walletLoading && canWithdraw ? (
             <button 
-              onClick={() => setIsWithdrawOpen(true)}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsWithdrawOpen(true); }}
               className="flex items-center gap-1 text-xs text-afrilink-green border border-afrilink-green/30 bg-afrilink-green/10 hover:bg-afrilink-green/20 transition-colors px-2 py-1 rounded-md font-medium"
             >
               <Download className="w-3 h-3" />
               Withdraw
             </button>
-          ) : (
-            <span className="text-xs text-muted-foreground">No funds</span>
-          )}
+          ) : !walletLoading ? (
+            <span className="text-xs text-muted-foreground">
+              {walletBalance > 0 ? `Min: ${formatCurrency(20000)}` : 'No funds'}
+            </span>
+          ) : null}
         </div>
+        {!walletLoading && walletPending > 0 && (
+          <p className="text-xs text-muted-foreground ml-11">+ {formatCurrency(walletPending)} pending</p>
+        )}
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowLedger(!showLedger); }}
+          className="mt-2 ml-11 flex items-center gap-1 text-xs text-primary hover:underline"
+        >
+          <History className="w-3 h-3" />
+          {showLedger ? 'Hide History' : 'Transaction History'}
+        </button>
+        {showLedger && (
+          <div className="mt-2 max-h-48 overflow-y-auto">
+            <LedgerHistory walletType={walletType} />
+          </div>
+        )}
       </div>
 
       {/* Theme Toggle */}
@@ -299,11 +361,12 @@ export const DashboardNav = ({
         </div>
       </div>
 
-      <WithdrawModal
+      <NewWithdrawModal
         isOpen={isWithdrawOpen}
         onClose={() => setIsWithdrawOpen(false)}
-        balance={currentUser.wallet}
-        onWithdrawSuccess={() => onWalletUpdate?.()}
+        balance={walletBalance}
+        walletType={walletType}
+        onWithdrawSuccess={() => { fetchWallet(); onWalletUpdate?.(); }}
       />
     </nav>
   );
