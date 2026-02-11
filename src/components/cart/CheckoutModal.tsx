@@ -241,17 +241,42 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
         });
       }
 
-      for (const item of items) {
-        const vendorAmount = item.price * item.quantity - Math.round((item.price * item.commission * item.quantity) / 100);
-        await supabase.from('transactions').insert({
-          user_id: item.vendorId,
-          type: 'sale_pending',
-          amount: vendorAmount,
-          description: `Pending sale for ${item.title} x${item.quantity}`,
-          reference_id: order.id,
-        });
+      // ── Trigger payment flow (STUB or LIVE) ──
+      if (!IS_DEMO_MODE) {
+        try {
+          const paymentResponse = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-api/create-payment`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                order_id: order.id,
+                amount: grandTotal,
+                currency: 'TZS',
+              }),
+            }
+          );
+
+          const paymentData = await paymentResponse.json();
+
+          if (paymentData.success && paymentData.redirect_url) {
+            clearCart();
+            checkoutSessionRef.current = null;
+            // Redirect to payment page (Briq checkout in LIVE, or our confirm page in STUB)
+            window.location.href = paymentData.redirect_url;
+            return;
+          } else {
+            throw new Error(paymentData.error || 'Failed to create payment');
+          }
+        } catch (paymentError: any) {
+          console.error('Payment creation error:', paymentError);
+          toast.error(paymentError.message || 'Payment failed. Please try again.');
+          setLoading(false);
+          return;
+        }
       }
 
+      // DEMO_MODE: show receipt directly
       const appUrl = await getAppUrlAsync();
       const confirmationLink = `${appUrl}/confirm/${order.id}?token=${confirmationToken}`;
       setReceipt({
@@ -262,11 +287,11 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
         deliveryEstimate,
       });
       clearCart();
-      checkoutSessionRef.current = null; // Reset for next checkout
+      checkoutSessionRef.current = null;
     } catch (error: any) {
       console.error('Checkout error:', error);
       toast.error(getUserFriendlyError(error));
-      checkoutSessionRef.current = null; // Reset on error to allow retry
+      checkoutSessionRef.current = null;
     } finally {
       setLoading(false);
     }
