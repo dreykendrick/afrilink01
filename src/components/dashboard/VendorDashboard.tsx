@@ -4,7 +4,7 @@ import { User, Product, VendorStats } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { StatsCard } from './StatsCard';
 import { AddProductModal } from './AddProductModal';
-import { WalletSection } from './WalletSection';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
@@ -171,10 +171,7 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
         <StatsCard icon={Eye} value={stats.pending} label="Products Under Review" gradient="from-afrilink-amber to-afrilink-orange" subtext="Usually takes up to 24 hours" />
       </div>
 
-      {/* Wallet Section */}
-      <div className="mb-6 sm:mb-8">
-        <WalletSection walletType="VENDOR" onBalanceChange={onProductAdded} />
-      </div>
+
 
       <div className="bg-card rounded-xl sm:rounded-2xl border border-border overflow-hidden shadow-card mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
         <div className="p-4 sm:p-6 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
