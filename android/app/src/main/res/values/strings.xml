@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Afrilink</string>
+    <string name="title_activity_main">Afrilink</string>
+    <string name="package_name">com.kbsoftwares.afrilink</string>
+    <string name="custom_url_scheme">com.kbsoftwares.afrilink</string>
+</resources>
