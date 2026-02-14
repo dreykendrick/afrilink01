@@ -470,10 +470,7 @@ const IndexContent = () => {
     const existingLink = affiliateLinks.find(l => l.product_id === productId);
     if (existingLink) {
       const slug = getProductSlug(product.title, product.id);
-      let appUrl = getAppUrl();
-      if (appUrl === window.location.origin) {
-        appUrl = await getAppUrlAsync();
-      }
+      const appUrl = await getAppUrlAsync();
       const link = `${appUrl}/p/${slug}?ref=${existingLink.code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link copied to clipboard!');
@@ -498,10 +495,7 @@ const IndexContent = () => {
 
       setAffiliateLinks(prev => [...prev, data]);
       const slug = getProductSlug(product.title, product.id);
-      let appUrl = getAppUrl();
-      if (appUrl === window.location.origin) {
-        appUrl = await getAppUrlAsync();
-      }
+      const appUrl = await getAppUrlAsync();
       const link = `${appUrl}/p/${slug}?ref=${code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link generated and copied!');
