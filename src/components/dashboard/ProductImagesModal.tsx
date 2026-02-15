@@ -11,75 +11,62 @@ interface ProductImagesModalProps {
 }
 
 /**
- * Downloads an image using canvas to avoid CORS and Android WebView issues.
- * Falls back to opening in a new tab if canvas approach fails.
+ * Converts an image URL to a Blob via canvas (bypasses CORS in WebView).
+ */
+const imageToBlob = (imageUrl: string): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('No canvas context');
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          if (!blob) reject(new Error('toBlob failed'));
+          else resolve(blob);
+        }, 'image/jpeg', 0.95);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    img.onerror = () => reject(new Error('Image load failed'));
+    img.src = imageUrl;
+  });
+};
+
+/**
+ * Downloads an image. Uses navigator.share on mobile (Android WebView),
+ * anchor-click on desktop, and opens in new tab as last resort.
  */
 const downloadImage = async (imageUrl: string, filename: string): Promise<void> => {
   try {
-    // Method 1: Use an Image + Canvas to bypass CORS (works in Android WebView)
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => {
-        try {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) throw new Error('No canvas context');
-          ctx.drawImage(img, 0, 0);
-          
-          canvas.toBlob((blob) => {
-            if (!blob) {
-              reject(new Error('Canvas toBlob failed'));
-              return;
-            }
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            
-            // Cleanup after a delay
-            setTimeout(() => {
-              document.body.removeChild(link);
-              URL.revokeObjectURL(url);
-            }, 100);
-            resolve();
-          }, 'image/jpeg', 0.95);
-        } catch (err) {
-          reject(err);
-        }
-      };
-      img.onerror = () => reject(new Error('Image load failed'));
-      img.src = imageUrl;
-    });
-  } catch {
-    // Method 2: Try fetch with blob
-    try {
-      const response = await fetch(imageUrl, { mode: 'cors' });
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        }, 100);
-        return;
-      }
-    } catch {
-      // Fall through
+    const blob = await imageToBlob(imageUrl);
+    const file = new File([blob], filename, { type: 'image/jpeg' });
+
+    // Mobile: use Web Share API (works reliably in Android WebView)
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: filename });
+      return;
     }
-    
-    // Method 3: Open in new tab as last resort
+
+    // Desktop: anchor-click download
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 200);
+  } catch {
+    // Last resort: open image directly
     window.open(imageUrl, '_blank');
   }
 };
