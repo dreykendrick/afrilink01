@@ -554,7 +554,7 @@ const IndexContent = () => {
       }
     }
     setSelectedProduct(null);
-    setCartOpen(true);
+    setCheckoutOpen(true);
   };
 
   const handleNavigate = (newView: string) => {
