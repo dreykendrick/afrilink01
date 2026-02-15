@@ -72,14 +72,14 @@ export const CartDrawer = ({ isOpen, onClose, onCheckout }: CartDrawerProps) => 
               ))}
             </div>
 
-            <div className="border-t border-border p-4 space-y-4">
+            <div className="border-t border-border p-3 sm:p-4 space-y-2 sm:space-y-4 flex-shrink-0">
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">{t('cart.subtotal')}</span>
-                <span className="text-xl font-bold text-foreground">{formatCurrency(totalPrice)}</span>
+                <span className="text-sm sm:text-base text-muted-foreground">{t('cart.subtotal')}</span>
+                <span className="text-lg sm:text-xl font-bold text-foreground">{formatCurrency(totalPrice)}</span>
               </div>
               <button
                 onClick={onCheckout}
-                className="w-full py-3 bg-gradient-primary text-white rounded-xl font-bold hover:shadow-glow transition-all duration-300"
+                className="w-full py-2.5 sm:py-3 bg-gradient-primary text-white rounded-xl font-bold hover:shadow-glow transition-all duration-300 text-sm sm:text-base"
               >
                 {t('cart.checkout')}
               </button>
