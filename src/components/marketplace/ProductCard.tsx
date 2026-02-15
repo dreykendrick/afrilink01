@@ -1,4 +1,4 @@
-import { Link2, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { Product } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 
@@ -76,18 +76,7 @@ export const ProductCard = ({ product, onAddToCart, onGrabLink, onClick, index }
         </div>
 
         {/* Buttons - stacked on mobile, side by side icons for quick actions */}
-        <div className="grid grid-cols-2 sm:grid-cols-1 gap-1.5 sm:gap-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onGrabLink(product.id);
-            }}
-            className="w-full py-2 sm:py-3 bg-foreground text-background rounded-lg font-semibold hover:bg-foreground/90 transition-all duration-200 flex items-center justify-center space-x-1 sm:space-x-2 text-xs sm:text-base touch-manipulation active:scale-95"
-          >
-            <Link2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="hidden sm:inline">Grab Link</span>
-            <span className="sm:hidden">Link</span>
-          </button>
+        <div className="grid grid-cols-1 gap-1.5 sm:gap-2">
           <button
             onClick={(e) => {
               e.stopPropagation();
