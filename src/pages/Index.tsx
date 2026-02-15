@@ -540,18 +540,9 @@ const IndexContent = () => {
 
   const handleBuyProduct = () => {
     if (selectedProduct) {
-      addToCart({
-        id: selectedProduct.id,
-        title: selectedProduct.title,
-        price: selectedProduct.price,
-        image: selectedProduct.image,
-        commission: selectedProduct.commission,
-        vendorId: selectedProduct.vendorId || '',
-        freeDelivery: false,
-      });
+      const base = getAppUrl();
+      window.location.href = `${base}/p/${selectedProduct.id}`;
     }
-    setSelectedProduct(null);
-    setCheckoutOpen(true);
   };
 
   const handleNavigate = (newView: string) => {
