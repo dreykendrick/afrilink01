@@ -472,9 +472,8 @@ const IndexContent = () => {
     // Check if link already exists
     const existingLink = affiliateLinks.find(l => l.product_id === productId);
     if (existingLink) {
-      const slug = getProductSlug(product.title, product.id);
       const appUrl = await getAppUrlAsync();
-      const link = `${appUrl}/p/${slug}?ref=${existingLink.code}`;
+      const link = `${appUrl}/p/${product.id}?ref=${existingLink.code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link copied to clipboard!');
       return;
@@ -497,9 +496,8 @@ const IndexContent = () => {
       if (error) throw error;
 
       setAffiliateLinks(prev => [...prev, data]);
-      const slug = getProductSlug(product.title, product.id);
       const appUrl = await getAppUrlAsync();
-      const link = `${appUrl}/p/${slug}?ref=${code}`;
+      const link = `${appUrl}/p/${product.id}?ref=${code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link generated and copied!');
     } catch (error: any) {
