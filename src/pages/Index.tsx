@@ -280,6 +280,7 @@ const IndexContent = () => {
             status: p.status as 'approved' | 'pending' | 'rejected' | 'pending_takedown' | 'taken_down',
             sales: p.sales,
             isAvailable: (p as any).is_available !== false,
+            vendorId: p.vendor_id,
           }));
           setProducts(formattedProducts);
 
@@ -343,6 +344,7 @@ const IndexContent = () => {
             status: p.status as 'approved' | 'pending' | 'rejected' | 'pending_takedown' | 'taken_down',
             sales: p.sales,
             isAvailable: (p as any).is_available !== false,
+            vendorId: p.vendor_id,
           }));
           setMarketplaceProducts(formattedProducts);
         }
@@ -400,6 +402,7 @@ const IndexContent = () => {
           status: p.status as 'approved' | 'pending' | 'rejected' | 'pending_takedown' | 'taken_down',
           sales: p.sales,
           isAvailable: (p as any).is_available !== false,
+          vendorId: p.vendor_id,
         }));
         setMarketplaceProducts(formattedProducts);
         return formattedProducts;
@@ -521,37 +524,33 @@ const IndexContent = () => {
   };
 
   const handleAddToCart = (productId: string) => {
-    const product = products.find(p => p.id === productId);
-    const rawProduct = rawProducts.find(p => p.id === productId);
+    const product = marketplaceProducts.find(p => p.id === productId) || products.find(p => p.id === productId);
     
-      if (product && rawProduct) {
-        addToCart({
-          id: rawProduct.id,
-          title: product.title,
-          price: product.price,
-          image: product.image,
-          commission: product.commission,
-          vendorId: rawProduct.vendor_id,
-          freeDelivery: Boolean(rawProduct.free_delivery),
-        });
-        toast.success('Added to cart!');
-      }
-    };
+    if (product) {
+      addToCart({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        commission: product.commission,
+        vendorId: product.vendorId || '',
+        freeDelivery: false,
+      });
+      toast.success('Added to cart!');
+    }
+  };
 
   const handleBuyProduct = () => {
     if (selectedProduct) {
-      const rawProduct = rawProducts.find(p => p.id === selectedProduct.id);
-      if (rawProduct) {
-        addToCart({
-          id: rawProduct.id,
-          title: selectedProduct.title,
-          price: selectedProduct.price,
-          image: selectedProduct.image,
-          commission: selectedProduct.commission,
-          vendorId: rawProduct.vendor_id,
-          freeDelivery: Boolean(rawProduct.free_delivery),
-        });
-      }
+      addToCart({
+        id: selectedProduct.id,
+        title: selectedProduct.title,
+        price: selectedProduct.price,
+        image: selectedProduct.image,
+        commission: selectedProduct.commission,
+        vendorId: selectedProduct.vendorId || '',
+        freeDelivery: false,
+      });
     }
     setSelectedProduct(null);
     setCheckoutOpen(true);
