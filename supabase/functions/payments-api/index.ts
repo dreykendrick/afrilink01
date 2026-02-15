@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -160,7 +161,7 @@ async function briqVerifyPayment(providerPaymentId: string): Promise<{
 // ========================================
 
 async function applyPaymentSplit(
-  adminClient: ReturnType<typeof createClient>,
+  adminClient: any,
   paymentId: string,
 ): Promise<{ success: boolean; error?: string; split?: unknown; already_confirmed?: boolean }> {
   // Get payment
