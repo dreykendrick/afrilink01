@@ -11,6 +11,7 @@ export interface Product {
   status: 'approved' | 'pending' | 'rejected' | 'pending_takedown' | 'taken_down';
   sales: number;
   isAvailable?: boolean;
+  vendorId?: string;
 }
 
 export interface User {

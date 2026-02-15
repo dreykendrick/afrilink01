@@ -10,11 +10,84 @@ interface ProductImagesModalProps {
   onClose: () => void;
 }
 
+/**
+ * Downloads an image using canvas to avoid CORS and Android WebView issues.
+ * Falls back to opening in a new tab if canvas approach fails.
+ */
+const downloadImage = async (imageUrl: string, filename: string): Promise<void> => {
+  try {
+    // Method 1: Use an Image + Canvas to bypass CORS (works in Android WebView)
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('No canvas context');
+          ctx.drawImage(img, 0, 0);
+          
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              reject(new Error('Canvas toBlob failed'));
+              return;
+            }
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup after a delay
+            setTimeout(() => {
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }, 100);
+            resolve();
+          }, 'image/jpeg', 0.95);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      img.onerror = () => reject(new Error('Image load failed'));
+      img.src = imageUrl;
+    });
+  } catch {
+    // Method 2: Try fetch with blob
+    try {
+      const response = await fetch(imageUrl, { mode: 'cors' });
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, 100);
+        return;
+      }
+    } catch {
+      // Fall through
+    }
+    
+    // Method 3: Open in new tab as last resort
+    window.open(imageUrl, '_blank');
+  }
+};
+
 export const ProductImagesModal = ({ product, isOpen, onClose }: ProductImagesModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [downloading, setDownloading] = useState<number | null>(null);
 
-  // Get all images - use images array if available, otherwise fall back to single image
   const allImages = product.images && product.images.length > 0 
     ? product.images 
     : [product.image];
@@ -30,38 +103,9 @@ export const ProductImagesModal = ({ product, isOpen, onClose }: ProductImagesMo
   const handleDownload = async (imageUrl: string, index: number) => {
     setDownloading(index);
     try {
-      // Extract filename from URL or create one
       const urlParts = imageUrl.split('/');
       const filename = urlParts[urlParts.length - 1].split('?')[0] || `${product.title}-image-${index + 1}.jpg`;
-
-      // Try fetch with no-cors workaround for cross-origin images
-      try {
-        const response = await fetch(imageUrl, { mode: 'cors' });
-        if (response.ok) {
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-          return;
-        }
-      } catch {
-        // CORS failed, use fallback
-      }
-
-      // Fallback: open image in new tab for manual save
-      const link = document.createElement('a');
-      link.href = imageUrl;
-      link.download = filename;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      await downloadImage(imageUrl, filename);
     } catch (error) {
       console.error('Download failed:', error);
       window.open(imageUrl, '_blank');
@@ -73,7 +117,6 @@ export const ProductImagesModal = ({ product, isOpen, onClose }: ProductImagesMo
   const handleDownloadAll = async () => {
     for (let i = 0; i < allImages.length; i++) {
       await handleDownload(allImages[i], i);
-      // Small delay between downloads to prevent browser blocking
       if (i < allImages.length - 1) {
         await new Promise(resolve => setTimeout(resolve, 500));
       }
@@ -117,7 +160,6 @@ export const ProductImagesModal = ({ product, isOpen, onClose }: ProductImagesMo
             />
           </div>
 
-          {/* Navigation Arrows */}
           {allImages.length > 1 && (
             <>
               <button
@@ -135,7 +177,6 @@ export const ProductImagesModal = ({ product, isOpen, onClose }: ProductImagesMo
             </>
           )}
 
-          {/* Image Counter */}
           {allImages.length > 1 && (
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/60 rounded-full text-white text-sm">
               {currentIndex + 1} / {allImages.length}
