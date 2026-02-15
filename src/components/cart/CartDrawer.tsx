@@ -21,7 +21,7 @@ export const CartDrawer = ({ isOpen, onClose, onCheckout }: CartDrawerProps) => 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" 
         onClick={onClose} 
       />
-      <div className="relative w-full max-w-md bg-card border-l border-border h-full animate-in slide-in-from-right duration-300 flex flex-col">
+      <div className="relative w-full max-w-md bg-card border-l border-border h-full animate-in slide-in-from-right duration-300 flex flex-col pb-mobile-nav safe-area-bottom">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-primary" />
