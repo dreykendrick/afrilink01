@@ -30,24 +30,40 @@ export const ProductImagesModal = ({ product, isOpen, onClose }: ProductImagesMo
   const handleDownload = async (imageUrl: string, index: number) => {
     setDownloading(index);
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      
       // Extract filename from URL or create one
       const urlParts = imageUrl.split('/');
       const filename = urlParts[urlParts.length - 1].split('?')[0] || `${product.title}-image-${index + 1}.jpg`;
-      
+
+      // Try fetch with no-cors workaround for cross-origin images
+      try {
+        const response = await fetch(imageUrl, { mode: 'cors' });
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          return;
+        }
+      } catch {
+        // CORS failed, use fallback
+      }
+
+      // Fallback: open image in new tab for manual save
+      const link = document.createElement('a');
+      link.href = imageUrl;
       link.download = filename;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Download failed:', error);
-      // Fallback: open in new tab
       window.open(imageUrl, '_blank');
     } finally {
       setDownloading(null);
