@@ -402,8 +402,37 @@ Deno.serve(async (req) => {
 
       if (updateError) throw updateError;
 
-      // Notify vendor (idempotent)
+      // Notify vendor via SMS (idempotent)
       await notifyVendor(adminClient, orderData);
+
+      // Send in-app notification to vendor(s)
+      const items = orderData.order_items as Array<{ quantity: number; price: number; products: { vendor_id: string; title: string } }> | undefined;
+      if (items?.length) {
+        const vendorIds = new Set<string>();
+        const productTitles: string[] = [];
+        items.forEach(item => {
+          if (item.products?.vendor_id) vendorIds.add(item.products.vendor_id);
+          if (item.products?.title) productTitles.push(item.products.title);
+        });
+
+        for (const vendorId of vendorIds) {
+          try {
+            await adminClient
+              .from('notifications')
+              .insert({
+                user_id: vendorId,
+                title: '🛒 New Order Received!',
+                message: `You have a new order for: ${productTitles.join(', ')}. Total: TZS ${orderData.total_amount}. Buyer: ${orderData.customer_name}`,
+                type: 'success',
+                link: '/dashboard',
+                read: false,
+              });
+            console.log(`In-app notification sent to vendor ${vendorId}`);
+          } catch (err) {
+            console.error(`Failed to create in-app notification for vendor ${vendorId}:`, err);
+          }
+        }
+      }
 
       console.log('Payment confirmed for order:', body.order_id);
 
