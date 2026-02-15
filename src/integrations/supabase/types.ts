@@ -968,9 +968,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      affiliate_link_lookup: {
+        Row: {
+          code: string | null
+          product_id: string | null
+        }
+        Insert: {
+          code?: string | null
+          product_id?: string | null
+        }
+        Update: {
+          code?: string | null
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_links_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      credit_wallet: {
+        Args: {
+          p_amount: number
+          p_entry_type?: string
+          p_metadata?: Json
+          p_order_id: string
+          p_payment_id: string
+          p_reason?: string
+          p_wallet_id: string
+        }
+        Returns: string
+      }
+      debit_wallet_for_payout: {
+        Args: {
+          p_amount: number
+          p_payout_request_id: string
+          p_wallet_id: string
+        }
+        Returns: string
+      }
       generate_slug: { Args: { p_title: string }; Returns: string }
       get_or_create_wallet: {
         Args: { p_currency?: string; p_owner_id: string; p_owner_type: string }
