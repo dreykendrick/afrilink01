@@ -26,7 +26,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/reset-password" element={<Index />} />
-                <Route path="/p/:slug" element={<ProductPage />} />
+                <Route path="/p/:productId" element={<ProductPage />} />
                 <Route path="/confirm/:orderId" element={<OrderConfirmationPage />} />
                 <Route path="/checkout/confirm" element={<CheckoutConfirmPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

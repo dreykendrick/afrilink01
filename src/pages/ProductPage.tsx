@@ -4,7 +4,6 @@ import { ShieldCheck, Truck, Link2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/hooks/useCart';
 import { formatCurrency } from '@/utils/currency';
-import { getProductSlug } from '@/utils/slug';
 import { CheckoutModal } from '@/components/cart/CheckoutModal';
 import { toast } from 'sonner';
 
@@ -20,7 +19,7 @@ const hasAffiliateAttribution = (): boolean => {
 };
 
 export const ProductPage = () => {
-  const { slug } = useParams();
+  const { productId } = useParams();
   const [searchParams] = useSearchParams();
   const { addToCart, setAffiliateCode, affiliateCode } = useCart();
   const [product, setProduct] = useState<any | null>(null);
@@ -34,23 +33,17 @@ export const ProductPage = () => {
     if (ref) {
       setAffiliateCode(ref);
       setHasAffiliateRef(true);
-      // Note: useCart already stores this in localStorage as 'affiliateCode'
-      
-      supabase
-        .from('affiliate_links')
-        .select('id, clicks')
-        .eq('code', ref)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data) {
-            supabase
-              .from('affiliate_links')
-              .update({ clicks: (data.clicks || 0) + 1 })
-              .eq('id', data.id);
-          }
-        });
+
+      // Track click via checkout-api (uses service role, no RLS issue)
+      fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/checkout-api/track-click`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: ref }),
+        }
+      ).catch(() => {});
     } else {
-      // Check if we have a stored affiliate code from previous visit
       if (hasAffiliateAttribution()) {
         setHasAffiliateRef(true);
       }
@@ -60,20 +53,33 @@ export const ProductPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
-      // Bug Fix F: Explicit select to avoid exposing vendor contact info
-      const { data } = await supabase
+      
+      if (!productId) {
+        setProduct(null);
+        setLoading(false);
+        return;
+      }
+
+      // CRITICAL FIX 3: Single query by ID instead of fetching all products
+      const { data, error } = await supabase
         .from('products')
         .select('id, title, description, price, commission, category, image_url, image_urls, vendor_id, status, sales')
-        .eq('status', 'approved');
+        .eq('id', productId)
+        .eq('status', 'approved')
+        .eq('is_available', true)
+        .maybeSingle();
 
-      const matchedProduct = data?.find((item) => getProductSlug(item.title, item.id) === slug) || null;
-      setProduct(matchedProduct);
+      if (error) {
+        console.error('Product fetch error:', error);
+      }
 
-      if (matchedProduct?.vendor_id) {
+      setProduct(data || null);
+
+      if (data?.vendor_id) {
         const { data: vendor } = await (supabase
           .from('vendor_profiles' as any)
           .select('city, verification_status')
-          .eq('user_id', matchedProduct.vendor_id)
+          .eq('user_id', data.vendor_id)
           .maybeSingle() as unknown as Promise<{ data: any; error: any }>);
         setVendorProfile(vendor || null);
       }
@@ -82,7 +88,7 @@ export const ProductPage = () => {
     };
 
     fetchProduct();
-  }, [slug]);
+  }, [productId]);
 
   const imageUrls = useMemo(() => {
     if (!product) return [];
@@ -108,7 +114,6 @@ export const ProductPage = () => {
   }
 
   const handleBuyNow = () => {
-    // Check for affiliate attribution
     if (!hasAffiliateRef && !hasAffiliateAttribution()) {
       toast.error('Checkout is available only via affiliate link');
       return;

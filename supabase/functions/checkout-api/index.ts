@@ -556,6 +556,35 @@ Deno.serve(async (req) => {
       });
     }
 
+    // POST /track-click - Track affiliate link click (uses service role, no RLS issue)
+    if (req.method === 'POST' && path === '/track-click') {
+      const body = await req.json();
+      const code = body?.code;
+      if (!code) {
+        return new Response(JSON.stringify({ success: false, error: 'code required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data } = await adminClient
+        .from('affiliate_links')
+        .select('id, clicks')
+        .eq('code', code)
+        .maybeSingle();
+
+      if (data) {
+        await adminClient
+          .from('affiliate_links')
+          .update({ clicks: (data.clicks || 0) + 1 })
+          .eq('id', data.id);
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     return new Response(JSON.stringify({ error: 'Not found' }), {
       status: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

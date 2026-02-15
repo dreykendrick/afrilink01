@@ -296,43 +296,30 @@ async function applyPaymentSplit(
   // CREATE LEDGER ENTRIES
   // ========================================
 
-  // Credit PLATFORM wallet
+  // Credit PLATFORM wallet (atomic via RPC)
   const { data: platformWalletId } = await adminClient.rpc('get_or_create_wallet', {
     p_owner_type: 'PLATFORM',
     p_owner_id: null,
     p_currency: 'TZS',
   });
 
-  const { error: platformLedgerError } = await adminClient
-    .from('ledger_entries')
-    .insert({
-      wallet_id: platformWalletId,
-      payment_id: payment.id,
-      order_id: order.id,
-      entry_type: 'CREDIT',
-      amount: adjustedPlatformFee,
-      reason: 'SALE_SPLIT',
-      metadata: {
-        product_subtotal: productSubtotal,
-        delivery_fee: deliveryFee,
-        platform_fee_percent: PLATFORM_FEE_PERCENT,
-      },
-    });
+  const { error: platformLedgerError } = await adminClient.rpc('credit_wallet', {
+    p_wallet_id: platformWalletId,
+    p_amount: adjustedPlatformFee,
+    p_payment_id: payment.id,
+    p_order_id: order.id,
+    p_reason: 'SALE_SPLIT',
+    p_entry_type: 'CREDIT',
+    p_metadata: {
+      product_subtotal: productSubtotal,
+      delivery_fee: deliveryFee,
+      platform_fee_percent: PLATFORM_FEE_PERCENT,
+    },
+  });
 
   if (platformLedgerError && !platformLedgerError.message.includes('duplicate')) {
     console.error('Platform ledger error:', platformLedgerError);
   }
-
-  const { data: platformWallet } = await adminClient
-    .from('wallets')
-    .select('available_balance')
-    .eq('id', platformWalletId)
-    .single();
-
-  await adminClient
-    .from('wallets')
-    .update({ available_balance: (platformWallet?.available_balance || 0) + adjustedPlatformFee })
-    .eq('id', platformWalletId);
 
   // Credit AFFILIATE wallet (if applicable)
   if (affiliateId && totalAffiliateFee > 0) {
@@ -342,35 +329,22 @@ async function applyPaymentSplit(
       p_currency: 'TZS',
     });
 
-    const { error: affiliateLedgerError } = await adminClient
-      .from('ledger_entries')
-      .insert({
-        wallet_id: affiliateWalletId,
-        payment_id: payment.id,
-        order_id: order.id,
-        entry_type: 'CREDIT',
-        amount: totalAffiliateFee,
-        reason: 'SALE_SPLIT',
-        metadata: {
-          affiliate_breakdown: affiliateBreakdown,
-          product_subtotal: productSubtotal,
-        },
-      });
+    const { error: affiliateLedgerError } = await adminClient.rpc('credit_wallet', {
+      p_wallet_id: affiliateWalletId,
+      p_amount: totalAffiliateFee,
+      p_payment_id: payment.id,
+      p_order_id: order.id,
+      p_reason: 'SALE_SPLIT',
+      p_entry_type: 'CREDIT',
+      p_metadata: {
+        affiliate_breakdown: affiliateBreakdown,
+        product_subtotal: productSubtotal,
+      },
+    });
 
     if (affiliateLedgerError && !affiliateLedgerError.message.includes('duplicate')) {
       console.error('Affiliate ledger error:', affiliateLedgerError);
     }
-
-    const { data: affiliateWallet } = await adminClient
-      .from('wallets')
-      .select('available_balance')
-      .eq('id', affiliateWalletId)
-      .single();
-
-    await adminClient
-      .from('wallets')
-      .update({ available_balance: (affiliateWallet?.available_balance || 0) + totalAffiliateFee })
-      .eq('id', affiliateWalletId);
 
     // Update affiliate link stats
     const { data: linkData } = await adminClient
@@ -398,37 +372,24 @@ async function applyPaymentSplit(
       p_currency: 'TZS',
     });
 
-    const { error: vendorLedgerError } = await adminClient
-      .from('ledger_entries')
-      .insert({
-        wallet_id: vendorWalletId,
-        payment_id: payment.id,
-        order_id: order.id,
-        entry_type: 'CREDIT',
-        amount: vendorPayout.amount,
-        reason: 'SALE_SPLIT',
-        metadata: {
-          vendor_id: vendorId,
-          product_subtotal: productSubtotal,
-          delivery_fee_share: deliveryFee / vendorIds.length,
-          platform_fee_percent: PLATFORM_FEE_PERCENT,
-        },
-      });
+    const { error: vendorLedgerError } = await adminClient.rpc('credit_wallet', {
+      p_wallet_id: vendorWalletId,
+      p_amount: vendorPayout.amount,
+      p_payment_id: payment.id,
+      p_order_id: order.id,
+      p_reason: 'SALE_SPLIT',
+      p_entry_type: 'CREDIT',
+      p_metadata: {
+        vendor_id: vendorId,
+        product_subtotal: productSubtotal,
+        delivery_fee_share: deliveryFee / vendorIds.length,
+        platform_fee_percent: PLATFORM_FEE_PERCENT,
+      },
+    });
 
     if (vendorLedgerError && !vendorLedgerError.message.includes('duplicate')) {
       console.error('Vendor ledger error:', vendorLedgerError);
     }
-
-    const { data: vendorWallet } = await adminClient
-      .from('wallets')
-      .select('available_balance')
-      .eq('id', vendorWalletId)
-      .single();
-
-    await adminClient
-      .from('wallets')
-      .update({ available_balance: (vendorWallet?.available_balance || 0) + vendorPayout.amount })
-      .eq('id', vendorWalletId);
   }
 
   // ========================================
@@ -990,23 +951,14 @@ Deno.serve(async (req) => {
 
       if (payoutError) throw payoutError;
 
-      await adminClient
-        .from('wallets')
-        .update({
-          available_balance: wallet.available_balance - body.amount,
-          pending_balance: wallet.pending_balance + body.amount,
-        })
-        .eq('id', wallet.id);
+      // Atomic debit via RPC
+      const { error: debitError } = await adminClient.rpc('debit_wallet_for_payout', {
+        p_wallet_id: wallet.id,
+        p_amount: body.amount,
+        p_payout_request_id: payoutRequest.id,
+      });
 
-      await adminClient
-        .from('ledger_entries')
-        .insert({
-          wallet_id: wallet.id,
-          entry_type: 'DEBIT',
-          amount: body.amount,
-          reason: 'PAYOUT_HOLD',
-          metadata: { payout_request_id: payoutRequest.id },
-        });
+      if (debitError) throw debitError;
 
       return new Response(
         JSON.stringify({
