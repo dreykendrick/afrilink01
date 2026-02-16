@@ -432,6 +432,7 @@ export type Database = {
           id: string
           payment_reference: string | null
           payment_status: string | null
+          purchase_mode: string
           status: string
           total_amount: number
           updated_at: string
@@ -454,6 +455,7 @@ export type Database = {
           id?: string
           payment_reference?: string | null
           payment_status?: string | null
+          purchase_mode?: string
           status?: string
           total_amount?: number
           updated_at?: string
@@ -476,6 +478,7 @@ export type Database = {
           id?: string
           payment_reference?: string | null
           payment_status?: string | null
+          purchase_mode?: string
           status?: string
           total_amount?: number
           updated_at?: string

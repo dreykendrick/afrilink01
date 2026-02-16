@@ -540,8 +540,17 @@ const IndexContent = () => {
 
   const handleBuyProduct = () => {
     if (selectedProduct) {
-      const base = getAppUrl();
-      window.location.href = `${base}/p/${selectedProduct.id}`;
+      addToCart({
+        id: selectedProduct.id,
+        title: selectedProduct.title,
+        price: selectedProduct.price,
+        image: selectedProduct.image,
+        commission: selectedProduct.commission,
+        vendorId: selectedProduct.vendorId || '',
+        freeDelivery: false,
+      });
+      setSelectedProduct(null);
+      setCheckoutOpen(true);
     }
   };
 
@@ -934,6 +943,7 @@ const IndexContent = () => {
           onSuccess={() => {
             toast.success('Order placed successfully!');
           }}
+          purchaseMode="marketplace"
         />
         {currentUser && (
           <MobileBottomNav 
