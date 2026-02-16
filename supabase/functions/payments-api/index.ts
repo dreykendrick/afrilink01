@@ -222,12 +222,14 @@ async function applyPaymentSplit(
   // Platform fee applies ONLY to product subtotal
   const platformFee = Math.round(productSubtotal * PLATFORM_FEE_PERCENT / 100);
 
-  // Get affiliate attribution if exists
+  // Get affiliate attribution if exists AND purchase_mode is 'affiliate'
   let affiliateId: string | null = null;
   let totalAffiliateFee = 0;
   const affiliateBreakdown: Array<{ product_id: string; amount: number; percent: number }> = [];
 
-  if (order.affiliate_link_id) {
+  const isAffiliateMode = (order.purchase_mode || 'affiliate') === 'affiliate';
+
+  if (order.affiliate_link_id && isAffiliateMode) {
     const { data: affiliateLink } = await adminClient
       .from('affiliate_links')
       .select('affiliate_id')

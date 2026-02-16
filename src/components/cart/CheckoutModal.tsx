@@ -15,6 +15,7 @@ interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: (orderId: string) => void;
+  purchaseMode?: 'affiliate' | 'marketplace';
 }
 
 interface VendorProfile {
@@ -31,8 +32,10 @@ interface ReceiptDetails {
   deliveryEstimate: string;
 }
 
-export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps) => {
+export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affiliate' }: CheckoutModalProps) => {
   const { items, totalPrice, affiliateCode, clearCart } = useCart();
+  // In marketplace mode, ignore any affiliate code
+  const effectiveAffiliateCode = purchaseMode === 'marketplace' ? null : affiliateCode;
   const [loading, setLoading] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptDetails | null>(null);
   const [vendorProfiles, setVendorProfiles] = useState<Record<string, VendorProfile>>({});
@@ -171,11 +174,11 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
 
       let affiliateLinkId = null;
       let affiliateId = null;
-      if (affiliateCode) {
+      if (effectiveAffiliateCode) {
         const { data: linkData } = await supabase
           .from('affiliate_links')
           .select('id, affiliate_id, conversions')
-          .eq('code', affiliateCode)
+          .eq('code', effectiveAffiliateCode)
           .maybeSingle();
 
         if (linkData) {
@@ -213,6 +216,7 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess }: CheckoutModalProps
           delivery_type: deliveryTypeLabel,
           confirmation_token: confirmationToken,
           checkout_session_id: checkoutSessionId,
+          purchase_mode: purchaseMode,
         } as any)
         .select()
         .single();
