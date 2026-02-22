@@ -45,6 +45,33 @@ Deno.serve(async (req) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
   try {
+    // GET /debug/product/:id - Temporary debug endpoint (no filters)
+    if (req.method === 'GET' && path.startsWith('/debug/product/')) {
+      const productId = path.replace('/debug/product/', '');
+      console.log('DEBUG: Checking product existence:', productId);
+      console.log('DEBUG: SUPABASE_URL =', supabaseUrl);
+      console.log('DEBUG: Project ref =', supabaseUrl.match(/https:\/\/([^.]+)/)?.[1]);
+
+      const { data: product, error } = await adminClient
+        .from('products')
+        .select('id, status, is_available, slug, title')
+        .eq('id', productId)
+        .maybeSingle();
+
+      return new Response(JSON.stringify({
+        exists: !!product,
+        id: product?.id || null,
+        status: product?.status || null,
+        is_available: product?.is_available ?? null,
+        slug: product?.slug || null,
+        title: product?.title || null,
+        supabase_project_ref: supabaseUrl.match(/https:\/\/([^.]+)/)?.[1],
+        error: error?.message || null,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // GET /products - List approved products
     if (req.method === 'GET' && (path === '/products' || path === '/products/')) {
       console.log('Fetching approved products');
@@ -106,7 +133,8 @@ Deno.serve(async (req) => {
       console.log('Fetching product:', slugOrId);
 
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
-      
+
+      // First: try with filters (approved + available)
       let query = supabase
         .from('products')
         .select('id, title, description, price, commission, category, image_url, image_urls, slug, vendor_id')
@@ -119,10 +147,46 @@ Deno.serve(async (req) => {
         query = query.eq('slug', slugOrId);
       }
 
-      const { data: product, error } = await query.single();
+      const { data: product, error } = await query.maybeSingle();
 
-      if (error || !product) {
-        return new Response(JSON.stringify({ success: false, error: 'Product not found' }), {
+      if (error) {
+        console.error('Product query error:', error);
+        return new Response(JSON.stringify({ success: false, error: 'Internal server error' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // If not found with filters, check if it exists at all (to give better reason)
+      if (!product) {
+        let rawQuery = adminClient
+          .from('products')
+          .select('id, status, is_available')
+        if (isUuid) {
+          rawQuery = rawQuery.eq('id', slugOrId);
+        } else {
+          rawQuery = rawQuery.eq('slug', slugOrId);
+        }
+        const { data: rawProduct } = await rawQuery.maybeSingle();
+
+        if (rawProduct) {
+          console.log('Product exists but filtered out:', slugOrId, 'status:', rawProduct.status, 'is_available:', rawProduct.is_available);
+          return new Response(JSON.stringify({ 
+            success: false, 
+            error: 'Product not available',
+            reason: 'not_approved_or_unavailable'
+          }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        console.log('Product not found at all:', slugOrId);
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: 'Product not found',
+          reason: 'not_found'
+        }), {
           status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
