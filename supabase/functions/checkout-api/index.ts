@@ -620,10 +620,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // POST /track-click - Track affiliate link click (uses service role, no RLS issue)
-    if (req.method === 'POST' && path === '/track-click') {
+    // POST /track-click or /affiliate-clicks - Track affiliate link click (uses service role, no RLS issue)
+    if (req.method === 'POST' && (path === '/track-click' || path === '/affiliate-clicks')) {
       const body = await req.json();
-      const code = body?.code;
+      // Accept both "code" and "affiliate_code" field names
+      const code = body?.code || body?.affiliate_code;
       if (!code) {
         return new Response(JSON.stringify({ success: false, error: 'code required' }), {
           status: 400,
