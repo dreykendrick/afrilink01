@@ -197,7 +197,7 @@ const IndexContent = () => {
 
   // Redirect to dashboard if logged in
   useEffect(() => {
-    if (user && userRole && view !== 'verification') {
+    if (user && userRole && view !== 'verification' && view !== 'reset-password') {
       handlePostLogin();
     }
   }, [user, userRole]);
