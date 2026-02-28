@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react';
-import { ShoppingCart, Lock, Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { ShoppingCart, Lock, Loader2, Eye, EyeOff, CheckCircle, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { getResetDeepLink } from '@/utils/resetUrl';
 
 interface ResetPasswordPageProps {
   onNavigate: (view: string) => void;
 }
 
 const passwordSchema = z.object({
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -29,17 +30,25 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
   const [resetComplete, setResetComplete] = useState(false);
   const [hasSession, setHasSession] = useState(false);
 
+  // Extract token from URL for deep-link button (Phase 2)
+  const resetToken = useMemo(() => {
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.replace('#', ''));
+    return params.get('access_token') || new URLSearchParams(window.location.search).get('token') || '';
+  }, []);
+
   useEffect(() => {
-    // Check if user has a valid session from the reset link
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setHasSession(true);
+        console.log('[ResetPassword] Valid session found from reset link');
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setHasSession(true);
+        console.log('[ResetPassword] PASSWORD_RECOVERY event received');
       }
     });
 
@@ -62,11 +71,10 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password,
-      });
+      const { error } = await supabase.auth.updateUser({ password });
 
       if (error) {
+        console.error('[ResetPassword] Update failed:', error.message);
         toast({
           title: 'Error',
           description: error.message,
@@ -75,18 +83,20 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
         return;
       }
 
+      console.log('[ResetPassword] Password updated successfully');
       setResetComplete(true);
       toast({
         title: 'Password Updated',
         description: 'Your password has been successfully reset.',
       });
 
-      // Sign out and redirect to login after a delay
+      // Sign out all sessions and redirect to login
       setTimeout(async () => {
-        await supabase.auth.signOut();
+        await supabase.auth.signOut({ scope: 'global' });
         onNavigate('login');
       }, 3000);
     } catch (error: any) {
+      console.error('[ResetPassword] Unexpected error:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred. Please try again.',
@@ -97,6 +107,14 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
     }
   };
 
+  const handleOpenInApp = () => {
+    if (!resetToken) return;
+    const deepLink = getResetDeepLink(resetToken);
+    window.location.href = deepLink;
+    // If the app isn't installed, nothing will happen – user stays on page
+  };
+
+  // ── Invalid / expired link state ──
   if (!hasSession && !resetComplete) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
@@ -121,6 +139,7 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
     );
   }
 
+  // ── Success state ──
   if (resetComplete) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
@@ -145,6 +164,7 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
     );
   }
 
+  // ── Reset form ──
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
       <div className="max-w-md w-full animate-in fade-in zoom-in-95 duration-500">
@@ -170,6 +190,7 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10"
                   required
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -179,6 +200,7 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              <p className="text-xs text-muted-foreground">Minimum 8 characters</p>
             </div>
 
             <div className="space-y-2">
@@ -193,6 +215,7 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10 pr-10"
                   required
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -219,6 +242,23 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
               )}
             </Button>
           </form>
+
+          {/* Phase 2: Deep link button for mobile app */}
+          {resetToken && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleOpenInApp}
+              >
+                <Smartphone className="w-4 h-4 mr-2" />
+                Open in AfriLink App
+              </Button>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Don't have the app? Install AfriLink to reset inside the app.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

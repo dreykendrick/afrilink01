@@ -18,6 +18,9 @@ import { supabase } from '@/integrations/supabase/client';
 const STORAGE_KEY = 'afrilink_app_url';
 const LOVABLE_HOST_RE = /(\.lovableproject\.com$|\.lovable\.app$)/i;
 
+/** Hard-coded fallback – used when VITE_APP_URL is unset AND cache is empty */
+const FALLBACK_APP_URL = 'https://afrilink01.vercel.app';
+
 let inFlight: Promise<string> | null = null;
 
 const normalizeUrl = (url: string): string => url.replace(/\/+$/, '');
@@ -48,7 +51,11 @@ export const getAppUrl = (): string => {
   const cached = readCachedUrl();
   if (cached) return normalizeUrl(cached);
 
-  return normalizeUrl(window.location.origin);
+  // Never fall back to window.location.origin in production – use hard-coded fallback
+  if (!import.meta.env.DEV) {
+    console.warn('[appUrl] VITE_APP_URL is not set – falling back to hard-coded production URL');
+  }
+  return normalizeUrl(FALLBACK_APP_URL);
 };
 
 /**
@@ -77,7 +84,10 @@ export const getAppUrlAsync = async (): Promise<string> => {
         // ignore and fall back
       }
 
-      return normalizeUrl(window.location.origin);
+      if (!import.meta.env.DEV) {
+        console.warn('[appUrl] VITE_APP_URL is not set – falling back to hard-coded production URL');
+      }
+      return normalizeUrl(FALLBACK_APP_URL);
     })().finally(() => {
       inFlight = null;
     });

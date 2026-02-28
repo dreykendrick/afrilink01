@@ -18,7 +18,10 @@ serve(async (req) => {
     });
   }
 
-  const appUrl = Deno.env.get("VITE_APP_URL") || null;
+  const appUrl = Deno.env.get("VITE_APP_URL") || "https://afrilink01.vercel.app";
+  if (!Deno.env.get("VITE_APP_URL")) {
+    console.warn("[app-config] VITE_APP_URL is not set – using hard-coded fallback");
+  }
 
   return new Response(JSON.stringify({ success: true, appUrl }), {
     status: 200,

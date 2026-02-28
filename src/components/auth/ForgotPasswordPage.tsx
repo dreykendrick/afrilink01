@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
-import { getAppUrlAsync } from '@/utils/appUrl';
+import { getResetRedirectUrlAsync } from '@/utils/resetUrl';
 
 interface ForgotPasswordPageProps {
   onNavigate: (view: string) => void;
@@ -38,24 +38,23 @@ export const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
     setLoading(true);
 
     try {
-      const appUrl = await getAppUrlAsync();
+      const redirectTo = await getResetRedirectUrlAsync();
+      console.log('[ForgotPassword] Reset email requested, redirectTo base:', redirectTo);
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${appUrl}/reset-password`,
+        redirectTo,
       });
 
       if (error) {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-        return;
+        // Log server-side but show generic message to user (do not leak account existence)
+        console.error('[ForgotPassword] Error sending reset email:', error.message);
       }
 
+      // Always show generic success – never reveal if email exists
       setEmailSent(true);
       toast({
         title: 'Email Sent',
-        description: 'Check your email for the password reset link.',
+        description: 'If an account exists with that email, we sent a reset link.',
       });
     } catch (error: any) {
       toast({
@@ -86,9 +85,9 @@ export const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
 
           {emailSent ? (
             <div className="space-y-4">
-              <div className="bg-afrilink-green/10 border border-afrilink-green/20 rounded-lg p-4 text-center">
+            <div className="bg-afrilink-green/10 border border-afrilink-green/20 rounded-lg p-4 text-center">
                 <p className="text-foreground">
-                  We've sent a password reset link to <strong>{email}</strong>
+                  If an account exists for <strong>{email}</strong>, we've sent a password reset link.
                 </p>
                 <p className="text-muted-foreground text-sm mt-2">
                   Please check your inbox and spam folder.
