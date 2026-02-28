@@ -3,7 +3,7 @@
     "apps": [],
     "details": [
       {
-        "appID": "TODO_TEAM_ID.com.kbsoftwares.afrilink",
+        "appID": "REPLACE_ME_TEAMID_BUNDLEID",
         "paths": ["/reset-password*"]
       }
     ]
