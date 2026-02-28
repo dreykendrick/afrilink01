@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { LandingPage } from '@/components/landing/LandingPage';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { SignupPage } from '@/components/auth/SignupPage';
@@ -54,8 +54,20 @@ type View =
   | 'affiliate-profile-setup'
   | 'phone-verification';
 
+// Helper: detect password recovery from Supabase hash fragment
+const isRecoveryHash = (): boolean => {
+  const hash = window.location.hash;
+  if (!hash) return false;
+  const params = new URLSearchParams(hash.replace('#', ''));
+  return params.get('type') === 'recovery';
+};
+
 // Bug Fix C: Helper to read view from URL
 const getViewFromUrl = (): { view: View | null; role: 'vendor' | 'affiliate' | null } => {
+  // If hash contains type=recovery, force reset-password view
+  if (isRecoveryHash()) {
+    return { view: 'reset-password', role: null };
+  }
   const params = new URLSearchParams(window.location.search);
   const viewParam = params.get('view');
   const roleParam = params.get('role');
@@ -103,8 +115,23 @@ const IndexContent = () => {
   const [postGrabProductId, setPostGrabProductId] = useState<string | null>(null);
   const [isGuestBrowsing, setIsGuestBrowsing] = useState(false); // Track if user entered marketplace from role-selection
 
+  // Ref: locks view to 'reset-password' so no other effect overrides it
+  const isRecoveryLocked = useRef(() => {
+    const initial = getViewFromUrl();
+    return initial.view === 'reset-password';
+  });
+  const recoveryLocked = useRef(isRecoveryLocked.current());
+
   // Bug Fix C: Wrapper to update view and URL together
   const setView = useCallback((newView: View, role?: 'vendor' | 'affiliate' | null) => {
+    // If recovery is locked, only allow setting reset-password or login (after completion)
+    if (recoveryLocked.current && newView !== 'reset-password' && newView !== 'login') {
+      console.log('[Index] Blocked view change to', newView, '— recovery lock active');
+      return;
+    }
+    if (newView === 'login') {
+      recoveryLocked.current = false; // Unlock after reset completes
+    }
     setViewState(newView);
     updateUrlView(newView, role);
     // Auto-scroll to top when changing views
@@ -148,14 +175,17 @@ const IndexContent = () => {
     }
   }, [view]);
 
-  // Check for affiliate code and password reset in URL
+  // Check for affiliate code, password reset in URL, and PASSWORD_RECOVERY auth event
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const ref = params.get('ref');
     
-    // Check if this is a password reset redirect
-    if (window.location.pathname === '/reset-password') {
-      setView('reset-password');
+    // Check if this is a password reset redirect (path-based or hash-based)
+    if (window.location.pathname === '/reset-password' || isRecoveryHash()) {
+      recoveryLocked.current = true;
+      setViewState('reset-password');
+      updateUrlView('reset-password');
+      console.log('[Index] Recovery detected from URL — locking to reset-password view');
       return;
     }
     
@@ -176,6 +206,19 @@ const IndexContent = () => {
           }
         });
     }
+  }, []);
+
+  // Listen for PASSWORD_RECOVERY auth event (fires after Supabase processes the token)
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log('[Index] PASSWORD_RECOVERY event — forcing reset-password view');
+        recoveryLocked.current = true;
+        setViewState('reset-password');
+        updateUrlView('reset-password');
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   // Bug Fix C: Only set default view if URL doesn't specify one
