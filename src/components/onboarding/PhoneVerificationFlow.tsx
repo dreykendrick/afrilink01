@@ -13,6 +13,7 @@ import { getUserFriendlyError, friendlyErrors } from '@/utils/errorMessages';
 interface PhoneVerificationFlowProps {
   userId: string;
   onComplete: () => void;
+  onBack?: () => void;
 }
 
 const maskPhone = (phone: string) => {
@@ -20,7 +21,7 @@ const maskPhone = (phone: string) => {
   return phone.replace(/\d(?=\d{4})/g, '*');
 };
 
-export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationFlowProps) => {
+export const PhoneVerificationFlow = ({ userId, onComplete, onBack }: PhoneVerificationFlowProps) => {
   const { toast } = useToast();
   const [step, setStep] = useState<1 | 2>(1);
   const [phone, setPhone] = useState('');
@@ -106,7 +107,7 @@ export const PhoneVerificationFlow = ({ userId, onComplete }: PhoneVerificationF
       <Card className="w-full max-w-lg animate-in fade-in zoom-in-95 duration-500">
         <CardHeader className="space-y-2">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="sm" onClick={() => window.history.back()} className="px-2">
+            <Button variant="ghost" size="sm" onClick={() => onBack ? onBack() : window.history.back()} className="px-2">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Button>

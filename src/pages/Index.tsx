@@ -727,6 +727,9 @@ const IndexContent = () => {
           showNotification('Phone verification complete!');
           fetchUserData();
         }}
+        onBack={() => {
+          handleLogout();
+        }}
       />
     );
   }
