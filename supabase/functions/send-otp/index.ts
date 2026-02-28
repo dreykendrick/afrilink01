@@ -117,7 +117,7 @@ serve(async (req) => {
       // Keep `developer_app_id` alongside for compatibility with any updated docs.
       app_key: developerAppId,
       developer_app_id: developerAppId,
-      sender_id: "BRIQ",
+      sender_id: "Afrilink",
       otp_length: 6,
       minutes_to_expire: 10,
       delivery_method: "sms",
