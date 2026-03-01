@@ -41,9 +41,13 @@ const ROOT_DOMAIN = 'afrilink.info'
 const FROM_DOMAIN = 'afrilink.info' // Domain shown in From address (may be root or sender subdomain)
 const CANONICAL_APP_URL = (Deno.env.get('VITE_APP_URL') || 'https://afrilink01.vercel.app').replace(/\/+$/, '')
 
+// The main app (dashboard/auth) lives on a different domain than the shop.
+// Recovery emails must always redirect to the main app, never the shop.
+const MAIN_APP_URL = 'https://afrilink01.vercel.app'
+
 const LOVABLE_HOST_RE = /(\.lovableproject\.com$|\.lovable\.app$)/i
 
-const getRecoveryRedirectUrl = () => `${CANONICAL_APP_URL}/reset-password`
+const getRecoveryRedirectUrl = () => `${MAIN_APP_URL}/reset-password`
 
 const normalizeConfirmationUrl = (emailType: string, rawUrl?: string): string => {
   if (!rawUrl) return CANONICAL_APP_URL
