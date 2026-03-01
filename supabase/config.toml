@@ -1,16 +1,15 @@
 project_id = "ckklirhhwndijsjpmnfe"
 
-[functions.send-otp]
-verify_jwt = false
-
-[functions.verify-otp]
-verify_jwt = false
-
-[functions.admin-actions]
-verify_jwt = false
-
-[functions.checkout-api]
-verify_jwt = false
-
-[functions.payments-api]
-verify_jwt = false
+[functions]
+  [functions.admin-actions]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.checkout-api]
+    verify_jwt = false
+  [functions.payments-api]
+    verify_jwt = false
+  [functions.send-otp]
+    verify_jwt = false
+  [functions.verify-otp]
+    verify_jwt = false
