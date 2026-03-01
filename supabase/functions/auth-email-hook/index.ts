@@ -35,18 +35,50 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "byte-perfect-clone"
-const SENDER_DOMAIN = "notify.afrilink.info"
-const ROOT_DOMAIN = "afrilink.info"
-const FROM_DOMAIN = "afrilink.info" // Domain shown in From address (may be root or sender subdomain)
+const SITE_NAME = 'AfriLink'
+const SENDER_DOMAIN = 'notify.afrilink.info'
+const ROOT_DOMAIN = 'afrilink.info'
+const FROM_DOMAIN = 'afrilink.info' // Domain shown in From address (may be root or sender subdomain)
+const CANONICAL_APP_URL = (Deno.env.get('VITE_APP_URL') || 'https://afrilink01.vercel.app').replace(/\/+$/, '')
+
+const LOVABLE_HOST_RE = /(\.lovableproject\.com$|\.lovable\.app$)/i
+
+const getRecoveryRedirectUrl = () => `${CANONICAL_APP_URL}/reset-password`
+
+const normalizeConfirmationUrl = (emailType: string, rawUrl?: string): string => {
+  if (!rawUrl) return CANONICAL_APP_URL
+
+  try {
+    const parsed = new URL(rawUrl)
+
+    if (emailType === 'recovery') {
+      // Standard auth verify links include redirect_to — force canonical reset page.
+      if (parsed.searchParams.has('redirect_to')) {
+        parsed.searchParams.set('redirect_to', getRecoveryRedirectUrl())
+        return parsed.toString()
+      }
+
+      // If a direct lovable.* URL somehow arrives, rewrite to canonical reset route.
+      if (LOVABLE_HOST_RE.test(parsed.hostname)) {
+        const canonical = new URL(getRecoveryRedirectUrl())
+        canonical.hash = parsed.hash
+        return canonical.toString()
+      }
+    }
+
+    return rawUrl
+  } catch {
+    return rawUrl
+  }
+}
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
 // The sample email uses a fixed placeholder (RFC 6761 .test TLD) so the Go backend
 // can always find-and-replace it with the actual recipient when sending test emails,
 // even if the project's domain has changed since the template was scaffolded.
-const SAMPLE_PROJECT_URL = "https://byte-perfect-clone.lovable.app"
-const SAMPLE_EMAIL = "user@example.test"
+const SAMPLE_PROJECT_URL = 'https://afrilink01.vercel.app'
+const SAMPLE_EMAIL = 'user@example.test'
 const SAMPLE_DATA: Record<string, object> = {
   signup: {
     siteName: SITE_NAME,
@@ -216,12 +248,14 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  const confirmationUrl = normalizeConfirmationUrl(emailType, payload.data.url)
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
-    siteUrl: `https://${ROOT_DOMAIN}`,
+    siteUrl: CANONICAL_APP_URL,
     recipient: payload.data.email,
-    confirmationUrl: payload.data.url,
+    confirmationUrl,
     token: payload.data.token,
     email: payload.data.email,
     newEmail: payload.data.new_email,
