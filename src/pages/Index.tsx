@@ -91,7 +91,11 @@ const updateUrlView = (view: View, role?: 'vendor' | 'affiliate' | null) => {
   } else {
     params.delete('role');
   }
-  const newUrl = `${window.location.pathname}?${params.toString()}`;
+
+  // Keep auth hash only while handling password recovery so token parsing isn't interrupted.
+  const hash = view === 'reset-password' ? window.location.hash : '';
+  const query = params.toString();
+  const newUrl = `${window.location.pathname}${query ? `?${query}` : ''}${hash}`;
   window.history.replaceState(null, '', newUrl);
 };
 

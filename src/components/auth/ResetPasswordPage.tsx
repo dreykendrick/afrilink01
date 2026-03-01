@@ -29,6 +29,7 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetComplete, setResetComplete] = useState(false);
   const [hasSession, setHasSession] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   // Extract token from URL for deep-link button (Phase 2)
   const resetToken = useMemo(() => {
@@ -38,21 +39,46 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let active = true;
+
+    const completeSessionCheck = () => {
+      if (active) setCheckingSession(false);
+    };
+
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!active) return;
+
+      setHasSession(Boolean(session));
       if (session) {
-        setHasSession(true);
         console.log('[ResetPassword] Valid session found from reset link');
       }
-    });
+      completeSessionCheck();
+    };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
+    checkSession();
+
+    // Safety fallback so UI doesn't stay in loading state if auth event is delayed
+    const timeoutId = window.setTimeout(() => {
+      completeSessionCheck();
+    }, 2500);
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || (event === 'INITIAL_SESSION' && session)) {
         setHasSession(true);
-        console.log('[ResetPassword] PASSWORD_RECOVERY event received');
+        console.log('[ResetPassword] Recovery session established via auth event:', event);
+      }
+
+      if (event === 'PASSWORD_RECOVERY' || event === 'INITIAL_SESSION') {
+        completeSessionCheck();
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      active = false;
+      window.clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -114,8 +140,25 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
     // If the app isn't installed, nothing will happen – user stays on page
   };
 
+  // ── Session check in progress ──
+  if (checkingSession && !resetComplete) {
+    return (
+      <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
+        <div className="max-w-md w-full animate-in fade-in zoom-in-95 duration-500">
+          <div className="bg-card backdrop-blur-lg rounded-2xl p-8 border border-border shadow-card text-center">
+            <div className="w-16 h-16 bg-primary/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Verifying Reset Link</h2>
+            <p className="text-muted-foreground">Please wait while we validate your reset session...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ── Invalid / expired link state ──
-  if (!hasSession && !resetComplete) {
+  if (!checkingSession && !hasSession && !resetComplete) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
         <div className="max-w-md w-full animate-in fade-in zoom-in-95 duration-500">
