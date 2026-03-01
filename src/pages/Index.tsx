@@ -101,7 +101,7 @@ const updateUrlView = (view: View, role?: 'vendor' | 'affiliate' | null) => {
 
 const IndexContent = () => {
   const { user, loading: authLoading, userRole, signOut, availableRoles, switchRole, addRole, refreshRoles } = useAuth();
-  const { addToCart, setAffiliateCode } = useCart();
+  const { addToCart, setAffiliateCode, clearCart } = useCart();
   // Bug Fix C: Initialize view from URL or default
   const [view, setViewState] = useState<View>(() => {
     const urlState = getViewFromUrl();
@@ -466,6 +466,7 @@ const IndexContent = () => {
 
   const handleLogout = async () => {
     await signOut();
+    clearCart();
     setView('landing');
     setProfile(null);
     setProducts([]);
