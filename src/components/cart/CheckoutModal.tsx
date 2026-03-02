@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { CheckCircle2, CreditCard, Loader2, Truck, X } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/currency';
 import { calculateDelivery } from '@/utils/delivery';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,6 +35,7 @@ interface ReceiptDetails {
 
 export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affiliate' }: CheckoutModalProps) => {
   const { items, totalPrice, affiliateCode, clearCart } = useCart();
+  const { user, userRole } = useAuth();
   // In marketplace mode, ignore any affiliate code
   const effectiveAffiliateCode = purchaseMode === 'marketplace' ? null : affiliateCode;
   const [loading, setLoading] = useState(false);
@@ -156,8 +158,14 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
     const checkoutSessionId = checkoutSessionRef.current;
 
     try {
-      // Check for duplicate order using checkout_session_id (Bug Fix B)
-      // Note: checkout_session_id column must be added via migration
+      // ── MARKETPLACE MODE: Route through Checkout API ──
+      if (purchaseMode === 'marketplace') {
+        await handleMarketplaceCheckout(checkoutSessionId, phoneValidation.normalized || form.phone);
+        return;
+      }
+
+      // ── AFFILIATE MODE: Existing local logic ──
+      // Check for duplicate order using checkout_session_id
       const existingOrderQuery = supabase
         .from('orders')
         .select('id') as any;
@@ -184,7 +192,6 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
         if (linkData) {
           affiliateLinkId = linkData.id;
           affiliateId = linkData.affiliate_id;
-          // Only increment conversions in DEMO_MODE (Bug Fix E)
           if (IS_DEMO_MODE) {
             await supabase
               .from('affiliate_links')
@@ -197,7 +204,6 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
       const confirmationToken = crypto.randomUUID();
       const deliveryTypeLabel = deliveryBreakdown[0]?.result.label ?? 'Intercity delivery (distance-based)';
 
-      // Use pending_payment by default, 'paid' only in DEMO_MODE (Bug Fix A)
       const orderStatus = IS_DEMO_MODE ? 'paid' : 'pending_payment';
 
       const { data: order, error: orderError } = await supabase
@@ -245,7 +251,7 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
         });
       }
 
-      // ── Trigger payment flow (STUB or LIVE) ──
+      // Trigger payment flow (STUB or LIVE)
       if (!IS_DEMO_MODE) {
         try {
           const paymentResponse = await fetch(
@@ -266,7 +272,6 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
           if (paymentData.success && paymentData.redirect_url) {
             clearCart();
             checkoutSessionRef.current = null;
-            // Redirect to payment page (Briq checkout in LIVE, or our confirm page in STUB)
             window.location.href = paymentData.redirect_url;
             return;
           } else {
@@ -296,6 +301,73 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
       console.error('Checkout error:', error);
       toast.error(getUserFriendlyError(error));
       checkoutSessionRef.current = null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /** Marketplace checkout: delegates order creation + payment to the Checkout API */
+  const handleMarketplaceCheckout = async (checkoutSessionId: string, normalizedPhone: string) => {
+    try {
+      const apiBase = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+
+      // 1. Create order via checkout-api
+      const orderPayload = {
+        products: items.map((item) => ({ product_id: item.id, quantity: item.quantity })),
+        buyer_name: form.name,
+        buyer_email: form.email || `${normalizedPhone}@buyer.afrilink`,
+        buyer_phone: normalizedPhone,
+        buyer_city: form.deliveryCity,
+        buyer_address: form.deliveryAddress,
+        buyer_country: form.deliveryCountry || undefined,
+        delivery_type: 'delivery' as const,
+        checkout_session_id: checkoutSessionId,
+        purchase_mode: 'marketplace' as const,
+        buyer_user_id: user?.id || undefined,
+        buyer_role: userRole || 'customer',
+        affiliate_code: undefined, // explicitly no affiliate for marketplace
+      };
+
+      const orderRes = await fetch(`${apiBase}/checkout-api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderPayload),
+      });
+
+      const orderData = await orderRes.json();
+
+      if (!orderData.success && !orderData.order_id) {
+        throw new Error(orderData.error || 'Failed to create order');
+      }
+
+      // If order already existed (idempotent), use it
+      const orderId = orderData.order_id;
+      const totalAmount = orderData.total_amount ?? grandTotal;
+
+      // 2. Create payment via payments-api
+      const paymentRes = await fetch(`${apiBase}/payments-api/create-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: orderId,
+          amount: totalAmount,
+          currency: 'TZS',
+        }),
+      });
+
+      const paymentData = await paymentRes.json();
+
+      if (paymentData.success && paymentData.redirect_url) {
+        clearCart();
+        checkoutSessionRef.current = null;
+        window.location.href = paymentData.redirect_url;
+        return;
+      } else {
+        throw new Error(paymentData.error || 'Failed to create payment');
+      }
+    } catch (error: any) {
+      console.error('Marketplace checkout error:', error);
+      toast.error(error.message || 'Checkout failed. Please try again.');
     } finally {
       setLoading(false);
     }
