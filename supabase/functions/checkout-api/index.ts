@@ -13,10 +13,14 @@ interface CreateOrderRequest {
   buyer_phone: string;
   buyer_city: string;
   buyer_address: string;
+  buyer_country?: string;
   buyer_notes?: string;
   delivery_type: 'pickup' | 'delivery';
   affiliate_code?: string;
   checkout_session_id: string;
+  purchase_mode?: 'affiliate' | 'marketplace';
+  buyer_user_id?: string;
+  buyer_role?: string;
 }
 
 interface ConfirmPaymentRequest {
@@ -360,6 +364,7 @@ Deno.serve(async (req) => {
           customer_phone: body.buyer_phone,
           delivery_city: body.buyer_city,
           delivery_address: body.buyer_address,
+          delivery_country: body.buyer_country || null,
           delivery_type: body.delivery_type,
           delivery_fee: deliveryFee,
           total_amount: totalAmount,
@@ -369,6 +374,7 @@ Deno.serve(async (req) => {
           checkout_session_id: body.checkout_session_id,
           buyer_notes: body.buyer_notes,
           affiliate_link_id: affiliateLinkId,
+          purchase_mode: body.purchase_mode || 'affiliate',
         })
         .select()
         .single();
