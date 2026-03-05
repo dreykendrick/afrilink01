@@ -1,0 +1,33 @@
+INSERT INTO delivery_zones (city, zone_name, base_fee, is_active) VALUES
+  ('Dar es Salaam', 'Central', 1500, true),
+  ('Dodoma', 'Central', 1500, true),
+  ('Arusha', 'Northern', 1500, true),
+  ('Mwanza', 'Lake Zone', 1500, true),
+  ('Mbeya', 'Southern Highlands', 1500, true),
+  ('Morogoro', 'Eastern', 1500, true),
+  ('Tanga', 'Coastal', 1500, true),
+  ('Zanzibar', 'Island', 2000, true),
+  ('Iringa', 'Southern Highlands', 1500, true),
+  ('Kigoma', 'Western', 1500, true),
+  ('Tabora', 'Western', 1500, true),
+  ('Mtwara', 'Southern', 1500, true),
+  ('Lindi', 'Southern', 1500, true),
+  ('Songea', 'Southern', 1500, true),
+  ('Musoma', 'Lake Zone', 1500, true),
+  ('Bukoba', 'Lake Zone', 1500, true),
+  ('Sumbawanga', 'Western', 1500, true),
+  ('Singida', 'Central', 1500, true),
+  ('Shinyanga', 'Lake Zone', 1500, true),
+  ('Babati', 'Northern', 1500, true);
+
+INSERT INTO cross_city_fees (from_city, to_city, fee, is_active) VALUES
+  ('Dar es Salaam', 'Dodoma', 5000, true),
+  ('Dar es Salaam', 'Arusha', 7000, true),
+  ('Dar es Salaam', 'Mwanza', 8000, true),
+  ('Dar es Salaam', 'Mbeya', 6000, true),
+  ('Dar es Salaam', 'Morogoro', 3000, true),
+  ('Dar es Salaam', 'Tanga', 4000, true),
+  ('Dar es Salaam', 'Zanzibar', 3000, true),
+  ('Arusha', 'Mwanza', 6000, true),
+  ('Arusha', 'Dodoma', 5000, true),
+  ('Mwanza', 'Dodoma', 6000, true);
