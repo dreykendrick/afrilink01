@@ -327,18 +327,67 @@ Deno.serve(async (req) => {
         };
       });
 
-      // Calculate delivery fee
+      // Calculate delivery fee based on vendor city vs buyer city
       let deliveryFee = 0;
+      let deliveryLabel = 'delivery';
       if (body.delivery_type === 'delivery') {
-        const { data: zone } = await supabase
-          .from('delivery_zones')
-          .select('base_fee')
-          .eq('city', body.buyer_city)
-          .eq('is_active', true)
-          .limit(1)
-          .single();
-        
-        deliveryFee = zone?.base_fee || 5000;
+        // Get unique vendor cities
+        const vendorIds = [...new Set((products as Array<{ vendor_id: string }>).map(p => p.vendor_id))];
+        const { data: vendorProfiles } = await adminClient
+          .from('vendor_profiles')
+          .select('user_id, city')
+          .in('user_id', vendorIds);
+
+        const buyerCityNorm = (body.buyer_city || '').trim().toLowerCase();
+        let maxFee = 0;
+
+        for (const vendor of (vendorProfiles || [])) {
+          const vendorCityNorm = (vendor.city || '').trim().toLowerCase();
+
+          if (vendorCityNorm && vendorCityNorm === buyerCityNorm) {
+            // Same city: use delivery_zones base_fee
+            const { data: zone } = await supabase
+              .from('delivery_zones')
+              .select('base_fee')
+              .ilike('city', body.buyer_city.trim())
+              .eq('is_active', true)
+              .limit(1)
+              .maybeSingle();
+            const fee = zone?.base_fee || 1500;
+            if (fee > maxFee) maxFee = fee;
+            deliveryLabel = 'Local delivery (same city)';
+          } else {
+            // Different city: check cross_city_fees first
+            const fromCity = vendor.city || '';
+            const toCity = body.buyer_city || '';
+            const { data: crossFee } = await supabase
+              .from('cross_city_fees')
+              .select('fee')
+              .ilike('from_city', fromCity.trim())
+              .ilike('to_city', toCity.trim())
+              .eq('is_active', true)
+              .maybeSingle();
+
+            // Also check reverse direction
+            let fee = crossFee?.fee;
+            if (!fee) {
+              const { data: reverseFee } = await supabase
+                .from('cross_city_fees')
+                .select('fee')
+                .ilike('from_city', toCity.trim())
+                .ilike('to_city', fromCity.trim())
+                .eq('is_active', true)
+                .maybeSingle();
+              fee = reverseFee?.fee;
+            }
+
+            const finalFee = fee || 5000; // default intercity fee
+            if (finalFee > maxFee) maxFee = finalFee;
+            deliveryLabel = 'Intercity delivery';
+          }
+        }
+
+        deliveryFee = maxFee || 5000;
       }
 
       const totalAmount = subtotal + deliveryFee;
