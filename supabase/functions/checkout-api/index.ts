@@ -335,7 +335,7 @@ Deno.serve(async (req) => {
         const vendorIds = [...new Set((products as Array<{ vendor_id: string }>).map(p => p.vendor_id))];
         const { data: vendorProfiles } = await adminClient
           .from('vendor_profiles')
-          .select('user_id, city')
+          .select('user_id, city, vendor_lat, vendor_lng, vendor_address')
           .in('user_id', vendorIds);
 
         const buyerCityNorm = (body.buyer_city || '').trim().toLowerCase();
@@ -444,12 +444,22 @@ Deno.serve(async (req) => {
 
       console.log('Order created successfully:', (order as { id: string }).id);
 
+      // Collect vendor locations for the response
+      const vendorLocations = (vendorProfiles || []).map((vp: any) => ({
+        vendor_id: vp.user_id,
+        city: vp.city,
+        vendor_lat: vp.vendor_lat || null,
+        vendor_lng: vp.vendor_lng || null,
+        vendor_address: vp.vendor_address || null,
+      }));
+
       return new Response(JSON.stringify({ 
         success: true, 
         order_id: (order as { id: string }).id,
         total_amount: totalAmount,
         delivery_fee: deliveryFee,
         payment_status: 'pending_payment',
+        vendor_locations: vendorLocations,
       }), {
         status: 201,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

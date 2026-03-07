@@ -126,7 +126,7 @@ export const ProductPage = () => {
       image: product.image_url || mainImage,
       commission: product.commission,
       vendorId: product.vendor_id,
-      freeDelivery: Boolean(product.free_delivery),
+      
     });
     setCheckoutOpen(true);
   };
@@ -172,7 +172,7 @@ export const ProductPage = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-afrilink-amber" />
-                <span>Delivery estimate: Same city (Bolt-powered) or 2–5 days intercity</span>
+                <span>Delivery handled by vendor — fee calculated at checkout</span>
               </div>
               <div>
                 <span className="text-foreground font-medium">Sold by:</span>{' '}

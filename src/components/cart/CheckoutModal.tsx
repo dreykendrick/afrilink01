@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { CheckCircle2, CreditCard, Loader2, Truck, X } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/currency';
-import { calculateDelivery } from '@/utils/delivery';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { validateTZPhone } from '@/utils/phone';
@@ -19,30 +18,19 @@ interface CheckoutModalProps {
   purchaseMode?: 'affiliate' | 'marketplace';
 }
 
-interface VendorProfile {
-  user_id: string;
-  city?: string | null;
-  country?: string | null;
-}
-
 interface ReceiptDetails {
   orderId: string;
   totalAmount: number;
   deliveryFee: number;
   confirmationLink: string;
-  deliveryEstimate: string;
 }
 
 export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affiliate' }: CheckoutModalProps) => {
   const { items, totalPrice, affiliateCode, clearCart } = useCart();
   const { user, userRole } = useAuth();
-  // In marketplace mode, ignore any affiliate code
   const effectiveAffiliateCode = purchaseMode === 'marketplace' ? null : affiliateCode;
   const [loading, setLoading] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptDetails | null>(null);
-  const [vendorProfiles, setVendorProfiles] = useState<Record<string, VendorProfile>>({});
-  const [vendorProfilesError, setVendorProfilesError] = useState<string | null>(null);
-  const [vendorProfilesLoading, setVendorProfilesLoading] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const checkoutSessionRef = useRef<string | null>(null);
   const [form, setForm] = useState({
@@ -60,82 +48,19 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    const fetchVendorProfiles = async () => {
-      if (!isOpen || items.length === 0) return;
-      setVendorProfilesError(null);
-      setVendorProfilesLoading(true);
-      try {
-        const vendorIds = Array.from(new Set(items.map((item) => item.vendorId)));
-        const { data, error } = await (supabase
-          .from('vendor_profiles' as any)
-          .select('user_id, city, country')
-          .in('user_id', vendorIds) as unknown as Promise<{ data: any[]; error: any }>);
-
-        if (error) throw error;
-
-        if (data) {
-          const mapped = (data as any[]).reduce<Record<string, VendorProfile>>((acc, profile: any) => {
-            acc[profile.user_id] = profile;
-            return acc;
-          }, {});
-          setVendorProfiles(mapped);
-        }
-      } catch (error: any) {
-        console.error('Failed to load vendor profiles:', error);
-        setVendorProfilesError('Unable to load delivery zones. Please retry.');
-      } finally {
-        setVendorProfilesLoading(false);
-      }
-    };
-
-    fetchVendorProfiles();
-  }, [isOpen, items]);
-
-  const deliveryBreakdown = useMemo(() => {
-    if (!form.deliveryCity) return [];
-
-    const vendors = Object.values(vendorProfiles);
-    if (vendors.length === 0) return [];
-
-    return vendors.map((vendor) => {
-      const vendorItems = items.filter((item) => item.vendorId === vendor.user_id);
-      const freeDelivery = vendorItems.some((item) => item.freeDelivery);
-      return {
-        vendorId: vendor.user_id,
-        city: vendor.city,
-        result: calculateDelivery({
-          vendorCity: vendor.city,
-          vendorCountry: vendor.country,
-          buyerCity: form.deliveryCity,
-          buyerCountry: form.deliveryCountry,
-          freeDelivery,
-        }),
-      };
-    });
-  }, [form.deliveryCity, form.deliveryCountry, items, vendorProfiles]);
-
-  const deliveryFeeTotal = deliveryBreakdown.reduce((sum, vendor) => sum + vendor.result.fee, 0);
-  const deliverySupported = deliveryBreakdown.every((vendor) => vendor.result.isSupported);
-  const deliveryEstimate = deliveryBreakdown[0]?.result.estimate ?? '2–5 business days';
-  const grandTotal = totalPrice + deliveryFeeTotal;
-
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Disable submit instantly (before await)
     if (loading) return;
     setLoading(true);
-    
+
     if (!form.name || !form.phone || !form.deliveryAddress || !form.deliveryCity) {
       toast.error('Please fill in all required fields');
       setLoading(false);
       return;
     }
 
-    // Validate Tanzania phone
     const phoneValidation = validateTZPhone(form.phone);
     if (!phoneValidation.isValid) {
       setPhoneError(phoneValidation.error);
@@ -145,158 +70,19 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
     }
     setPhoneError(null);
 
-    if (!deliverySupported) {
-      toast.error('We do not support international delivery at this time.');
-      setLoading(false);
-      return;
-    }
-
-    // Generate idempotency key for this checkout session
     if (!checkoutSessionRef.current) {
       checkoutSessionRef.current = crypto.randomUUID();
     }
     const checkoutSessionId = checkoutSessionRef.current;
+    const normalizedPhone = phoneValidation.normalized || form.phone;
 
     try {
-      // ── MARKETPLACE MODE: Route through Checkout API ──
+      // Both modes now route through the Checkout API
       if (purchaseMode === 'marketplace') {
-        await handleMarketplaceCheckout(checkoutSessionId, phoneValidation.normalized || form.phone);
-        return;
+        await handleApiCheckout(checkoutSessionId, normalizedPhone, 'marketplace');
+      } else {
+        await handleApiCheckout(checkoutSessionId, normalizedPhone, 'affiliate');
       }
-
-      // ── AFFILIATE MODE: Existing local logic ──
-      // Check for duplicate order using checkout_session_id
-      const existingOrderQuery = supabase
-        .from('orders')
-        .select('id') as any;
-      const { data: existingOrder } = await existingOrderQuery
-        .eq('checkout_session_id', checkoutSessionId)
-        .maybeSingle();
-
-      if (existingOrder) {
-        toast.error('This order has already been placed.');
-        checkoutSessionRef.current = null;
-        setLoading(false);
-        return;
-      }
-
-      let affiliateLinkId = null;
-      let affiliateId = null;
-      if (effectiveAffiliateCode) {
-        const { data: linkData } = await supabase
-          .from('affiliate_links')
-          .select('id, affiliate_id, conversions')
-          .eq('code', effectiveAffiliateCode)
-          .maybeSingle();
-
-        if (linkData) {
-          affiliateLinkId = linkData.id;
-          affiliateId = linkData.affiliate_id;
-          if (IS_DEMO_MODE) {
-            await supabase
-              .from('affiliate_links')
-              .update({ conversions: (linkData.conversions || 0) + 1 })
-              .eq('id', linkData.id);
-          }
-        }
-      }
-
-      const confirmationToken = crypto.randomUUID();
-      const deliveryTypeLabel = deliveryBreakdown[0]?.result.label ?? 'Intercity delivery (distance-based)';
-
-      const orderStatus = IS_DEMO_MODE ? 'paid' : 'pending_payment';
-
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          customer_name: form.name,
-          customer_email: form.email || `${form.phone}@buyer.afrilink`,
-          total_amount: grandTotal,
-          status: orderStatus,
-          affiliate_link_id: affiliateLinkId,
-          customer_phone: phoneValidation.normalized || form.phone,
-          delivery_address: form.deliveryAddress,
-          delivery_city: form.deliveryCity,
-          delivery_country: form.deliveryCountry || null,
-          delivery_fee: deliveryFeeTotal,
-          delivery_type: deliveryTypeLabel,
-          confirmation_token: confirmationToken,
-          checkout_session_id: checkoutSessionId,
-          purchase_mode: purchaseMode,
-        } as any)
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      const orderItems = items.map((item) => ({
-        order_id: order.id,
-        product_id: item.id,
-        quantity: item.quantity,
-        price: item.price,
-        commission_amount: Math.round((item.price * item.commission) / 100),
-      }));
-
-      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-      if (itemsError) throw itemsError;
-
-      if (affiliateId && affiliateLinkId) {
-        const totalCommission = orderItems.reduce((sum, item) => sum + item.commission_amount * item.quantity, 0);
-        await supabase.from('transactions').insert({
-          user_id: affiliateId,
-          type: 'commission_pending',
-          amount: totalCommission,
-          description: `Pending commission for order #${order.id.slice(0, 8)}`,
-          reference_id: order.id,
-        });
-      }
-
-      // Trigger payment flow (STUB or LIVE)
-      if (!IS_DEMO_MODE) {
-        try {
-          const paymentResponse = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-api/create-payment`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                order_id: order.id,
-                amount: grandTotal,
-                currency: 'TZS',
-              }),
-            }
-          );
-
-          const paymentData = await paymentResponse.json();
-
-          if (paymentData.success && paymentData.redirect_url) {
-            clearCart();
-            checkoutSessionRef.current = null;
-            window.location.href = paymentData.redirect_url;
-            return;
-          } else {
-            throw new Error(paymentData.error || 'Failed to create payment');
-          }
-        } catch (paymentError: any) {
-          console.error('Payment creation error:', paymentError);
-          toast.error(paymentError.message || 'Payment failed. Please try again.');
-          setLoading(false);
-          return;
-        }
-      }
-
-      // DEMO_MODE: show receipt directly
-      const appUrl = await getAppUrlAsync();
-      const confirmationLink = `${appUrl}/confirm/${order.id}?token=${confirmationToken}`;
-      setReceipt({
-        orderId: order.id,
-        totalAmount: grandTotal,
-        deliveryFee: deliveryFeeTotal,
-        confirmationLink,
-        deliveryEstimate,
-      });
-      clearCart();
-      checkoutSessionRef.current = null;
     } catch (error: any) {
       console.error('Checkout error:', error);
       toast.error(getUserFriendlyError(error));
@@ -306,71 +92,78 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
     }
   };
 
-  /** Marketplace checkout: delegates order creation + payment to the Checkout API */
-  const handleMarketplaceCheckout = async (checkoutSessionId: string, normalizedPhone: string) => {
-    try {
-      const apiBase = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+  /** Delegates order creation + payment to the Checkout API for both modes */
+  const handleApiCheckout = async (checkoutSessionId: string, normalizedPhone: string, mode: 'affiliate' | 'marketplace') => {
+    const apiBase = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
-      // 1. Create order via checkout-api
-      const orderPayload = {
-        products: items.map((item) => ({ product_id: item.id, quantity: item.quantity })),
-        buyer_name: form.name,
-        buyer_email: form.email || `${normalizedPhone}@buyer.afrilink`,
-        buyer_phone: normalizedPhone,
-        buyer_city: form.deliveryCity,
-        buyer_address: form.deliveryAddress,
-        buyer_country: form.deliveryCountry || undefined,
-        delivery_type: 'delivery' as const,
-        checkout_session_id: checkoutSessionId,
-        purchase_mode: 'marketplace' as const,
-        buyer_user_id: user?.id || undefined,
-        buyer_role: userRole || 'customer',
-        affiliate_code: undefined, // explicitly no affiliate for marketplace
-      };
+    const orderPayload = {
+      products: items.map((item) => ({ product_id: item.id, quantity: item.quantity })),
+      buyer_name: form.name,
+      buyer_email: form.email || `${normalizedPhone}@buyer.afrilink`,
+      buyer_phone: normalizedPhone,
+      buyer_city: form.deliveryCity,
+      buyer_address: form.deliveryAddress,
+      buyer_country: form.deliveryCountry || undefined,
+      delivery_type: 'delivery' as const,
+      checkout_session_id: checkoutSessionId,
+      purchase_mode: mode,
+      buyer_user_id: user?.id || undefined,
+      buyer_role: userRole || 'customer',
+      affiliate_code: mode === 'affiliate' ? (effectiveAffiliateCode || undefined) : undefined,
+    };
 
-      const orderRes = await fetch(`${apiBase}/checkout-api/orders`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderPayload),
-      });
+    const orderRes = await fetch(`${apiBase}/checkout-api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderPayload),
+    });
 
-      const orderData = await orderRes.json();
+    const orderData = await orderRes.json();
 
-      if (!orderData.success && !orderData.order_id) {
-        throw new Error(orderData.error || 'Failed to create order');
-      }
-
-      // If order already existed (idempotent), use it
-      const orderId = orderData.order_id;
-      const totalAmount = orderData.total_amount ?? grandTotal;
-
-      // 2. Create payment via payments-api
-      const paymentRes = await fetch(`${apiBase}/payments-api/create-payment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          order_id: orderId,
-          amount: totalAmount,
-          currency: 'TZS',
-        }),
-      });
-
-      const paymentData = await paymentRes.json();
-
-      if (paymentData.success && paymentData.redirect_url) {
-        clearCart();
-        checkoutSessionRef.current = null;
-        window.location.href = paymentData.redirect_url;
-        return;
-      } else {
-        throw new Error(paymentData.error || 'Failed to create payment');
-      }
-    } catch (error: any) {
-      console.error('Marketplace checkout error:', error);
-      toast.error(error.message || 'Checkout failed. Please try again.');
-    } finally {
-      setLoading(false);
+    if (!orderData.success && !orderData.order_id) {
+      throw new Error(orderData.error || 'Failed to create order');
     }
+
+    const orderId = orderData.order_id;
+    const totalAmount = orderData.total_amount ?? totalPrice;
+    const deliveryFee = orderData.delivery_fee ?? 0;
+
+    // Create payment via payments-api
+    const paymentRes = await fetch(`${apiBase}/payments-api/create-payment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order_id: orderId,
+        amount: totalAmount,
+        currency: 'TZS',
+      }),
+    });
+
+    const paymentData = await paymentRes.json();
+
+    if (paymentData.success && paymentData.redirect_url) {
+      clearCart();
+      checkoutSessionRef.current = null;
+      window.location.href = paymentData.redirect_url;
+      return;
+    }
+
+    // Fallback: show receipt if no redirect (STUB/DEMO mode)
+    if (IS_DEMO_MODE || !paymentData.redirect_url) {
+      const appUrl = await getAppUrlAsync();
+      const confirmationLink = `${appUrl}/confirm/${orderId}`;
+      setReceipt({
+        orderId,
+        totalAmount,
+        deliveryFee,
+        confirmationLink,
+      });
+      clearCart();
+      checkoutSessionRef.current = null;
+      return;
+    }
+
+    throw new Error(paymentData.error || 'Failed to create payment');
   };
 
   if (receipt) {
@@ -380,7 +173,7 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-afrilink-green" />
-              <h2 className="text-xl font-bold text-foreground">{IS_DEMO_MODE ? 'Payment received' : 'Order placed (payment pending)'}</h2>
+              <h2 className="text-xl font-bold text-foreground">Order placed</h2>
             </div>
             <button onClick={onClose} className="p-2 hover:bg-secondary rounded-lg transition-colors">
               <X className="w-5 h-5 text-muted-foreground" />
@@ -391,29 +184,21 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
               <p className="text-sm text-muted-foreground">Order ID</p>
               <p className="font-semibold text-foreground">{receipt.orderId}</p>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Truck className="w-4 h-4" />
-              <span>Delivery estimate: {receipt.deliveryEstimate}</span>
-            </div>
             <div className="p-4 bg-secondary/50 rounded-xl border border-border">
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Delivery fee</span>
-                <span>{formatCurrency(receipt.deliveryFee)}</span>
-              </div>
+              {receipt.deliveryFee > 0 && (
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>Delivery fee</span>
+                  <span>{formatCurrency(receipt.deliveryFee)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-base font-semibold text-foreground mt-2">
-                <span>{IS_DEMO_MODE ? 'Total paid' : 'Total due'}</span>
+                <span>Total</span>
                 <span>{formatCurrency(receipt.totalAmount)}</span>
               </div>
             </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Buyer confirmation link</p>
-              <div className="p-3 bg-muted rounded-lg text-xs break-all text-foreground">
-                {receipt.confirmationLink}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                We will send this link to the buyer via SMS/WhatsApp for delivery confirmation.
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Delivery fee is calculated by the vendor/checkout system based on your location.
+            </p>
             <button
               type="button"
               onClick={() => {
@@ -454,15 +239,12 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
               </div>
             ))}
           </div>
-          <div className="border-t border-border mt-3 pt-3 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Delivery</span>
-              <span className="text-foreground">{formatCurrency(deliveryFeeTotal)}</span>
-            </div>
+          <div className="border-t border-border mt-3 pt-3">
             <div className="flex justify-between">
-              <span className="font-semibold text-foreground">Total</span>
-              <span className="font-bold text-primary text-lg">{formatCurrency(grandTotal)}</span>
+              <span className="font-semibold text-foreground">Subtotal</span>
+              <span className="font-bold text-primary text-lg">{formatCurrency(totalPrice)}</span>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">Delivery fee will be calculated at checkout</p>
           </div>
         </div>
 
@@ -538,67 +320,9 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
             </div>
           </div>
 
-          {vendorProfilesError && (
-            <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive space-y-2">
-              <p>{vendorProfilesError}</p>
-              <button
-                type="button"
-                className="text-sm font-semibold text-destructive underline underline-offset-4"
-                onClick={() => {
-                  if (!isOpen || items.length === 0) return;
-                  setVendorProfilesError(null);
-                  setVendorProfilesLoading(true);
-                  (supabase
-                    .from('vendor_profiles' as any)
-                    .select('user_id, city, country')
-                    .in('user_id', Array.from(new Set(items.map((item) => item.vendorId)))) as unknown as Promise<{ data: any[]; error: any }>)
-                    .then(({ data, error }) => {
-                      if (error) throw error;
-                      const mapped = (data || []).reduce<Record<string, VendorProfile>>((acc, profile: any) => {
-                        acc[profile.user_id] = profile;
-                        return acc;
-                      }, {});
-                      setVendorProfiles(mapped);
-                      setVendorProfilesError(null);
-                    })
-                    .catch((error) => {
-                      console.error('Failed to reload vendor profiles:', error);
-                      setVendorProfilesError('Unable to load delivery zones. Please retry.');
-                    })
-                    .finally(() => setVendorProfilesLoading(false));
-                }}
-              >
-                Retry loading zones
-              </button>
-            </div>
-          )}
-
-          {vendorProfilesLoading && (
-            <div className="rounded-xl border border-border bg-secondary/40 p-4 text-sm text-muted-foreground flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Loading delivery zones...
-            </div>
-          )}
-
-          {deliveryBreakdown.length > 0 && (
-            <div className="rounded-xl border border-border bg-secondary/40 p-4 space-y-2 text-sm">
-              {deliveryBreakdown.map((vendor) => (
-                <div key={vendor.vendorId} className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Ships from {vendor.city || 'Vendor hub'}</span>
-                  <span className={vendor.result.isSupported ? 'text-foreground' : 'text-destructive'}>
-                    {vendor.result.label}
-                  </span>
-                </div>
-              ))}
-              {!deliverySupported && (
-                <p className="text-xs text-destructive">International delivery is not supported for this order.</p>
-              )}
-            </div>
-          )}
-
           <button
             type="submit"
-            disabled={loading || !deliverySupported}
+            disabled={loading}
             className="w-full py-3 bg-gradient-primary text-white rounded-xl font-bold hover:shadow-glow transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? (
@@ -607,7 +331,7 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
                 Processing...
               </>
             ) : (
-              `Pay ${formatCurrency(grandTotal)}`
+              `Place Order — ${formatCurrency(totalPrice)}`
             )}
           </button>
         </form>
