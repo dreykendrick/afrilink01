@@ -43,9 +43,11 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
   const [vendorType, setVendorType] = useState<'individual' | 'business'>('individual');
   const [city, setCity] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
+  const [vendorAddress, setVendorAddress] = useState('');
+  const [vendorLat, setVendorLat] = useState<number | null>(null);
+  const [vendorLng, setVendorLng] = useState<number | null>(null);
   const [about, setAbout] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
