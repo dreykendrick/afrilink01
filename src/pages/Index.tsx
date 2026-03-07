@@ -580,7 +580,6 @@ const IndexContent = () => {
         image: product.image,
         commission: product.commission,
         vendorId: product.vendorId || '',
-        freeDelivery: false,
       });
       toast.success('Added to cart!');
     }
@@ -595,7 +594,6 @@ const IndexContent = () => {
         image: selectedProduct.image,
         commission: selectedProduct.commission,
         vendorId: selectedProduct.vendorId || '',
-        freeDelivery: false,
       });
       setSelectedProduct(null);
       setCheckoutOpen(true);

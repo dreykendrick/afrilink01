@@ -8,7 +8,6 @@ export interface CartItem {
   quantity: number;
   commission: number;
   vendorId: string;
-  freeDelivery?: boolean;
 }
 
 interface CartContextType {
