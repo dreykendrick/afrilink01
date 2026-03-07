@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { VendorLocationPicker, type VendorLocation } from '@/components/dashboard/VendorLocationPicker';
 
 // Tanzania cities
 const TANZANIA_CITIES = [
@@ -43,9 +44,7 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
   const [vendorType, setVendorType] = useState<'individual' | 'business'>('individual');
   const [city, setCity] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
-  const [vendorAddress, setVendorAddress] = useState('');
-  const [vendorLat, setVendorLat] = useState<number | null>(null);
-  const [vendorLng, setVendorLng] = useState<number | null>(null);
+  const [vendorLocation, setVendorLocation] = useState<VendorLocation | null>(null);
   const [about, setAbout] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -110,6 +109,14 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
       });
       return;
     }
+    if (!vendorLocation) {
+      toast({
+        title: 'Missing location',
+        description: 'Please set your shop location on the map.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -133,9 +140,9 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
         vendor_type: vendorType,
         city,
         pickup_location: pickupLocation,
-        vendor_address: vendorAddress || null,
-        vendor_lat: vendorLat,
-        vendor_lng: vendorLng,
+        vendor_address: vendorLocation?.address || null,
+        vendor_lat: vendorLocation?.lat ?? null,
+        vendor_lng: vendorLocation?.lng ?? null,
         about,
         logo_url: logoUrl,
         verification_status: 'pending',
@@ -226,41 +233,12 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="vendorAddress">Shop / Business address (public, for delivery origin)</Label>
-              <Input
-                id="vendorAddress"
-                value={vendorAddress}
-                onChange={(event) => setVendorAddress(event.target.value)}
-                placeholder="e.g. Kariakoo Market, Dar es Salaam"
+              <Label>Shop / Business location <span className="text-destructive">*</span></Label>
+              <VendorLocationPicker
+                onLocationChange={setVendorLocation}
+                compact
               />
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="vendorLat">Latitude (optional)</Label>
-                <Input
-                  id="vendorLat"
-                  type="number"
-                  step="any"
-                  value={vendorLat ?? ''}
-                  onChange={(event) => setVendorLat(event.target.value ? parseFloat(event.target.value) : null)}
-                  placeholder="-6.8235"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="vendorLng">Longitude (optional)</Label>
-                <Input
-                  id="vendorLng"
-                  type="number"
-                  step="any"
-                  value={vendorLng ?? ''}
-                  onChange={(event) => setVendorLng(event.target.value ? parseFloat(event.target.value) : null)}
-                  placeholder="39.2695"
-                />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Tip: Open Google Maps, right-click your shop location, and copy the coordinates.
-            </p>
             <div className="space-y-2">
               <Label htmlFor="about">About Vendor</Label>
               <Textarea
