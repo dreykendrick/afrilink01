@@ -217,7 +217,7 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
                     <Phone className="w-4 h-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2" />
                   </div>
                 </div>
-                {userRole === 'vendor' && (
+                {userRole === 'vendor' && vendorLocationLoaded && (
                   <Card className="border-border bg-secondary/20 mt-2">
                     <CardHeader className="px-4 py-3">
                       <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -225,46 +225,15 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
                         Shop / Business Location
                       </CardTitle>
                       <CardDescription className="text-xs">
-                        Used as delivery origin for your orders. Tip: right-click your shop on Google Maps to copy coordinates.
+                        Used as delivery origin for your orders. Tap the map or search to set your location.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4 px-4 pb-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="vendorAddress">Business address</Label>
-                        <Input
-                          id="vendorAddress"
-                          value={vendorAddress}
-                          onChange={(e) => setVendorAddress(e.target.value)}
-                          placeholder="e.g. Kariakoo Market, Dar es Salaam"
-                          className="bg-secondary/50 h-12 sm:h-10"
-                        />
-                      </div>
-                      <div className="grid gap-4 grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="vendorLat">Latitude</Label>
-                          <Input
-                            id="vendorLat"
-                            type="number"
-                            step="any"
-                            value={vendorLat}
-                            onChange={(e) => setVendorLat(e.target.value)}
-                            placeholder="-6.8235"
-                            className="bg-secondary/50 h-12 sm:h-10"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="vendorLng">Longitude</Label>
-                          <Input
-                            id="vendorLng"
-                            type="number"
-                            step="any"
-                            value={vendorLng}
-                            onChange={(e) => setVendorLng(e.target.value)}
-                            placeholder="39.2695"
-                            className="bg-secondary/50 h-12 sm:h-10"
-                          />
-                        </div>
-                      </div>
+                    <CardContent className="px-4 pb-4">
+                      <VendorLocationPicker
+                        initialLocation={vendorLocation}
+                        onLocationChange={setVendorLocation}
+                        compact
+                      />
                     </CardContent>
                   </Card>
                 )}
