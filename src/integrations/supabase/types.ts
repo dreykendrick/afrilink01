@@ -854,6 +854,9 @@ export type Database = {
           pickup_location: string | null
           updated_at: string | null
           user_id: string
+          vendor_address: string | null
+          vendor_lat: number | null
+          vendor_lng: number | null
           vendor_type: string | null
           verification_status: string | null
         }
@@ -868,6 +871,9 @@ export type Database = {
           pickup_location?: string | null
           updated_at?: string | null
           user_id: string
+          vendor_address?: string | null
+          vendor_lat?: number | null
+          vendor_lng?: number | null
           vendor_type?: string | null
           verification_status?: string | null
         }
@@ -882,6 +888,9 @@ export type Database = {
           pickup_location?: string | null
           updated_at?: string | null
           user_id?: string
+          vendor_address?: string | null
+          vendor_lat?: number | null
+          vendor_lng?: number | null
           vendor_type?: string | null
           verification_status?: string | null
         }
