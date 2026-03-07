@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -13,7 +13,8 @@ import {
   Mail,
   Phone,
   Save,
-  Loader2
+  Loader2,
+  MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getUserFriendlyError } from '@/utils/errorMessages';
 import { languages, type LanguageCode } from '@/i18n/config';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SettingsPageProps {
   currentUser: UserType;
@@ -37,10 +39,34 @@ interface SettingsPageProps {
 export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPageProps) => {
   const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
+  const { userRole } = useAuth();
   const [saving, setSaving] = useState(false);
   const [fullName, setFullName] = useState(currentUser.name);
   const [phone, setPhone] = useState('');
   const currentLanguage = (i18n.language?.substring(0, 2) || 'en') as LanguageCode;
+
+  // Vendor location fields
+  const [vendorAddress, setVendorAddress] = useState('');
+  const [vendorLat, setVendorLat] = useState('');
+  const [vendorLng, setVendorLng] = useState('');
+
+  // Load vendor profile data on mount
+  useEffect(() => {
+    if (userRole === 'vendor') {
+      supabase
+        .from('vendor_profiles')
+        .select('vendor_address, vendor_lat, vendor_lng')
+        .eq('user_id', currentUser.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) {
+            setVendorAddress(data.vendor_address || '');
+            setVendorLat(data.vendor_lat != null ? String(data.vendor_lat) : '');
+            setVendorLng(data.vendor_lng != null ? String(data.vendor_lng) : '');
+          }
+        });
+    }
+  }, [userRole, currentUser.id]);
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
@@ -66,6 +92,17 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
         .eq('id', currentUser.id);
 
       if (error) throw error;
+
+      // Save vendor location if vendor
+      if (userRole === 'vendor') {
+        const { error: vpError } = await (supabase.from('vendor_profiles' as any).update({
+          vendor_address: vendorAddress || null,
+          vendor_lat: vendorLat ? parseFloat(vendorLat) : null,
+          vendor_lng: vendorLng ? parseFloat(vendorLng) : null,
+        }).eq('user_id', currentUser.id) as unknown as Promise<{ error: any }>);
+
+        if (vpError) throw vpError;
+      }
       
       toast.success('Profile updated successfully!');
       onRefresh();
@@ -177,6 +214,57 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
                     <Phone className="w-4 h-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2" />
                   </div>
                 </div>
+                {userRole === 'vendor' && (
+                  <Card className="border-border bg-secondary/20 mt-2">
+                    <CardHeader className="px-4 py-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        Shop / Business Location
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Used as delivery origin for your orders. Tip: right-click your shop on Google Maps to copy coordinates.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4 px-4 pb-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="vendorAddress">Business address</Label>
+                        <Input
+                          id="vendorAddress"
+                          value={vendorAddress}
+                          onChange={(e) => setVendorAddress(e.target.value)}
+                          placeholder="e.g. Kariakoo Market, Dar es Salaam"
+                          className="bg-secondary/50 h-12 sm:h-10"
+                        />
+                      </div>
+                      <div className="grid gap-4 grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="vendorLat">Latitude</Label>
+                          <Input
+                            id="vendorLat"
+                            type="number"
+                            step="any"
+                            value={vendorLat}
+                            onChange={(e) => setVendorLat(e.target.value)}
+                            placeholder="-6.8235"
+                            className="bg-secondary/50 h-12 sm:h-10"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="vendorLng">Longitude</Label>
+                          <Input
+                            id="vendorLng"
+                            type="number"
+                            step="any"
+                            value={vendorLng}
+                            onChange={(e) => setVendorLng(e.target.value)}
+                            placeholder="39.2695"
+                            className="bg-secondary/50 h-12 sm:h-10"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
                 <Button 
                   onClick={handleSaveProfile} 
                   disabled={saving}
