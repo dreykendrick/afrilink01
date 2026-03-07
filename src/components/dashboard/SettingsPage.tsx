@@ -16,6 +16,7 @@ import {
   Loader2,
   MapPin
 } from 'lucide-react';
+import { VendorLocationPicker, type VendorLocation } from '@/components/dashboard/VendorLocationPicker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -45,10 +46,9 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
   const [phone, setPhone] = useState('');
   const currentLanguage = (i18n.language?.substring(0, 2) || 'en') as LanguageCode;
 
-  // Vendor location fields
-  const [vendorAddress, setVendorAddress] = useState('');
-  const [vendorLat, setVendorLat] = useState('');
-  const [vendorLng, setVendorLng] = useState('');
+  // Vendor location
+  const [vendorLocation, setVendorLocation] = useState<VendorLocation | null>(null);
+  const [vendorLocationLoaded, setVendorLocationLoaded] = useState(false);
 
   // Load vendor profile data on mount
   useEffect(() => {
@@ -59,11 +59,14 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
         .eq('user_id', currentUser.id)
         .maybeSingle()
         .then(({ data }) => {
-          if (data) {
-            setVendorAddress(data.vendor_address || '');
-            setVendorLat(data.vendor_lat != null ? String(data.vendor_lat) : '');
-            setVendorLng(data.vendor_lng != null ? String(data.vendor_lng) : '');
+          if (data && data.vendor_lat != null && data.vendor_lng != null) {
+            setVendorLocation({
+              lat: data.vendor_lat,
+              lng: data.vendor_lng,
+              address: data.vendor_address || '',
+            });
           }
+          setVendorLocationLoaded(true);
         });
     }
   }, [userRole, currentUser.id]);
@@ -94,11 +97,11 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
       if (error) throw error;
 
       // Save vendor location if vendor
-      if (userRole === 'vendor') {
+      if (userRole === 'vendor' && vendorLocation) {
         const { error: vpError } = await (supabase.from('vendor_profiles' as any).update({
-          vendor_address: vendorAddress || null,
-          vendor_lat: vendorLat ? parseFloat(vendorLat) : null,
-          vendor_lng: vendorLng ? parseFloat(vendorLng) : null,
+          vendor_address: vendorLocation.address || null,
+          vendor_lat: vendorLocation.lat,
+          vendor_lng: vendorLocation.lng,
         }).eq('user_id', currentUser.id) as unknown as Promise<{ error: any }>);
 
         if (vpError) throw vpError;
