@@ -133,6 +133,9 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
         vendor_type: vendorType,
         city,
         pickup_location: pickupLocation,
+        vendor_address: vendorAddress || null,
+        vendor_lat: vendorLat,
+        vendor_lng: vendorLng,
         about,
         logo_url: logoUrl,
         verification_status: 'pending',
@@ -213,7 +216,7 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pickupLocation">Location (private)</Label>
+              <Label htmlFor="pickupLocation">Pickup / Dispatch address (private)</Label>
               <Input
                 id="pickupLocation"
                 value={pickupLocation}
@@ -222,6 +225,42 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
                 required
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="vendorAddress">Shop / Business address (public, for delivery origin)</Label>
+              <Input
+                id="vendorAddress"
+                value={vendorAddress}
+                onChange={(event) => setVendorAddress(event.target.value)}
+                placeholder="e.g. Kariakoo Market, Dar es Salaam"
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="vendorLat">Latitude (optional)</Label>
+                <Input
+                  id="vendorLat"
+                  type="number"
+                  step="any"
+                  value={vendorLat ?? ''}
+                  onChange={(event) => setVendorLat(event.target.value ? parseFloat(event.target.value) : null)}
+                  placeholder="-6.8235"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="vendorLng">Longitude (optional)</Label>
+                <Input
+                  id="vendorLng"
+                  type="number"
+                  step="any"
+                  value={vendorLng ?? ''}
+                  onChange={(event) => setVendorLng(event.target.value ? parseFloat(event.target.value) : null)}
+                  placeholder="39.2695"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Tip: Open Google Maps, right-click your shop location, and copy the coordinates.
+            </p>
             <div className="space-y-2">
               <Label htmlFor="about">About Vendor</Label>
               <Textarea
