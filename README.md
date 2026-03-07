@@ -1,73 +1,206 @@
-# Welcome to your Lovable project
+AfriLink
 
-## Project info
+AfriLink is an African-first affiliate marketplace platform that connects vendors, affiliates, and buyers in a single ecosystem. Vendors list products, affiliates promote them using unique links, and buyers purchase through a seamless checkout system.
 
-**URL**: https://lovable.dev/projects/1fd7692d-ee28-4ba9-945d-83691cbcb069
+The goal of AfriLink is to unlock affiliate marketing across Africa by providing a trusted platform where vendors can scale sales and affiliates can earn commissions.
 
-## How can I edit this code?
+Overview
 
-There are several ways of editing your application.
+AfriLink consists of three main systems:
 
-**Use Lovable**
+Main Application
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1fd7692d-ee28-4ba9-945d-83691cbcb069) and start prompting.
+Vendor and affiliate dashboards
 
-Changes made via Lovable will be committed automatically to this repo.
+Product management
 
-**Use your preferred IDE**
+Affiliate link generation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Earnings tracking
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Checkout System
 
-Follow these steps:
+Buyer-facing product landing pages
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Checkout flow
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Affiliate attribution tracking
 
-# Step 3: Install the necessary dependencies.
-npm i
+Order creation and delivery confirmation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Admin Portal
+
+Platform monitoring
+
+Order management
+
+Vendor oversight
+
+Marketplace management
+
+All systems share the same backend database.
+
+Architecture
+
+Frontend:
+
+Vite + React
+
+Backend:
+
+Supabase (authentication, database, and edge functions)
+
+Hosting:
+
+Vercel
+
+Domains:
+
+Main platform: https://afrilink.info
+
+Checkout system: https://shop.afrilink.info
+
+Core Features
+Vendors
+
+Create and manage products
+
+Track incoming orders
+
+Manage delivery updates
+
+View earnings
+
+Affiliates
+
+Browse products to promote
+
+Generate unique affiliate links
+
+Track performance and commissions
+
+Buyers
+
+Open affiliate links without creating an account
+
+Purchase products through a secure checkout
+
+Confirm delivery via secure confirmation link
+
+Affiliate Link Flow
+
+Affiliate links follow this format:
+
+https://shop.afrilink.info/p/<productSlug>?ref=<affiliateCode>
+
+Flow:
+
+Affiliate shares the link
+
+Buyer opens the product page
+
+Buyer clicks Buy Now
+
+Checkout records the affiliate reference
+
+Order is created in the database
+
+Vendor fulfills delivery
+
+Buyer confirms delivery
+
+Affiliate commission is unlocked
+
+Environment Variables
+
+The checkout system requires the following environment variables.
+
+Vite
+VITE_APP_URL=https://shop.afrilink.info
+VITE_SUPABASE_URL=<supabase_project_url>
+VITE_SUPABASE_ANON_KEY=<supabase_anon_key>
+
+These must be configured in the Vercel project settings.
+
+Development Setup
+
+Clone the repository:
+
+git clone https://github.com/your-username/afrilink.git
+
+Install dependencies:
+
+npm install
+
+Run locally:
+
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+The app will start at:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+http://localhost:5173
+Database
 
-**Use GitHub Codespaces**
+AfriLink uses Supabase for data storage and authentication.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Main tables include:
 
-## What technologies are used for this project?
+users
 
-This project is built with:
+vendors
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+affiliates
 
-## How can I deploy this project?
+products
 
-Simply open [Lovable](https://lovable.dev/projects/1fd7692d-ee28-4ba9-945d-83691cbcb069) and click on Share -> Publish.
+orders
 
-## Can I connect a custom domain to my Lovable project?
+affiliate_links
 
-Yes, you can!
+Row Level Security (RLS) is used to ensure vendors and affiliates only access their own data.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Security Considerations
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Vendor contact details are not exposed to buyers
+
+Orders are accessed using secure confirmation tokens
+
+Affiliate attribution is stored with each order
+
+Environment secrets are stored in platform configuration (not in code)
+
+Project Status
+
+AfriLink is currently in active development.
+
+Phase 1 focuses on:
+
+Core marketplace functionality
+
+Affiliate link tracking
+
+Checkout and order creation
+
+Delivery confirmation flow
+
+Future phases will include:
+
+SMS notifications
+
+Payment integrations
+
+Vendor verification
+
+Affiliate analytics
+
+Contributing
+
+Contributions are welcome.
+
+Fork the repository
+
+Create a new branch
+
+Make changes
+
+Submit a pull request
