@@ -4,7 +4,7 @@ import { User, Product, AffiliateStats } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { StatsCard } from './StatsCard';
 import { ProductImagesModal } from './ProductImagesModal';
-import { WalletSection } from './WalletSection';
+
 
 
 interface AffiliateDashboardProps {
@@ -26,10 +26,8 @@ export const AffiliateDashboard = ({ currentUser, products, stats, onGenerateLin
         <p className="text-sm sm:text-base text-muted-foreground">Here's your affiliate dashboard overview</p>
       </div>
 
-      {/* Wallet Section */}
-      <div className="mb-6 sm:mb-8">
-        <WalletSection walletType="AFFILIATE" />
-      </div>
+
+
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
         <StatsCard icon={DollarSign} value={formatCurrency(stats.commission)} label="Total Commission" gradient="from-afrilink-green to-emerald-600" />
