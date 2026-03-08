@@ -994,16 +994,21 @@ const IndexContent = () => {
           onClose={() => setCartOpen(false)}
           onCheckout={() => {
             setCartOpen(false);
-            setCheckoutOpen(true);
+            const result = performMarketplaceCheckoutHandoff({
+              items,
+              affiliateCode,
+              purchaseMode: 'marketplace',
+            });
+            if (result) {
+              if (items.length > 1) {
+                toast.info(`Redirecting to checkout for the first item. ${items.length - 1} item(s) remain in your cart.`);
+              }
+              removeFromCart(result.handedOffItemId);
+              window.location.href = result.redirectUrl;
+            } else {
+              toast.error('Your cart is empty');
+            }
           }}
-        />
-        <CheckoutModal
-          isOpen={checkoutOpen}
-          onClose={() => setCheckoutOpen(false)}
-          onSuccess={() => {
-            toast.success('Order placed successfully!');
-          }}
-          purchaseMode="marketplace"
         />
         {currentUser && (
           <MobileBottomNav 
