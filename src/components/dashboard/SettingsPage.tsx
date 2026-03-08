@@ -302,9 +302,20 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
                   <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-secondary/30 gap-3">
                     <div className="space-y-0.5 min-w-0 flex-1">
                       <Label className="text-sm sm:text-base">Push Notifications</Label>
-                      <p className="text-xs sm:text-sm text-muted-foreground">Receive push notifications in browser</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {!pushSupported
+                          ? 'Not supported in this browser'
+                          : permission === 'denied'
+                          ? 'Blocked — enable in browser settings'
+                          : 'Receive push notifications in browser'}
+                      </p>
                     </div>
-                    <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} className="flex-shrink-0" />
+                    <Switch
+                      checked={isSubscribed}
+                      onCheckedChange={handlePushToggle}
+                      disabled={pushLoading || !pushSupported || permission === 'denied'}
+                      className="flex-shrink-0"
+                    />
                   </div>
                   
                   <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-secondary/30 gap-3">
