@@ -124,6 +124,11 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
 
     const orderData = await orderRes.json();
 
+    if (import.meta.env.DEV) {
+      console.log('[Checkout] Order response:', JSON.stringify(orderData, null, 2));
+      console.log('[Checkout] Vendor locations:', orderData.vendor_locations);
+    }
+
     if (!orderData.success && !orderData.order_id) {
       throw new Error(orderData.error || 'Failed to create order');
     }
