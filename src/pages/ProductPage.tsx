@@ -21,6 +21,7 @@ const hasAffiliateAttribution = (): boolean => {
 export const ProductPage = () => {
   const { productId } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { addToCart, setAffiliateCode, affiliateCode } = useCart();
   const [product, setProduct] = useState<any | null>(null);
   const [vendorProfile, setVendorProfile] = useState<VendorProfile | null>(null);
