@@ -4,7 +4,7 @@ import { User, Product, AffiliateStats } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { StatsCard } from './StatsCard';
 import { ProductImagesModal } from './ProductImagesModal';
-import { WalletSection } from './WalletSection';
+
 
 
 interface AffiliateDashboardProps {
