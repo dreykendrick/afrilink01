@@ -12,6 +12,7 @@ export interface Product {
   sales: number;
   isAvailable?: boolean;
   vendorId?: string;
+  slug?: string;
 }
 
 export interface User {

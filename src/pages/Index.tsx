@@ -403,6 +403,7 @@ const IndexContent = () => {
             sales: p.sales,
             isAvailable: (p as any).is_available !== false,
             vendorId: p.vendor_id,
+            slug: p.slug || undefined,
           }));
           setMarketplaceProducts(formattedProducts);
         }
