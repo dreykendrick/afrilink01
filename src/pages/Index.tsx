@@ -598,16 +598,16 @@ const IndexContent = () => {
 
   const handleBuyProduct = () => {
     if (selectedProduct) {
-      addToCart({
-        id: selectedProduct.id,
-        title: selectedProduct.title,
-        price: selectedProduct.price,
-        image: selectedProduct.image,
-        commission: selectedProduct.commission,
-        vendorId: selectedProduct.vendorId || '',
+      // Redirect directly to external checkout for marketplace Buy Now
+      const redirectUrl = buildCheckoutUrl(selectedProduct.id, {
+        source: 'MARKETPLACE',
+        vendorId: selectedProduct.vendorId || undefined,
       });
+      if (import.meta.env.DEV) {
+        console.log('[Marketplace] Buy Now redirect:', redirectUrl);
+      }
       setSelectedProduct(null);
-      setCheckoutOpen(true);
+      window.location.href = redirectUrl;
     }
   };
 
