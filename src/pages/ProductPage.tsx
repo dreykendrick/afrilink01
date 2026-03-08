@@ -144,6 +144,7 @@ export const ProductPage = () => {
           <ArrowLeft className="w-5 h-5" />
           <span className="text-sm font-medium">Back</span>
         </button>
+        <div className="grid gap-8 lg:grid-cols-2">
           <div className="space-y-4">
             <div className="rounded-2xl overflow-hidden border border-border">
               <img
