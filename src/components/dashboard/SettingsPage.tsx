@@ -79,10 +79,26 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
   
   // Notification preferences
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
   const [marketingEmails, setMarketingEmails] = useState(false);
   const [orderUpdates, setOrderUpdates] = useState(true);
   const [promotionalAlerts, setPromotionalAlerts] = useState(false);
+
+  // Push notifications
+  const { permission, isSubscribed, isLoading: pushLoading, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe, isSupported: pushSupported } = usePushNotifications();
+
+  const handlePushToggle = useCallback(async (checked: boolean) => {
+    if (checked) {
+      const ok = await pushSubscribe();
+      if (!ok && permission === 'denied') {
+        toast.error('Push notifications are blocked. Please enable them in your browser settings.');
+      } else if (ok) {
+        toast.success('Push notifications enabled!');
+      }
+    } else {
+      const ok = await pushUnsubscribe();
+      if (ok) toast.success('Push notifications disabled');
+    }
+  }, [pushSubscribe, pushUnsubscribe, permission]);
 
   const handleSaveProfile = async () => {
     setSaving(true);
