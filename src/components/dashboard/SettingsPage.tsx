@@ -98,15 +98,15 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
 
       // Save vendor location if vendor
       if (userRole === 'vendor' && vendorLocation) {
-        const updateData = {
+        const upsertData = {
+          user_id: currentUser.id,
           vendor_address: vendorLocation.address || null,
           vendor_lat: vendorLocation.lat,
           vendor_lng: vendorLocation.lng,
         };
         const { error: vpError } = await (supabase
           .from('vendor_profiles' as any)
-          .update(updateData)
-          .eq('user_id', currentUser.id) as any);
+          .upsert(upsertData, { onConflict: 'user_id' }) as any);
 
         if (import.meta.env.DEV) {
           console.log('[VendorLocation] Save payload:', updateData);
