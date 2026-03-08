@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { ShieldCheck, Truck, Link2, AlertCircle } from 'lucide-react';
+import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { ShieldCheck, Truck, Link2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/hooks/useCart';
 import { formatCurrency } from '@/utils/currency';
