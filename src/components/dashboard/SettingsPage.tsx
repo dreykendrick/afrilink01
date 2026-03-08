@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 import { getUserFriendlyError } from '@/utils/errorMessages';
 import { languages, type LanguageCode } from '@/i18n/config';
 import { useAuth } from '@/hooks/useAuth';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface SettingsPageProps {
   currentUser: UserType;
@@ -78,10 +79,26 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
   
   // Notification preferences
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
   const [marketingEmails, setMarketingEmails] = useState(false);
   const [orderUpdates, setOrderUpdates] = useState(true);
   const [promotionalAlerts, setPromotionalAlerts] = useState(false);
+
+  // Push notifications
+  const { permission, isSubscribed, isLoading: pushLoading, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe, isSupported: pushSupported } = usePushNotifications();
+
+  const handlePushToggle = useCallback(async (checked: boolean) => {
+    if (checked) {
+      const ok = await pushSubscribe();
+      if (!ok && permission === 'denied') {
+        toast.error('Push notifications are blocked. Please enable them in your browser settings.');
+      } else if (ok) {
+        toast.success('Push notifications enabled!');
+      }
+    } else {
+      const ok = await pushUnsubscribe();
+      if (ok) toast.success('Push notifications disabled');
+    }
+  }, [pushSubscribe, pushUnsubscribe, permission]);
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -285,9 +302,20 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
                   <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-secondary/30 gap-3">
                     <div className="space-y-0.5 min-w-0 flex-1">
                       <Label className="text-sm sm:text-base">Push Notifications</Label>
-                      <p className="text-xs sm:text-sm text-muted-foreground">Receive push notifications in browser</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {!pushSupported
+                          ? 'Not supported in this browser'
+                          : permission === 'denied'
+                          ? 'Blocked — enable in browser settings'
+                          : 'Receive push notifications in browser'}
+                      </p>
                     </div>
-                    <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} className="flex-shrink-0" />
+                    <Switch
+                      checked={isSubscribed}
+                      onCheckedChange={handlePushToggle}
+                      disabled={pushLoading || !pushSupported || permission === 'denied'}
+                      className="flex-shrink-0"
+                    />
                   </div>
                   
                   <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-secondary/30 gap-3">
