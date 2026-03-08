@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
       // Fetch vendor profile
       const { data: vendor } = await supabase
         .from('vendor_profiles')
-        .select('business_name, city, pickup_location')
+        .select('business_name, city, pickup_location, vendor_lat, vendor_lng, vendor_address')
         .eq('user_id', product.vendor_id)
         .single();
 
@@ -215,6 +215,9 @@ Deno.serve(async (req) => {
         slug: product.slug,
         vendor_name: vendor?.business_name || 'AfriLink Vendor',
         vendor_city: vendor?.city,
+        vendor_lat: vendor?.vendor_lat || null,
+        vendor_lng: vendor?.vendor_lng || null,
+        vendor_address: vendor?.vendor_address || null,
         pickup_available: !!vendor?.pickup_location,
       };
 
