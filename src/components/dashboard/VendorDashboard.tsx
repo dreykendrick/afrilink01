@@ -4,7 +4,6 @@ import { User, Product, VendorStats } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { StatsCard } from './StatsCard';
 import { AddProductModal } from './AddProductModal';
-import { WalletSection } from './WalletSection';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
