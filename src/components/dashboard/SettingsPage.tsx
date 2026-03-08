@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 import { getUserFriendlyError } from '@/utils/errorMessages';
 import { languages, type LanguageCode } from '@/i18n/config';
 import { useAuth } from '@/hooks/useAuth';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface SettingsPageProps {
   currentUser: UserType;
