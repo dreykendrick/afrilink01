@@ -3,7 +3,7 @@
  *
  * Redirects buyers from the main app marketplace to the external checkout
  * system at shop.afrilink.info. The checkout system uses the route structure:
- *   /p/:productId?source=marketplace
+ *   /p/{slug}?source=marketplace
  *
  * For multi-item carts the external checkout is single-product, so we
  * process one item at a time (first item in cart). Remaining items stay
@@ -21,10 +21,10 @@ export interface CheckoutHandoffParams {
 }
 
 /**
- * Build the external checkout URL for a single product.
+ * Build the external checkout URL for a single product using its slug.
  */
 export const buildCheckoutUrl = (
-  productId: string,
+  slugOrId: string,
   options: {
     source?: string;
     affiliateCode?: string | null;
@@ -32,7 +32,7 @@ export const buildCheckoutUrl = (
     vendorId?: string;
   } = {}
 ): string => {
-  const url = new URL(`/p/${productId}`, CHECKOUT_BASE_URL);
+  const url = new URL(`/p/${slugOrId}`, CHECKOUT_BASE_URL);
 
   if (options.source) {
     url.searchParams.set('source', options.source);
@@ -57,7 +57,7 @@ export const buildCheckoutUrl = (
 /**
  * Perform the checkout handoff redirect for marketplace purchases.
  * Returns the product ID that was handed off (so the caller can
- * remove it from the cart) or null if no items.
+ * remove it from the cart) and the redirect URL, or null if no items.
  */
 export const performMarketplaceCheckoutHandoff = (
   params: CheckoutHandoffParams
@@ -74,7 +74,10 @@ export const performMarketplaceCheckoutHandoff = (
   // Take the first item for the handoff
   const item = items[0];
 
-  const redirectUrl = buildCheckoutUrl(item.id, {
+  // Use slug if available, fall back to product ID
+  const slugOrId = item.slug || item.id;
+
+  const redirectUrl = buildCheckoutUrl(slugOrId, {
     source: purchaseMode === 'marketplace' ? 'MARKETPLACE' : undefined,
     affiliateCode: purchaseMode === 'affiliate' ? affiliateCode : null,
     quantity: item.quantity,
@@ -84,6 +87,7 @@ export const performMarketplaceCheckoutHandoff = (
   if (import.meta.env.DEV) {
     console.log('[CheckoutHandoff] Redirecting to external checkout:', {
       productId: item.id,
+      slug: item.slug,
       productTitle: item.title,
       purchaseMode,
       affiliateCode: purchaseMode === 'affiliate' ? affiliateCode : null,
