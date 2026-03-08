@@ -134,7 +134,7 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
         logoUrl = data.publicUrl;
       }
 
-      const { error } = await (supabase.from('vendor_profiles' as any).upsert({
+      const upsertData = {
         user_id: userId,
         business_name: businessName,
         vendor_type: vendorType,
@@ -146,7 +146,15 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
         about,
         logo_url: logoUrl,
         verification_status: 'pending',
-      }, { onConflict: 'user_id' }) as unknown as Promise<{ error: any }>);
+      };
+
+      if (import.meta.env.DEV) {
+        console.log('[VendorProfileSetup] Upsert payload:', upsertData);
+      }
+
+      const { error } = await (supabase
+        .from('vendor_profiles' as any)
+        .upsert(upsertData, { onConflict: 'user_id' }) as any);
 
       if (error) throw error;
 

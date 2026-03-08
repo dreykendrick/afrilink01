@@ -112,6 +112,10 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
       affiliate_code: mode === 'affiliate' ? (effectiveAffiliateCode || undefined) : undefined,
     };
 
+    if (import.meta.env.DEV) {
+      console.log('[Checkout] Order payload:', JSON.stringify(orderPayload, null, 2));
+    }
+
     const orderRes = await fetch(`${apiBase}/checkout-api/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
