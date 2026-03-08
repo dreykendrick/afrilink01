@@ -227,6 +227,11 @@ const IndexContent = () => {
 
   // Bug Fix C: Only set default view if URL doesn't specify one
   useEffect(() => {
+    // Never override view during recovery flow
+    if (recoveryLocked.current) {
+      console.log('[Index] Skipping default view logic — recovery lock active');
+      return;
+    }
     const urlState = getViewFromUrl();
     if (urlState.view) {
       // URL has view state, respect it
@@ -244,6 +249,11 @@ const IndexContent = () => {
 
   // Redirect to dashboard if logged in
   useEffect(() => {
+    // Never redirect during password recovery — the user must stay on reset-password
+    if (recoveryLocked.current) {
+      console.log('[Index] Skipping post-login redirect — recovery lock active');
+      return;
+    }
     if (user && userRole && view !== 'verification' && view !== 'reset-password') {
       handlePostLogin();
     }
