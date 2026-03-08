@@ -32,17 +32,17 @@ export const LedgerHistory = ({ walletType }: LedgerHistoryProps) => {
     const fetchLedger = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase.functions.invoke('payments-api', {
-          body: null,
-          method: 'GET',
-        });
+        const session = await supabase.auth.getSession();
+        if (!session.data.session) {
+          console.warn('[LedgerHistory] No active session');
+          return;
+        }
 
-        // Use direct fetch since invoke doesn't support GET with path
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-api/ledger?type=${walletType}`,
           {
             headers: {
-              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+              'Authorization': `Bearer ${session.data.session.access_token}`,
               'Content-Type': 'application/json',
             },
           }
@@ -51,6 +51,8 @@ export const LedgerHistory = ({ walletType }: LedgerHistoryProps) => {
         if (response.ok) {
           const result = await response.json();
           setEntries(result.entries || []);
+        } else {
+          console.error('[LedgerHistory] Failed to fetch:', response.status);
         }
       } catch (error) {
         console.error('Failed to fetch ledger:', error);

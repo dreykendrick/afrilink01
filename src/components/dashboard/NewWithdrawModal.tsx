@@ -88,6 +88,7 @@ export const NewWithdrawModal = ({
           description: 'Please log in to withdraw',
           variant: 'destructive',
         });
+        setIsLoading(false);
         return;
       }
 
