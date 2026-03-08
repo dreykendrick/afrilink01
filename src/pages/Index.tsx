@@ -593,6 +593,7 @@ const IndexContent = () => {
         image: product.image,
         commission: product.commission,
         vendorId: product.vendorId || '',
+        slug: product.slug,
       });
       toast.success('Added to cart!');
     }
