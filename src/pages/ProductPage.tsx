@@ -134,7 +134,7 @@ export const ProductPage = () => {
   const canCheckout = hasAffiliateRef || hasAffiliateAttribution();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24 sm:pb-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="space-y-4">
