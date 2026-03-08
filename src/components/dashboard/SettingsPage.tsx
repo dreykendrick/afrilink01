@@ -109,7 +109,7 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
           .upsert(upsertData, { onConflict: 'user_id' }) as any);
 
         if (import.meta.env.DEV) {
-          console.log('[VendorLocation] Save payload:', updateData);
+          console.log('[VendorLocation] Save payload:', upsertData);
           console.log('[VendorLocation] Save error:', vpError);
         }
 
