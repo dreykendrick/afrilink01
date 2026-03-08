@@ -137,7 +137,13 @@ export const ProductPage = () => {
   return (
     <div className="min-h-screen bg-background pb-24 sm:pb-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid gap-8 lg:grid-cols-2">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm font-medium">Back</span>
+        </button>
           <div className="space-y-4">
             <div className="rounded-2xl overflow-hidden border border-border">
               <img
