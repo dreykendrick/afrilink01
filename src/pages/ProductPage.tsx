@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { ShieldCheck, Truck, Link2, AlertCircle } from 'lucide-react';
+import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { ShieldCheck, Truck, Link2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/hooks/useCart';
 import { formatCurrency } from '@/utils/currency';
@@ -21,6 +21,7 @@ const hasAffiliateAttribution = (): boolean => {
 export const ProductPage = () => {
   const { productId } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { addToCart, setAffiliateCode, affiliateCode } = useCart();
   const [product, setProduct] = useState<any | null>(null);
   const [vendorProfile, setVendorProfile] = useState<VendorProfile | null>(null);
@@ -136,6 +137,13 @@ export const ProductPage = () => {
   return (
     <div className="min-h-screen bg-background pb-24 sm:pb-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm font-medium">Back</span>
+        </button>
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="space-y-4">
             <div className="rounded-2xl overflow-hidden border border-border">
