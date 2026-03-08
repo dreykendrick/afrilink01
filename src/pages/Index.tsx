@@ -227,6 +227,11 @@ const IndexContent = () => {
 
   // Bug Fix C: Only set default view if URL doesn't specify one
   useEffect(() => {
+    // Never override view during recovery flow
+    if (recoveryLocked.current) {
+      console.log('[Index] Skipping default view logic — recovery lock active');
+      return;
+    }
     const urlState = getViewFromUrl();
     if (urlState.view) {
       // URL has view state, respect it
