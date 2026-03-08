@@ -601,8 +601,8 @@ const IndexContent = () => {
 
   const handleBuyProduct = () => {
     if (selectedProduct) {
-      // Redirect directly to external checkout for marketplace Buy Now
-      const redirectUrl = buildCheckoutUrl(selectedProduct.id, {
+      const slug = selectedProduct.slug || selectedProduct.id;
+      const redirectUrl = buildCheckoutUrl(slug, {
         source: 'MARKETPLACE',
         vendorId: selectedProduct.vendorId || undefined,
       });
