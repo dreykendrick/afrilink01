@@ -403,6 +403,7 @@ const IndexContent = () => {
             sales: p.sales,
             isAvailable: (p as any).is_available !== false,
             vendorId: p.vendor_id,
+            slug: p.slug || undefined,
           }));
           setMarketplaceProducts(formattedProducts);
         }
@@ -461,6 +462,7 @@ const IndexContent = () => {
           sales: p.sales,
           isAvailable: (p as any).is_available !== false,
           vendorId: p.vendor_id,
+          slug: p.slug || undefined,
         }));
         setMarketplaceProducts(formattedProducts);
         return formattedProducts;
@@ -591,6 +593,7 @@ const IndexContent = () => {
         image: product.image,
         commission: product.commission,
         vendorId: product.vendorId || '',
+        slug: product.slug,
       });
       toast.success('Added to cart!');
     }
@@ -598,8 +601,8 @@ const IndexContent = () => {
 
   const handleBuyProduct = () => {
     if (selectedProduct) {
-      // Redirect directly to external checkout for marketplace Buy Now
-      const redirectUrl = buildCheckoutUrl(selectedProduct.id, {
+      const slug = selectedProduct.slug || selectedProduct.id;
+      const redirectUrl = buildCheckoutUrl(slug, {
         source: 'MARKETPLACE',
         vendorId: selectedProduct.vendorId || undefined,
       });

@@ -8,6 +8,7 @@ export interface CartItem {
   quantity: number;
   commission: number;
   vendorId: string;
+  slug?: string;
 }
 
 interface CartContextType {
