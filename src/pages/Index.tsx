@@ -34,6 +34,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getProductSlug } from '@/utils/slug';
 import { getAppUrl, getAppUrlAsync } from '@/utils/appUrl';
+import { performMarketplaceCheckoutHandoff, buildCheckoutUrl } from '@/utils/checkoutHandoff';
 
 type View =
   | 'landing'
