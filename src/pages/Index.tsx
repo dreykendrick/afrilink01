@@ -632,7 +632,7 @@ const IndexContent = () => {
   } : null;
 
   // Get categories from products
-  const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
+  const categories = ['All', ...Array.from(new Set(marketplaceProducts.map(p => p.category)))];
 
   // Filter marketplace products for display
   const filteredProducts = marketplaceProducts.filter(p => {

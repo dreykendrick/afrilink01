@@ -326,7 +326,8 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
 
       // Prepare product data
       const priceValue = parseFloat(formData.price);
-      const commissionValue = parseInt(formData.commission) || 10;
+      const commissionRaw = parseInt(formData.commission);
+      const commissionValue = isNaN(commissionRaw) || commissionRaw < 1 ? 10 : Math.min(commissionRaw, 50);
       
       // CRITICAL: Only use formData.image_urls - never fall back to imagePreviews
       // This prevents cross-user image reuse from stale state

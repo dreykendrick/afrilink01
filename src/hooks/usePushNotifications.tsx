@@ -216,9 +216,13 @@ export const usePushNotifications = (): UsePushNotificationsReturn => {
     if (!user || !isSupported || isSubscribed) return;
     if (Notification.permission === 'granted') {
       // Silently re-register subscription for this user
-      subscribe().catch(() => {});
+      const doSubscribe = async () => {
+        try { await subscribe(); } catch {}
+      };
+      doSubscribe();
     }
-  }, [user, isSupported, isSubscribed, subscribe]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, isSupported]);
 
   return {
     permission,
