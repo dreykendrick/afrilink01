@@ -112,7 +112,7 @@ const IndexContent = () => {
   const [notification, setNotification] = useState<string | null>(null);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  
   const [onboardingRole, setOnboardingRole] = useState<'vendor' | 'affiliate' | null>(() => {
     const urlState = getViewFromUrl();
     return urlState.role;
