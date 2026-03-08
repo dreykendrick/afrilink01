@@ -15,7 +15,7 @@ import { MarketplaceNav } from '@/components/marketplace/MarketplaceNav';
 import { ProductCard } from '@/components/marketplace/ProductCard';
 import { ProductModal } from '@/components/marketplace/ProductModal';
 import { CartDrawer } from '@/components/cart/CartDrawer';
-import { CheckoutModal } from '@/components/cart/CheckoutModal';
+
 import { Notification } from '@/components/Notification';
 import { OnboardingCarousel } from '@/components/onboarding/OnboardingCarousel';
 import { RoleSelection } from '@/components/onboarding/RoleSelection';
