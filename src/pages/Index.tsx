@@ -15,7 +15,7 @@ import { MarketplaceNav } from '@/components/marketplace/MarketplaceNav';
 import { ProductCard } from '@/components/marketplace/ProductCard';
 import { ProductModal } from '@/components/marketplace/ProductModal';
 import { CartDrawer } from '@/components/cart/CartDrawer';
-import { CheckoutModal } from '@/components/cart/CheckoutModal';
+
 import { Notification } from '@/components/Notification';
 import { OnboardingCarousel } from '@/components/onboarding/OnboardingCarousel';
 import { RoleSelection } from '@/components/onboarding/RoleSelection';
@@ -34,6 +34,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getProductSlug } from '@/utils/slug';
 import { getAppUrl, getAppUrlAsync } from '@/utils/appUrl';
+import { performMarketplaceCheckoutHandoff, buildCheckoutUrl } from '@/utils/checkoutHandoff';
 
 type View =
   | 'landing'
@@ -101,7 +102,7 @@ const updateUrlView = (view: View, role?: 'vendor' | 'affiliate' | null) => {
 
 const IndexContent = () => {
   const { user, loading: authLoading, userRole, signOut, availableRoles, switchRole, addRole, refreshRoles } = useAuth();
-  const { addToCart, setAffiliateCode, clearCart } = useCart();
+  const { items, addToCart, removeFromCart, setAffiliateCode, affiliateCode, clearCart } = useCart();
   // Bug Fix C: Initialize view from URL or default
   const [view, setViewState] = useState<View>(() => {
     const urlState = getViewFromUrl();
@@ -111,7 +112,7 @@ const IndexContent = () => {
   const [notification, setNotification] = useState<string | null>(null);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  
   const [onboardingRole, setOnboardingRole] = useState<'vendor' | 'affiliate' | null>(() => {
     const urlState = getViewFromUrl();
     return urlState.role;
@@ -597,16 +598,16 @@ const IndexContent = () => {
 
   const handleBuyProduct = () => {
     if (selectedProduct) {
-      addToCart({
-        id: selectedProduct.id,
-        title: selectedProduct.title,
-        price: selectedProduct.price,
-        image: selectedProduct.image,
-        commission: selectedProduct.commission,
-        vendorId: selectedProduct.vendorId || '',
+      // Redirect directly to external checkout for marketplace Buy Now
+      const redirectUrl = buildCheckoutUrl(selectedProduct.id, {
+        source: 'MARKETPLACE',
+        vendorId: selectedProduct.vendorId || undefined,
       });
+      if (import.meta.env.DEV) {
+        console.log('[Marketplace] Buy Now redirect:', redirectUrl);
+      }
       setSelectedProduct(null);
-      setCheckoutOpen(true);
+      window.location.href = redirectUrl;
     }
   };
 
@@ -993,16 +994,21 @@ const IndexContent = () => {
           onClose={() => setCartOpen(false)}
           onCheckout={() => {
             setCartOpen(false);
-            setCheckoutOpen(true);
+            const result = performMarketplaceCheckoutHandoff({
+              items,
+              affiliateCode,
+              purchaseMode: 'marketplace',
+            });
+            if (result) {
+              if (items.length > 1) {
+                toast.info(`Redirecting to checkout for the first item. ${items.length - 1} item(s) remain in your cart.`);
+              }
+              removeFromCart(result.handedOffItemId);
+              window.location.href = result.redirectUrl;
+            } else {
+              toast.error('Your cart is empty');
+            }
           }}
-        />
-        <CheckoutModal
-          isOpen={checkoutOpen}
-          onClose={() => setCheckoutOpen(false)}
-          onSuccess={() => {
-            toast.success('Order placed successfully!');
-          }}
-          purchaseMode="marketplace"
         />
         {currentUser && (
           <MobileBottomNav 
