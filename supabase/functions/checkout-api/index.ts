@@ -327,16 +327,19 @@ Deno.serve(async (req) => {
         };
       });
 
+      // Fetch vendor profiles (needed for delivery fee + location response)
+      const vendorIds = [...new Set((products as Array<{ vendor_id: string }>).map(p => p.vendor_id))];
+      const { data: vendorProfiles } = await adminClient
+        .from('vendor_profiles')
+        .select('user_id, city, vendor_lat, vendor_lng, vendor_address')
+        .in('user_id', vendorIds);
+
+      console.log('[Checkout] Vendor profiles fetched:', JSON.stringify(vendorProfiles));
+
       // Calculate delivery fee based on vendor city vs buyer city
       let deliveryFee = 0;
       let deliveryLabel = 'delivery';
       if (body.delivery_type === 'delivery') {
-        // Get unique vendor cities
-        const vendorIds = [...new Set((products as Array<{ vendor_id: string }>).map(p => p.vendor_id))];
-        const { data: vendorProfiles } = await adminClient
-          .from('vendor_profiles')
-          .select('user_id, city, vendor_lat, vendor_lng, vendor_address')
-          .in('user_id', vendorIds);
 
         const buyerCityNorm = (body.buyer_city || '').trim().toLowerCase();
         let maxFee = 0;
