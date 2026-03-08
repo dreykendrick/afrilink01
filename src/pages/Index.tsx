@@ -244,6 +244,11 @@ const IndexContent = () => {
 
   // Redirect to dashboard if logged in
   useEffect(() => {
+    // Never redirect during password recovery — the user must stay on reset-password
+    if (recoveryLocked.current) {
+      console.log('[Index] Skipping post-login redirect — recovery lock active');
+      return;
+    }
     if (user && userRole && view !== 'verification' && view !== 'reset-password') {
       handlePostLogin();
     }

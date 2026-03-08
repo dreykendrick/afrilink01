@@ -109,17 +109,22 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
         return;
       }
 
-      console.log('[ResetPassword] Password updated successfully');
+      console.log('[ResetPassword] Password updated successfully — will redirect to login');
       setResetComplete(true);
       toast({
         title: 'Password Updated',
-        description: 'Your password has been successfully reset.',
+        description: 'Your password has been successfully reset. Please log in with your new password.',
       });
 
-      // Sign out all sessions and redirect to login
+      // Sign out recovery session and redirect to login
+      // Navigate FIRST to release the recovery lock, then sign out
       setTimeout(async () => {
-        await supabase.auth.signOut({ scope: 'global' });
+        console.log('[ResetPassword] Redirecting to login after successful reset');
         onNavigate('login');
+        // Small delay to let React process the view change before signOut triggers auth effects
+        await new Promise(r => setTimeout(r, 100));
+        await supabase.auth.signOut({ scope: 'global' });
+        console.log('[ResetPassword] Signed out recovery session');
       }, 3000);
     } catch (error: any) {
       console.error('[ResetPassword] Unexpected error:', error);
