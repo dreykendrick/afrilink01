@@ -112,6 +112,10 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
       affiliate_code: mode === 'affiliate' ? (effectiveAffiliateCode || undefined) : undefined,
     };
 
+    if (import.meta.env.DEV) {
+      console.log('[Checkout] Order payload:', JSON.stringify(orderPayload, null, 2));
+    }
+
     const orderRes = await fetch(`${apiBase}/checkout-api/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -119,6 +123,11 @@ export const CheckoutModal = ({ isOpen, onClose, onSuccess, purchaseMode = 'affi
     });
 
     const orderData = await orderRes.json();
+
+    if (import.meta.env.DEV) {
+      console.log('[Checkout] Order response:', JSON.stringify(orderData, null, 2));
+      console.log('[Checkout] Vendor locations:', orderData.vendor_locations);
+    }
 
     if (!orderData.success && !orderData.order_id) {
       throw new Error(orderData.error || 'Failed to create order');

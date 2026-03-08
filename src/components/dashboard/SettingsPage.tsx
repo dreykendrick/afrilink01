@@ -98,11 +98,20 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
 
       // Save vendor location if vendor
       if (userRole === 'vendor' && vendorLocation) {
-        const { error: vpError } = await (supabase.from('vendor_profiles' as any).update({
+        const updateData = {
           vendor_address: vendorLocation.address || null,
           vendor_lat: vendorLocation.lat,
           vendor_lng: vendorLocation.lng,
-        }).eq('user_id', currentUser.id) as unknown as Promise<{ error: any }>);
+        };
+        const { error: vpError } = await (supabase
+          .from('vendor_profiles' as any)
+          .update(updateData)
+          .eq('user_id', currentUser.id) as any);
+
+        if (import.meta.env.DEV) {
+          console.log('[VendorLocation] Save payload:', updateData);
+          console.log('[VendorLocation] Save error:', vpError);
+        }
 
         if (vpError) throw vpError;
       }
