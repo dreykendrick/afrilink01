@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
         query = query.eq('slug', slugOrId);
       }
 
-      const { data: product, error } = await query.maybeSingle();
+      let { data: product, error } = await query.maybeSingle();
 
       if (error) {
         console.error('Product query error:', error);
@@ -161,15 +161,34 @@ Deno.serve(async (req) => {
         });
       }
 
-      // If not found with filters, check if it exists at all (to give better reason)
+      // Slug fallback: if not UUID and exact slug not found, try stripping trailing -XXXXXX suffix
+      // (frontend getProductSlug appends a 6-char ID prefix that the DB slug doesn't have)
+      if (!product && !isUuid) {
+        const strippedSlug = slugOrId.replace(/-[a-f0-9]{6,8}$/, '');
+        if (strippedSlug !== slugOrId) {
+          console.log('Trying stripped slug fallback:', strippedSlug);
+          const { data: fallbackProduct } = await supabase
+            .from('products')
+            .select('id, title, description, price, commission, category, image_url, image_urls, slug, vendor_id')
+            .eq('status', 'approved')
+            .eq('is_available', true)
+            .eq('slug', strippedSlug)
+            .maybeSingle();
+          product = fallbackProduct;
+        }
+      }
+
+      // If still not found, check if it exists at all (to give better reason)
       if (!product) {
         let rawQuery = adminClient
           .from('products')
-          .select('id, status, is_available')
+          .select('id, status, is_available');
         if (isUuid) {
           rawQuery = rawQuery.eq('id', slugOrId);
         } else {
-          rawQuery = rawQuery.eq('slug', slugOrId);
+          // Check both exact and stripped slug
+          const strippedSlug = slugOrId.replace(/-[a-f0-9]{6,8}$/, '');
+          rawQuery = rawQuery.or(`slug.eq.${slugOrId},slug.eq.${strippedSlug}`);
         }
         const { data: rawProduct } = await rawQuery.maybeSingle();
 
