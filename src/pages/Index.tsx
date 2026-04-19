@@ -964,17 +964,6 @@ const IndexContent = () => {
         />
         <PullToRefresh onRefresh={handleMarketplaceRefresh} disabled={dataLoading}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-            <div className="flex justify-end mb-3 sm:mb-4">
-              <button
-                onClick={handleMarketplaceRefresh}
-                disabled={dataLoading}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground bg-secondary/60 hover:bg-secondary rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Refresh marketplace"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dataLoading ? 'animate-spin' : ''}`} />
-                <span>{dataLoading ? 'Refreshing…' : 'Refresh'}</span>
-              </button>
-            </div>
             {filteredProducts.length === 0 ? (
               <div className="text-center py-20">
                 <p className="text-muted-foreground">No products found</p>
