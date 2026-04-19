@@ -30,7 +30,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Product, VendorStats, AffiliateStats } from '@/types';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getProductSlug } from '@/utils/slug';
 import { getAppUrl, getAppUrlAsync } from '@/utils/appUrl';
