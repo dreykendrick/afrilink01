@@ -911,17 +911,6 @@ const IndexContent = () => {
         />
         <PullToRefresh onRefresh={handleRefresh} disabled={dataLoading}>
           <div className="p-4 sm:p-6 lg:p-8">
-            <div className="flex justify-end mb-3 sm:mb-4">
-              <button
-                onClick={handleRefresh}
-                disabled={dataLoading}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground bg-secondary/60 hover:bg-secondary rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Refresh dashboard data"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${dataLoading ? 'animate-spin' : ''}`} />
-                <span>{dataLoading ? 'Refreshing…' : 'Refresh'}</span>
-              </button>
-            </div>
             {dataLoading ? (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
