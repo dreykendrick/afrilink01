@@ -11,7 +11,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const PAYMENT_PROVIDER_MODE = Deno.env.get('PAYMENT_PROVIDER_MODE') || 'STUB';
 const BRIQ_BASE_URL = (Deno.env.get('BRIQ_BASE_URL') || 'https://paygrid.briq.tz').replace(/\/$/, '');
 const BRIQ_API_KEY = Deno.env.get('BRIQ_API_KEY') || '';
 const BRIQ_DEVELOPER_APP_ID = Deno.env.get('BRIQ_DEVELOPER_APP_ID') || '';
@@ -184,42 +183,31 @@ Deno.serve(async (req) => {
 
       const appUrl = Deno.env.get('VITE_APP_URL') || 'https://shop.afrilink.info';
 
-      if (PAYMENT_PROVIDER_MODE === 'LIVE' && BRIQ_API_KEY) {
-        const { data: payment, error: payErr } = await admin.from('payments').insert({
-          order_id: orderId, amount_gross: totalAmount, currency: 'TZS',
-          status: 'PENDING', mode: 'LIVE', provider: 'BRIQ', idempotency_key: idempotencyKey,
-        }).select().single();
-        if (payErr) throw payErr;
-
-        try {
-          const returnUrl = `${appUrl}/checkout/confirm?payment_id=${payment.id}`;
-          const cancelUrl = `${appUrl}/checkout/confirm?payment_id=${payment.id}&status=cancelled`;
-          const briqResult = await briqCreatePayment({
-            amount: totalAmount, currency: 'TZS', orderId,
-            idempotencyKey, returnUrl, cancelUrl,
-            customerName: buyer_name, customerPhone: buyer_phone,
-          });
-          await admin.from('payments').update({ provider_payment_id: briqResult.providerPaymentId, raw_payload: briqResult.rawPayload }).eq('id', payment.id);
-          return json({ success: true, order_id: orderId, payment_id: payment.id, redirect_url: briqResult.redirectUrl, total_amount: totalAmount, delivery_fee: deliveryFee }, 201);
-        } catch (briqErr) {
-          console.error('Briq error:', briqErr);
-          await admin.from('payments').update({ status: 'FAILED', raw_payload: { error: String(briqErr) } }).eq('id', payment.id);
-          return json({ success: false, error: 'Payment provider error' }, 502);
-        }
+      if (!BRIQ_API_KEY) {
+        return json({ success: false, error: 'Payment provider not configured' }, 503);
       }
 
-      // ── STUB mode ──
       const { data: payment, error: payErr } = await admin.from('payments').insert({
         order_id: orderId, amount_gross: totalAmount, currency: 'TZS',
-        status: 'PENDING', mode: 'STUB', provider: 'STUB', idempotency_key: idempotencyKey,
+        status: 'PENDING', mode: 'LIVE', provider: 'BRIQ', idempotency_key: idempotencyKey,
       }).select().single();
       if (payErr) throw payErr;
 
-      return json({
-        success: true, order_id: orderId, payment_id: payment.id,
-        redirect_url: `${appUrl}/confirm/${orderId}`,
-        total_amount: totalAmount, delivery_fee: deliveryFee, mode: 'STUB',
-      }, 201);
+      try {
+        const returnUrl = `${appUrl}/checkout/confirm?payment_id=${payment.id}`;
+        const cancelUrl = `${appUrl}/checkout/confirm?payment_id=${payment.id}&status=cancelled`;
+        const briqResult = await briqCreatePayment({
+          amount: totalAmount, currency: 'TZS', orderId,
+          idempotencyKey, returnUrl, cancelUrl,
+          customerName: buyer_name, customerPhone: buyer_phone,
+        });
+        await admin.from('payments').update({ provider_payment_id: briqResult.providerPaymentId, raw_payload: briqResult.rawPayload }).eq('id', payment.id);
+        return json({ success: true, order_id: orderId, payment_id: payment.id, redirect_url: briqResult.redirectUrl, total_amount: totalAmount, delivery_fee: deliveryFee }, 201);
+      } catch (briqErr) {
+        console.error('Briq error:', briqErr);
+        await admin.from('payments').update({ status: 'FAILED', raw_payload: { error: String(briqErr) } }).eq('id', payment.id);
+        return json({ success: false, error: 'Payment provider error' }, 502);
+      }
     }
 
     return json({ success: false, error: 'Not found' }, 404);
