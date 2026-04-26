@@ -914,6 +914,7 @@ export type Database = {
           updated_at: string | null
           user_id: string
           vendor_address: string | null
+          vendor_code: string | null
           vendor_lat: number | null
           vendor_lng: number | null
           vendor_type: string | null
@@ -931,6 +932,7 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           vendor_address?: string | null
+          vendor_code?: string | null
           vendor_lat?: number | null
           vendor_lng?: number | null
           vendor_type?: string | null
@@ -948,6 +950,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           vendor_address?: string | null
+          vendor_code?: string | null
           vendor_lat?: number | null
           vendor_lng?: number | null
           vendor_type?: string | null
