@@ -4,6 +4,8 @@ import { User, Product, VendorStats } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { StatsCard } from './StatsCard';
 import { AddProductModal } from './AddProductModal';
+import { VendorWalletExternal } from './VendorWalletExternal';
+import { VendorOrders } from './VendorOrders';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -163,6 +165,7 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
         )}
       </div>
 
+      <VendorWalletExternal />
 
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
@@ -172,6 +175,7 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
         <StatsCard icon={Eye} value={stats.pending} label="Products Under Review" gradient="from-afrilink-amber to-afrilink-orange" subtext="Usually takes up to 24 hours" />
       </div>
 
+      <VendorOrders />
 
 
       <div className="bg-card rounded-xl sm:rounded-2xl border border-border overflow-hidden shadow-card mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
