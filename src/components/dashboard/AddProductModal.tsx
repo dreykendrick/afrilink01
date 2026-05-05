@@ -277,10 +277,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
     try {
       // Get current session
       let { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        hasSession: !!session, 
-        userId: session?.user?.id, 
-        error: sessionError?.message 
-      });
       
       // If session error or no session, try to refresh
       if (sessionError || !session?.user) {
@@ -329,20 +325,7 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         .select()
         .single();
 
-        success: !!data, 
-        errorMessage: error?.message,
-        errorCode: error?.code,
-        errorDetails: error?.details,
-        errorHint: error?.hint
-      });
-
       if (error) {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
-        });
-        
         // Provide more specific error messages
         let userMessage = 'Failed to create product. Please try again.';
         if (error.code === '42501') {
