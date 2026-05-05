@@ -29,7 +29,6 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
-  const [generatedOtp, setGeneratedOtp] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -144,16 +143,14 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
       const { error } = await supabase.from('profiles').update({ phone: normalizedPhone, phone_verified: false }).eq('id', userId);
       if (error) throw error;
 
-      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
       const { data, error: otpError } = await supabase.functions.invoke('send-otp', {
-        body: { phone: normalizedPhone, code: otpCode },
+        body: { phone: normalizedPhone },
       });
 
       if (otpError || !data?.success) {
         throw otpError || new Error(data?.error || 'Unable to send OTP.');
       }
 
-      setGeneratedOtp(otpCode);
       setOtp('');
       setResendCooldown(60); // 60 second cooldown
       toast({
@@ -173,14 +170,21 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
       toast({ title: 'Enter the full code', description: 'Please enter all 6 digits.', variant: 'destructive' });
       return;
     }
-    if (otp !== generatedOtp) {
-      toast({ title: 'Invalid code', description: 'The OTP entered is incorrect.', variant: 'destructive' });
-      return;
-    }
     if (!userId) return;
 
     setLoading(true);
     try {
+      const phoneValidation = validateTZPhone(phone);
+      const normalizedPhone = phoneValidation.normalized || phone;
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-otp', {
+        body: { phone: normalizedPhone, code: otp },
+      });
+      if (verifyError || !verifyData?.success) {
+        toast({ title: 'Invalid code', description: verifyData?.error || 'The OTP entered is incorrect.', variant: 'destructive' });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.from('profiles').update({ phone_verified: true }).eq('id', userId);
       if (error) throw error;
 
