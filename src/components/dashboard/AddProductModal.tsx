@@ -100,16 +100,13 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
 
   const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    console.log('=== IMAGE UPLOAD START ===', { filesCount: files?.length });
     
     if (!files || files.length === 0) {
-      console.log('No files selected');
       return;
     }
 
     const currentImageCount = imagePreviews.length;
     const remainingSlots = MAX_IMAGES - currentImageCount;
-    console.log('Remaining slots:', remainingSlots);
     
     if (remainingSlots <= 0) {
       toast({
@@ -125,7 +122,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
     try {
       // Get user session first
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('Session check:', { hasSession: !!session, error: sessionError?.message });
       
       if (sessionError || !session?.user) {
         // Try to refresh session
@@ -174,7 +170,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         return true;
       });
 
-      console.log('Valid files to upload:', validFiles.length);
 
       if (validFiles.length === 0) {
         setIsUploading(false);
@@ -188,14 +183,12 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
         const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-        console.log('Uploading file:', fileName);
 
         const { error: uploadError } = await supabase.storage
           .from('product-images')
           .upload(fileName, file);
 
         if (uploadError) {
-          console.error('Upload error:', uploadError);
           toast({
             title: 'Upload failed',
             description: uploadError.message || 'Failed to upload image',
@@ -208,7 +201,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
           .from('product-images')
           .getPublicUrl(fileName);
 
-        console.log('Uploaded successfully:', publicUrl);
         uploadedUrls.push(publicUrl);
       }
 
@@ -216,13 +208,11 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         // Update state with new images (only if still mounted)
         setFormData(prev => {
           const newUrls = [...prev.image_urls, ...uploadedUrls];
-          console.log('Updated image_urls:', newUrls);
           return { ...prev, image_urls: newUrls };
         });
         
         setImagePreviews(prev => {
           const newPreviews = [...prev, ...uploadedUrls];
-          console.log('Updated imagePreviews:', newPreviews);
           return newPreviews;
         });
 
@@ -232,7 +222,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         });
       }
     } catch (error: any) {
-      console.error('Image upload error:', error);
       if (isMountedRef.current) {
         toast({
           title: 'Upload failed',
@@ -264,13 +253,9 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
     e.stopPropagation();
     
     if (isLoading) {
-      console.log('Already loading, preventing duplicate submission');
       return;
     }
     
-    console.log('=== PRODUCT SUBMIT START ===');
-    console.log('Form data:', formData);
-    console.log('Image previews:', imagePreviews);
     
     // Validate required fields
     const missingFields: string[] = [];
@@ -279,7 +264,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
     if (!formData.category) missingFields.push('Category');
     
     if (missingFields.length > 0) {
-      console.log('Validation failed - missing fields:', missingFields);
       toast({
         title: 'Missing fields',
         description: `Please fill in: ${missingFields.join(', ')}`,
@@ -289,13 +273,10 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
     }
 
     setIsLoading(true);
-    console.log('Loading state set to true');
 
     try {
       // Get current session
-      console.log('Getting session...');
       let { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('Initial session check:', { 
         hasSession: !!session, 
         userId: session?.user?.id, 
         error: sessionError?.message 
@@ -303,11 +284,9 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
       
       // If session error or no session, try to refresh
       if (sessionError || !session?.user) {
-        console.log('Session issue, attempting refresh...');
         const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
         
         if (refreshError || !refreshData.session?.user) {
-          console.error('Session refresh failed:', refreshError);
           toast({
             title: 'Session expired',
             description: 'Please log in again to add products',
@@ -318,11 +297,9 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         }
         
         session = refreshData.session;
-        console.log('Session refreshed successfully:', session.user.id);
       }
 
       const userId = session.user.id;
-      console.log('Proceeding with user ID:', userId);
 
       // Prepare product data
       const priceValue = parseFloat(formData.price);
@@ -345,7 +322,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         status: 'pending'
       };
       
-      console.log('Inserting product with data:', JSON.stringify(productData));
 
       const { data, error } = await supabase
         .from('products')
@@ -353,7 +329,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         .select()
         .single();
 
-      console.log('Insert response:', { 
         success: !!data, 
         errorMessage: error?.message,
         errorCode: error?.code,
@@ -362,7 +337,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
       });
 
       if (error) {
-        console.error('Product insert failed:', {
           message: error.message,
           code: error.code,
           details: error.details,
@@ -382,7 +356,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         throw new Error(userMessage);
       }
 
-      console.log('=== PRODUCT CREATED SUCCESSFULLY ===', data.id);
 
       toast({
         title: 'Product added!',
@@ -393,7 +366,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
       onProductAdded();
       onClose();
     } catch (error: any) {
-      console.error('=== PRODUCT SUBMIT ERROR ===', error);
       if (isMountedRef.current) {
         toast({
           title: 'Error adding product',
@@ -402,7 +374,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
         });
       }
     } finally {
-      console.log('Setting loading to false');
       if (isMountedRef.current) {
         setIsLoading(false);
       }
@@ -412,7 +383,6 @@ export const AddProductModal = ({ isOpen, onClose, onProductAdded }: AddProductM
   const triggerFileInput = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Triggering file input');
     // Use setTimeout to ensure the event is properly handled on mobile
     setTimeout(() => {
       fileInputRef.current?.click();
