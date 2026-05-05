@@ -38,12 +38,11 @@ export const OrderConfirmationPage = () => {
         return;
       }
       setLoading(true);
-      const { data: orderData } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('id', orderId)
-        .eq('confirmation_token', token)
-        .maybeSingle();
+      const { data: orderRows } = await supabase.rpc('get_order_by_token' as any, {
+        p_order_id: orderId,
+        p_token: token,
+      });
+      const orderData = Array.isArray(orderRows) ? orderRows[0] : orderRows;
 
       if (!orderData) {
         setOrder(null);
@@ -53,26 +52,23 @@ export const OrderConfirmationPage = () => {
 
       setOrder(orderData);
 
-      const { data: orderItems } = await supabase
-        .from('order_items')
-        .select('id, product_id, quantity, price, commission_amount')
-        .eq('order_id', orderId);
-
-      setItems(orderItems || []);
-
-      if (orderItems && orderItems.length > 0) {
-        const productIds = orderItems.map((item) => item.product_id);
-        const { data: productData } = await supabase
-          .from('products')
-          .select('id, title, vendor_id')
-          .in('id', productIds);
-
-        const mapped = (productData || []).reduce<Record<string, ProductInfo>>((acc, product) => {
-          acc[product.id] = product;
-          return acc;
-        }, {});
-        setProducts(mapped);
+      const { data: itemRows } = await supabase.rpc('get_order_items_by_token' as any, {
+        p_order_id: orderId,
+        p_token: token,
+      });
+      const rows = (itemRows || []) as any[];
+      setItems(rows.map((r) => ({
+        id: r.id,
+        product_id: r.product_id,
+        quantity: r.quantity,
+        price: r.price,
+        commission_amount: r.commission_amount,
+      })));
+      const mapped: Record<string, ProductInfo> = {};
+      for (const r of rows) {
+        mapped[r.product_id] = { id: r.product_id, title: r.product_title, vendor_id: r.vendor_id };
       }
+      setProducts(mapped);
 
       setLoading(false);
     };
@@ -83,7 +79,7 @@ export const OrderConfirmationPage = () => {
   const totalItems = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
 
   const handleConfirm = async () => {
-    if (!order || actionLoading) return;
+    if (!order || actionLoading || !token) return;
     if (order.status === 'delivered_confirmed') {
       setMessage('This order has already been confirmed.');
       return;
@@ -91,100 +87,34 @@ export const OrderConfirmationPage = () => {
 
     setActionLoading(true);
     try {
-      const totalCommission = items.reduce(
-        (sum, item) => sum + item.commission_amount * item.quantity,
-        0,
-      );
-
-      if (order.affiliate_link_id && totalCommission > 0) {
-        const { data: link } = await supabase
-          .from('affiliate_links')
-          .select('commission_earned, affiliate_id')
-          .eq('id', order.affiliate_link_id)
-          .single();
-
-        if (link) {
-          await supabase
-            .from('affiliate_links')
-            .update({ commission_earned: (link.commission_earned || 0) + totalCommission })
-            .eq('id', order.affiliate_link_id);
-
-          const { data: affiliateProfile } = await supabase
-            .from('profiles')
-            .select('wallet_balance')
-            .eq('id', link.affiliate_id)
-            .single();
-
-          await supabase
-            .from('profiles')
-            .update({ wallet_balance: (affiliateProfile?.wallet_balance || 0) + totalCommission })
-            .eq('id', link.affiliate_id);
-
-          await supabase.from('transactions').insert({
-            user_id: link.affiliate_id,
-            type: 'commission',
-            amount: totalCommission,
-            description: `Commission released for order #${order.id.slice(0, 8)}`,
-            reference_id: order.id,
-          });
-        }
-      }
-
-      const vendorTotals = items.reduce<Record<string, number>>((acc, item) => {
-        const product = products[item.product_id];
-        if (!product) return acc;
-        const vendorAmount = item.price * item.quantity - item.commission_amount * item.quantity;
-        acc[product.vendor_id] = (acc[product.vendor_id] || 0) + vendorAmount;
-        return acc;
-      }, {});
-
-      for (const [vendorId, amount] of Object.entries(vendorTotals)) {
-        const { data: vendorProfile } = await supabase
-          .from('profiles')
-          .select('wallet_balance')
-          .eq('id', vendorId)
-          .single();
-
-        await supabase
-          .from('profiles')
-          .update({ wallet_balance: (vendorProfile?.wallet_balance || 0) + amount })
-          .eq('id', vendorId);
-
-        await supabase.from('transactions').insert({
-          user_id: vendorId,
-          type: 'sale',
-          amount,
-          description: `Payout released for order #${order.id.slice(0, 8)}`,
-          reference_id: order.id,
-        });
-      }
-
-      await supabase
-        .from('orders')
-        .update({ status: 'delivered_confirmed' })
-        .eq('id', order.id);
+      const { error } = await supabase.rpc('confirm_delivery_with_token' as any, {
+        p_order_id: order.id,
+        p_token: token,
+      });
+      if (error) throw error;
 
       setOrder((prev: any) => ({ ...prev, status: 'delivered_confirmed' }));
       setMessage('Thanks for confirming! Your delivery has been marked complete.');
     } catch (error: any) {
-      setMessage(error.message || 'Unable to confirm delivery at this time.');
+      setMessage('Unable to confirm delivery at this time.');
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleReportProblem = async () => {
-    if (!order || actionLoading) return;
+    if (!order || actionLoading || !token) return;
     setActionLoading(true);
     try {
-      await supabase
-        .from('orders')
-        .update({ status: 'delivery_issue' })
-        .eq('id', order.id);
+      const { error } = await supabase.rpc('report_delivery_issue_with_token' as any, {
+        p_order_id: order.id,
+        p_token: token,
+      });
+      if (error) throw error;
       setOrder((prev: any) => ({ ...prev, status: 'delivery_issue' }));
       setMessage('Thanks for letting us know. Our support team will contact you shortly.');
     } catch (error: any) {
-      setMessage(error.message || 'Unable to submit the issue right now.');
+      setMessage('Unable to submit the issue right now.');
     } finally {
       setActionLoading(false);
     }
