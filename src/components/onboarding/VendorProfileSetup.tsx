@@ -199,7 +199,7 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
                 id="businessName"
                 value={businessName}
                 onChange={(event) => setBusinessName(event.target.value)}
-                placeholder="AfriLink Originals"
+                placeholder="Winger Originals"
                 required
               />
             </div>
