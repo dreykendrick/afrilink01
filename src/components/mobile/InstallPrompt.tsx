@@ -60,9 +60,9 @@ export const InstallPrompt = ({ className }: InstallPromptProps) => {
             <Download className="w-10 h-10 text-primary-foreground" />
           </div>
           
-          <h2 className="text-2xl font-bold mb-4">Install AfriLink</h2>
+          <h2 className="text-2xl font-bold mb-4">Install Winger</h2>
           <p className="text-muted-foreground mb-8">
-            Add AfriLink to your home screen for the best experience
+            Add Winger to your home screen for the best experience
           </p>
 
           <div className="space-y-4 text-left">
@@ -110,7 +110,7 @@ export const InstallPrompt = ({ className }: InstallPromptProps) => {
         </div>
         
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm">Install AfriLink</p>
+          <p className="font-semibold text-sm">Install Winger</p>
           <p className="text-xs text-muted-foreground truncate">
             Add to home screen for quick access
           </p>

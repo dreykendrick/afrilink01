@@ -18,16 +18,16 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 32 95% 50%;
+    --primary: 152 74% 43%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary-foreground: 215 69% 14%;
 
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
 
-    --accent: 32 95% 50%;
+    --accent: 152 74% 43%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -35,104 +35,104 @@ All colors MUST be HSL.
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 32 95% 50%;
+    --ring: 152 74% 43%;
 
     --radius: 1rem;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 32 95% 50%;
+    --sidebar-primary: 152 74% 43%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 96%;
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 32 95% 50%;
+    --sidebar-ring: 152 74% 43%;
 
-    /* Custom AfriLink colors */
-    --afrilink-amber: 32 95% 50%;
-    --afrilink-orange: 25 95% 48%;
-    --afrilink-purple: 280 70% 50%;
-    --afrilink-slate-900: 222 47% 11%;
-    --afrilink-slate-800: 215 28% 17%;
-    --afrilink-slate-700: 217 19% 27%;
-    --afrilink-green: 142 71% 40%;
-    --afrilink-blue: 199 89% 45%;
-    --afrilink-pink: 330 81% 55%;
-    
+    /* Custom Winger colors */
+    --afrilink-amber: 152 74% 43%;
+    --afrilink-orange: 152 74% 38%;
+    --afrilink-purple: 215 69% 14%;
+    --afrilink-slate-900: 215 69% 14%;
+    --afrilink-slate-800: 215 50% 20%;
+    --afrilink-slate-700: 215 35% 28%;
+    --afrilink-green: 152 74% 43%;
+    --afrilink-blue: 215 69% 14%;
+    --afrilink-pink: 152 74% 43%;
+
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(32 95% 50%), hsl(25 95% 48%));
-    --gradient-hero: linear-gradient(135deg, hsl(220 14% 96%), hsl(280 70% 95%), hsl(220 14% 96%));
+    --gradient-primary: linear-gradient(135deg, hsl(152 74% 43%), hsl(152 74% 35%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 14% 96%), hsl(152 74% 95%), hsl(220 14% 96%));
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100% / 0.8), hsl(220 14% 96% / 0.5));
-    --gradient-green: linear-gradient(135deg, hsl(142 71% 40%), hsl(158 64% 48%));
-    --gradient-blue: linear-gradient(135deg, hsl(199 89% 45%), hsl(189 94% 40%));
-    --gradient-purple: linear-gradient(135deg, hsl(280 70% 50%), hsl(330 81% 55%));
+    --gradient-green: linear-gradient(135deg, hsl(152 74% 43%), hsl(158 64% 48%));
+    --gradient-blue: linear-gradient(135deg, hsl(215 69% 14%), hsl(215 50% 20%));
+    --gradient-purple: linear-gradient(135deg, hsl(215 69% 14%), hsl(152 74% 43%));
 
     /* Shadows */
-    --shadow-glow: 0 0 40px hsl(32 95% 50% / 0.2);
-    --shadow-card: 0 10px 30px hsl(222 47% 11% / 0.08);
+    --shadow-glow: 0 0 40px hsl(152 74% 43% / 0.25);
+    --shadow-card: 0 10px 30px hsl(215 69% 14% / 0.08);
   }
 
   /* Dark Mode */
   .dark {
-    --background: 222 47% 11%;
+    --background: 215 69% 14%;
     --foreground: 0 0% 100%;
 
-    --card: 215 28% 17%;
+    --card: 215 50% 20%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 215 28% 17%;
+    --popover: 215 50% 20%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 32 95% 56%;
+    --primary: 152 74% 48%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 17%;
+    --secondary: 215 50% 20%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 217 33% 17%;
+    --muted: 215 50% 20%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 32 95% 56%;
+    --accent: 152 74% 48%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 32 95% 56%;
+    --border: 215 50% 22%;
+    --input: 215 50% 22%;
+    --ring: 152 74% 48%;
 
-    --sidebar-background: 220 26% 14%;
+    --sidebar-background: 215 69% 12%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 32 95% 56%;
+    --sidebar-primary: 152 74% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent: 215 50% 20%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 32 95% 56%;
+    --sidebar-border: 215 50% 22%;
+    --sidebar-ring: 152 74% 48%;
 
-    /* Custom AfriLink colors */
-    --afrilink-amber: 32 95% 56%;
-    --afrilink-orange: 25 95% 53%;
-    --afrilink-purple: 280 70% 50%;
-    --afrilink-slate-900: 222 47% 11%;
-    --afrilink-slate-800: 215 28% 17%;
-    --afrilink-slate-700: 217 19% 27%;
-    --afrilink-green: 142 71% 45%;
-    --afrilink-blue: 199 89% 48%;
-    --afrilink-pink: 330 81% 60%;
-    
+    /* Custom Winger colors */
+    --afrilink-amber: 152 74% 48%;
+    --afrilink-orange: 152 74% 40%;
+    --afrilink-purple: 215 69% 14%;
+    --afrilink-slate-900: 215 69% 10%;
+    --afrilink-slate-800: 215 50% 18%;
+    --afrilink-slate-700: 215 35% 25%;
+    --afrilink-green: 152 74% 48%;
+    --afrilink-blue: 215 69% 14%;
+    --afrilink-pink: 152 74% 48%;
+
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(32 95% 56%), hsl(25 95% 53%));
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11%), hsl(280 70% 30%), hsl(222 47% 11%));
-    --gradient-card: linear-gradient(135deg, hsl(215 28% 17% / 0.5), hsl(217 19% 27% / 0.3));
-    --gradient-green: linear-gradient(135deg, hsl(142 71% 45%), hsl(158 64% 52%));
-    --gradient-blue: linear-gradient(135deg, hsl(199 89% 48%), hsl(189 94% 43%));
-    --gradient-purple: linear-gradient(135deg, hsl(280 70% 50%), hsl(330 81% 60%));
+    --gradient-primary: linear-gradient(135deg, hsl(152 74% 48%), hsl(152 74% 38%));
+    --gradient-hero: linear-gradient(135deg, hsl(215 69% 14%), hsl(215 50% 20%), hsl(215 69% 14%));
+    --gradient-card: linear-gradient(135deg, hsl(215 50% 20% / 0.5), hsl(215 35% 28% / 0.3));
+    --gradient-green: linear-gradient(135deg, hsl(152 74% 48%), hsl(158 64% 52%));
+    --gradient-blue: linear-gradient(135deg, hsl(215 69% 14%), hsl(215 50% 22%));
+    --gradient-purple: linear-gradient(135deg, hsl(215 69% 14%), hsl(152 74% 48%));
 
     /* Shadows */
-    --shadow-glow: 0 0 40px hsl(32 95% 56% / 0.3);
-    --shadow-card: 0 10px 30px hsl(222 47% 11% / 0.5);
+    --shadow-glow: 0 0 40px hsl(152 74% 48% / 0.3);
+    --shadow-card: 0 10px 30px hsl(215 69% 10% / 0.5);
   }
 }
 

@@ -176,7 +176,7 @@ export const ProductPage = () => {
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-afrilink-green" />
-                <span>Secured by AfriLink</span>
+                <span>Secured by Winger</span>
               </div>
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-afrilink-amber" />
@@ -188,7 +188,7 @@ export const ProductPage = () => {
               </div>
               <div>
                 <span className="text-foreground font-medium">Ships from:</span>{' '}
-                {vendorProfile?.city || 'AfriLink hub'}
+                {vendorProfile?.city || 'Winger hub'}
               </div>
               <div>
                 <span className="text-foreground font-medium">Payment methods:</span> Card, Mobile Money
