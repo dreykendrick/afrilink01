@@ -20,11 +20,11 @@ interface ReauthenticationEmailProps {
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your AfriLink verification code</Preview>
+    <Preview>Your Winger verification code</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logoText}>🛒 AfriLink</Text>
+          <Text style={logoText}>🛒 Winger</Text>
         </Section>
         <Heading style={h1}>Verification code</Heading>
         <Text style={text}>Use the code below to verify your identity:</Text>

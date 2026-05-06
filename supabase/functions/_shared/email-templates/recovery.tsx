@@ -25,15 +25,15 @@ export const RecoveryEmail = ({
 }: RecoveryEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Reset your AfriLink password</Preview>
+    <Preview>Reset your Winger password</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logoText}>🛒 AfriLink</Text>
+          <Text style={logoText}>🛒 Winger</Text>
         </Section>
         <Heading style={h1}>Reset your password</Heading>
         <Text style={text}>
-          We received a request to reset your AfriLink password. Tap the button
+          We received a request to reset your Winger password. Tap the button
           below to choose a new one — this link expires in 60 minutes.
         </Text>
         <Section style={buttonSection}>

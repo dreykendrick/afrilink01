@@ -30,15 +30,15 @@ export const EmailChangeEmail = ({
 }: EmailChangeEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Confirm your new email for AfriLink</Preview>
+    <Preview>Confirm your new email for Winger</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logoText}>🛒 AfriLink</Text>
+          <Text style={logoText}>🛒 Winger</Text>
         </Section>
         <Heading style={h1}>Confirm your new email</Heading>
         <Text style={text}>
-          You requested to change your AfriLink email from{' '}
+          You requested to change your Winger email from{' '}
           <Link href={`mailto:${email}`} style={link}>
             {email}
           </Link>{' '}

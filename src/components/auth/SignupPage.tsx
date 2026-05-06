@@ -134,7 +134,7 @@ export const SignupPage = ({ onNavigate, onSignupSuccess }: SignupPageProps) => 
           </div>
           <CardTitle className="text-xl sm:text-2xl">Create Account</CardTitle>
           <CardDescription className="text-sm">
-            Join AfriLink as a vendor or affiliate
+            Join Winger as a vendor or affiliate
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">

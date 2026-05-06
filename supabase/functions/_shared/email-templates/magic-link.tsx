@@ -25,15 +25,15 @@ export const MagicLinkEmail = ({
 }: MagicLinkEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your AfriLink login link</Preview>
+    <Preview>Your Winger login link</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logoText}>🛒 AfriLink</Text>
+          <Text style={logoText}>🛒 Winger</Text>
         </Section>
         <Heading style={h1}>Your login link</Heading>
         <Text style={text}>
-          Tap the button below to sign in to AfriLink. This link expires
+          Tap the button below to sign in to Winger. This link expires
           shortly — no password needed!
         </Text>
         <Section style={buttonSection}>
