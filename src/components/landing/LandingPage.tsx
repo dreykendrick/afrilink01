@@ -2,6 +2,7 @@ import { ShoppingCart, DollarSign, Link2, Wallet, Package, TrendingUp, User } fr
 import { useTranslation } from 'react-i18next';
 import { Product } from '@/types';
 import { formatCurrency } from '@/utils/currency';
+import wingerLogo from '@/assets/winger-logo.png';
 
 interface LandingPageProps {
   products: Product[];
@@ -36,8 +37,8 @@ export const LandingPage = ({ products, onNavigate, onLogin }: LandingPageProps)
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-primary rounded-lg sm:rounded-xl flex items-center justify-center shadow-glow">
-                <ShoppingCart className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl overflow-hidden shadow-glow">
+                <img src={wingerLogo} alt="Winger logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl sm:text-2xl font-bold text-foreground">{t('common.appName')}</span>
             </div>
