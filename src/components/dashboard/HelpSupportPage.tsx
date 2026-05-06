@@ -42,7 +42,7 @@ const faqs = [
   },
   {
     question: "What products can I sell as a vendor?",
-    answer: "You can sell both digital and physical products on Winger. All products must comply with our terms of service. Products go through an approval process before being listed on the marketplace."
+    answer: "You can sell both digital and physical products on AfriLink. All products must comply with our terms of service. Products go through an approval process before being listed on the marketplace."
   },
   {
     question: "How do I track my affiliate link performance?",

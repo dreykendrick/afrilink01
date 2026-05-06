@@ -354,7 +354,7 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
                   {theme === 'dark' ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-primary" />}
                   Appearance
                 </CardTitle>
-                <CardDescription>Customize how Winger looks</CardDescription>
+                <CardDescription>Customize how AfriLink looks</CardDescription>
               </CardHeader>
               <CardContent className="space-y-5 sm:space-y-6 px-4 sm:px-6">
                 <div className="space-y-3 sm:space-y-4">

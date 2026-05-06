@@ -92,8 +92,8 @@ export const VerificationManagePage = ({ currentUser, onBack, onRefresh }: Verif
     setUploading(true);
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
-      const filePath = fileName;
+      const fileName = `${currentUser.id}_${Date.now()}.${fileExt}`;
+      const filePath = `verification-photos/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('verification-photos')
@@ -101,10 +101,14 @@ export const VerificationManagePage = ({ currentUser, onBack, onRefresh }: Verif
 
       if (uploadError) throw uploadError;
 
+      const { data: { publicUrl } } = supabase.storage
+        .from('verification-photos')
+        .getPublicUrl(filePath);
+
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
-          verification_photo_url: filePath,
+          verification_photo_url: publicUrl,
           photo_verified: false,
           verification_status: 'pending_review'
         })

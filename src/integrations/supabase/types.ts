@@ -1067,10 +1067,6 @@ export type Database = {
       }
     }
     Functions: {
-      confirm_delivery_with_token: {
-        Args: { p_order_id: string; p_token: string }
-        Returns: Json
-      }
       credit_wallet: {
         Args: {
           p_amount: number
@@ -1096,28 +1092,6 @@ export type Database = {
         Args: { p_currency?: string; p_owner_id: string; p_owner_type: string }
         Returns: string
       }
-      get_order_by_token: {
-        Args: { p_order_id: string; p_token: string }
-        Returns: {
-          affiliate_link_id: string
-          created_at: string
-          id: string
-          status: string
-          total_amount: number
-        }[]
-      }
-      get_order_items_by_token: {
-        Args: { p_order_id: string; p_token: string }
-        Returns: {
-          commission_amount: number
-          id: string
-          price: number
-          product_id: string
-          product_title: string
-          quantity: number
-          vendor_id: string
-        }[]
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1126,10 +1100,6 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
-      report_delivery_issue_with_token: {
-        Args: { p_order_id: string; p_token: string }
-        Returns: Json
-      }
     }
     Enums: {
       app_role: "vendor" | "affiliate" | "admin"

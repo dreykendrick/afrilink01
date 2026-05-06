@@ -1,8 +1,8 @@
-// Winger Push Notification Service Worker Handler
+// AfriLink Push Notification Service Worker Handler
 // This file is imported by the main PWA service worker
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'Winger', body: 'You have a new notification', type: 'info' };
+  let data = { title: 'AfriLink', body: 'You have a new notification', type: 'info' };
 
   try {
     if (event.data) {

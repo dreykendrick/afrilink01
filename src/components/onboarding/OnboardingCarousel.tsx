@@ -14,7 +14,7 @@ interface Slide {
 
 const slides: Slide[] = [
   {
-    headline: 'Welcome to Winger',
+    headline: 'Welcome to AfriLink',
     subtext: "Africa's first homegrown affiliate marketplace.",
     icon: Globe,
   },
@@ -89,7 +89,7 @@ export const OnboardingCarousel = ({ onComplete }: OnboardingCarouselProps) => {
   return (
     <div className="min-h-screen bg-gradient-hero text-foreground flex flex-col">
       <div className="flex items-center justify-between px-5 pt-6">
-        <div className="text-sm font-semibold tracking-wide text-foreground/60">Winger</div>
+        <div className="text-sm font-semibold tracking-wide text-foreground/60">AfriLink</div>
         <Button variant="ghost" size="sm" onClick={handleSkip} className="text-foreground/80">
           Skip
         </Button>

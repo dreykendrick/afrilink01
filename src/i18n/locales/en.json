@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Winger",
+    "appName": "AfriLink",
     "loading": "Loading...",
     "save": "Save",
     "cancel": "Cancel",
@@ -59,7 +59,7 @@
       "ctaBrowse": "Browse Products"
     },
     "features": {
-      "title": "Why Winger?",
+      "title": "Why AfriLink?",
       "vendors": {
         "title": "For Vendors",
         "description": "List your products and reach thousands of customers through our affiliate network"
@@ -76,7 +76,7 @@
   },
   "roleSelection": {
     "title": "Choose Your Path",
-    "subtitle": "How would you like to use Winger?",
+    "subtitle": "How would you like to use AfriLink?",
     "vendor": {
       "title": "Become a Vendor",
       "description": "List and sell your products to customers across Tanzania"
@@ -160,7 +160,7 @@
     },
     "appearance": {
       "title": "Appearance",
-      "description": "Customize how Winger looks",
+      "description": "Customize how AfriLink looks",
       "theme": "Theme",
       "light": "Light",
       "dark": "Dark",

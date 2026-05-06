@@ -84,10 +84,14 @@ export const VerificationForm = ({ userId, onComplete }: VerificationFormProps) 
 
       if (uploadError) throw uploadError;
 
+      const { data: { publicUrl } } = supabase.storage
+        .from('verification-photos')
+        .getPublicUrl(fileName);
+
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
-          verification_photo_url: fileName,
+          verification_photo_url: publicUrl,
           photo_verified: true 
         })
         .eq('id', session.user.id);
