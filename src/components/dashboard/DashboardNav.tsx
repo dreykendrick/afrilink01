@@ -22,6 +22,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { User } from '@/types';
+import wingerLogo from '@/assets/winger-logo.png';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -308,10 +309,10 @@ export const DashboardNav = ({
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-primary rounded-lg flex items-center justify-center shadow-glow">
-              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden shadow-glow">
+              <img src={wingerLogo} alt="Winger logo" className="w-full h-full object-cover" />
             </div>
-            <span className="text-lg sm:text-xl font-bold text-sidebar-foreground">AfriLink</span>
+            <span className="text-lg sm:text-xl font-bold text-sidebar-foreground">Winger</span>
           </div>
 
           {/* Desktop Nav */}

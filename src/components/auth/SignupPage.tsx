@@ -10,6 +10,7 @@ import { ShoppingCart, ArrowLeft, Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { getUserFriendlyError } from '@/utils/errorMessages';
 import { getAppUrlAsync } from '@/utils/appUrl';
+import wingerLogo from '@/assets/winger-logo.png';
 
 interface SignupPageProps {
   onNavigate: (view: string) => void;
@@ -124,8 +125,8 @@ export const SignupPage = ({ onNavigate, onSignupSuccess }: SignupPageProps) => 
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-glow">
-              <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg overflow-hidden shadow-glow">
+              <img src={wingerLogo} alt="Winger logo" className="w-full h-full object-cover" />
             </div>
             <Button variant="ghost" size="sm" onClick={() => onNavigate('landing')}>
               <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
@@ -134,7 +135,7 @@ export const SignupPage = ({ onNavigate, onSignupSuccess }: SignupPageProps) => 
           </div>
           <CardTitle className="text-xl sm:text-2xl">Create Account</CardTitle>
           <CardDescription className="text-sm">
-            Join AfriLink as a vendor or affiliate
+            Join Winger as a vendor or affiliate
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">

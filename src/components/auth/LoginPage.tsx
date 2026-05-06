@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { getUserFriendlyError } from '@/utils/errorMessages';
+import wingerLogo from '@/assets/winger-logo.png';
 
 interface LoginPageProps {
   onNavigate: (view: string) => void;
@@ -94,8 +95,8 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
       <div className="max-w-md w-full animate-in fade-in zoom-in-95 duration-500">
         <div className="bg-card backdrop-blur-lg rounded-2xl p-8 border border-border shadow-card">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4 shadow-glow">
-              <ShoppingCart className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 rounded-xl overflow-hidden mx-auto mb-4 shadow-glow">
+              <img src={wingerLogo} alt="Winger logo" className="w-full h-full object-cover" />
             </div>
             <h2 className="text-3xl font-bold text-foreground">{t('dashboard.welcome')}</h2>
             <p className="text-muted-foreground mt-2">{t('auth.login')}</p>

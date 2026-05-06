@@ -28,17 +28,17 @@ export const InviteEmail = ({
 }: InviteEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>You've been invited to join AfriLink!</Preview>
+    <Preview>You've been invited to join Winger!</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logoText}>🛒 AfriLink</Text>
+          <Text style={logoText}>🛒 Winger</Text>
         </Section>
         <Heading style={h1}>You're invited! 🎉</Heading>
         <Text style={text}>
           Someone invited you to join{' '}
           <Link href={siteUrl} style={link}>
-            <strong>AfriLink</strong>
+            <strong>Winger</strong>
           </Link>
           . Accept the invitation to start selling products or earning
           commissions as an affiliate.

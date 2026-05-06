@@ -30,17 +30,17 @@ export const SignupEmail = ({
 }: SignupEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Welcome to AfriLink — verify your email to get started</Preview>
+    <Preview>Welcome to Winger — verify your email to get started</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
-          <Text style={logoText}>🛒 AfriLink</Text>
+          <Text style={logoText}>🛒 Winger</Text>
         </Section>
         <Heading style={h1}>Welcome aboard! 🎉</Heading>
         <Text style={text}>
           Thanks for joining{' '}
           <Link href={siteUrl} style={link}>
-            <strong>AfriLink</strong>
+            <strong>Winger</strong>
           </Link>
           — the marketplace that connects vendors and affiliates across Africa.
         </Text>
@@ -57,7 +57,7 @@ export const SignupEmail = ({
           </Button>
         </Section>
         <Text style={footer}>
-          If you didn't create an AfriLink account, you can safely ignore this email.
+          If you didn't create an Winger account, you can safely ignore this email.
         </Text>
       </Container>
     </Body>

@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "AfriLink",
+    "appName": "Winger",
     "loading": "Inapakia...",
     "save": "Hifadhi",
     "cancel": "Ghairi",
@@ -59,7 +59,7 @@
       "ctaBrowse": "Vinjari Bidhaa"
     },
     "features": {
-      "title": "Kwa Nini AfriLink?",
+      "title": "Kwa Nini Winger?",
       "vendors": {
         "title": "Kwa Wauzaji",
         "description": "Orodhesha bidhaa zako na ufikie maelfu ya wateja kupitia mtandao wetu wa washirika"
@@ -76,7 +76,7 @@
   },
   "roleSelection": {
     "title": "Chagua Njia Yako",
-    "subtitle": "Ungependa kutumia AfriLink vipi?",
+    "subtitle": "Ungependa kutumia Winger vipi?",
     "vendor": {
       "title": "Kuwa Muuzaji",
       "description": "Orodhesha na uuze bidhaa zako kwa wateja kote Tanzania"
@@ -160,7 +160,7 @@
     },
     "appearance": {
       "title": "Mwonekano",
-      "description": "Badilisha mwonekano wa AfriLink",
+      "description": "Badilisha mwonekano wa Winger",
       "theme": "Mandhari",
       "light": "Mwanga",
       "dark": "Giza",

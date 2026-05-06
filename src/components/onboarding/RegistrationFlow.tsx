@@ -50,7 +50,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
     () => [
       {
         title: `Join as ${roleLabel}`,
-        description: 'Create your account to unlock AfriLink opportunities.',
+        description: 'Create your account to unlock Winger opportunities.',
       },
       {
         title: 'Add your phone number',
@@ -358,7 +358,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
               </Button>
               <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
                 <CheckCircle className="w-4 h-4 text-afrilink-green" />
-                Secure signup flow powered by AfriLink.
+                Secure signup flow powered by Winger.
               </div>
             </div>
           )}

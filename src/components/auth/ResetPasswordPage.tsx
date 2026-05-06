@@ -300,10 +300,10 @@ export const ResetPasswordPage = ({ onNavigate }: ResetPasswordPageProps) => {
                 onClick={handleOpenInApp}
               >
                 <Smartphone className="w-4 h-4 mr-2" />
-                Open in AfriLink App
+                Open in Winger App
               </Button>
               <p className="text-xs text-muted-foreground text-center mt-2">
-                Don't have the app? Install AfriLink to reset inside the app.
+                Don't have the app? Install Winger to reset inside the app.
               </p>
             </div>
           )}
