@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { DollarSign, ShoppingCart, Package, Eye, Plus, MoreVertical, ArrowDownCircle, AlertCircle, CheckCircle, Clock, XCircle, Circle } from 'lucide-react';
+import { DollarSign, ShoppingCart, Package, Eye, Plus, MoreVertical, ArrowDownCircle, AlertCircle, CheckCircle, Clock, XCircle, Circle, Pencil } from 'lucide-react';
 import { User, Product, VendorStats } from '@/types';
 import { formatCurrency } from '@/utils/currency';
 import { StatsCard } from './StatsCard';
 import { AddProductModal } from './AddProductModal';
+import { EditProductModal } from './EditProductModal';
 import { VendorWalletExternal } from './VendorWalletExternal';
 import { VendorOrders } from './VendorOrders';
 
@@ -39,6 +40,7 @@ interface VendorDashboardProps {
 export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProductAdded }: VendorDashboardProps) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [takedownProductId, setTakedownProductId] = useState<string | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { toast } = useToast();
 
   const handleProductAdded = () => {
@@ -230,6 +232,13 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-popover border border-border shadow-lg">
+                        <DropdownMenuItem
+                          onClick={() => setEditingProduct(product)}
+                          className="focus:bg-secondary"
+                        >
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Edit Product
+                        </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleAvailabilityToggle(product.id, product.isAvailable !== false)}
                           className="focus:bg-secondary"
@@ -250,6 +259,22 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
+                  {(product.status === 'pending' || product.status === 'rejected') && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="p-2 hover:bg-secondary rounded-lg transition-colors">
+                        <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-popover border border-border shadow-lg">
+                        <DropdownMenuItem
+                          onClick={() => setEditingProduct(product)}
+                          className="focus:bg-secondary"
+                        >
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Edit Product
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
               </div>
             ))
@@ -261,6 +286,13 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onProductAdded={handleProductAdded}
+      />
+
+      <EditProductModal
+        isOpen={!!editingProduct}
+        product={editingProduct}
+        onClose={() => setEditingProduct(null)}
+        onProductUpdated={() => onProductAdded?.()}
       />
 
       <AlertDialog open={!!takedownProductId} onOpenChange={() => setTakedownProductId(null)}>
