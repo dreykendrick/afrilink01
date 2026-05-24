@@ -226,8 +226,7 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
                     <div className="font-bold text-foreground text-sm sm:text-base">{formatCurrency(product.price)}</div>
                     <div className="text-xs text-muted-foreground">{product.sales} sales</div>
                   </div>
-                  {product.status === 'approved' && (
-                    <DropdownMenu>
+                  <DropdownMenu>
                       <DropdownMenuTrigger className="p-2 hover:bg-secondary rounded-lg transition-colors">
                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
                       </DropdownMenuTrigger>
@@ -239,42 +238,29 @@ export const VendorDashboard = ({ currentUser, products, stats, onVerify, onProd
                           <Pencil className="w-4 h-4 mr-2" />
                           Edit Product
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleAvailabilityToggle(product.id, product.isAvailable !== false)}
-                          className="focus:bg-secondary"
-                        >
-                          <Switch
-                            checked={product.isAvailable !== false}
-                            className="scale-75 mr-2 pointer-events-none"
-                          />
-                          {product.isAvailable !== false ? 'Mark as Sold Out' : 'Mark as Available'}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setTakedownProductId(product.id)}
-                          className="text-orange-500 focus:text-orange-500"
-                        >
-                          <ArrowDownCircle className="w-4 h-4 mr-2" />
-                          Request Takedown
-                        </DropdownMenuItem>
+                        {product.status === 'approved' && (
+                          <>
+                            <DropdownMenuItem
+                              onClick={() => handleAvailabilityToggle(product.id, product.isAvailable !== false)}
+                              className="focus:bg-secondary"
+                            >
+                              <Switch
+                                checked={product.isAvailable !== false}
+                                className="scale-75 mr-2 pointer-events-none"
+                              />
+                              {product.isAvailable !== false ? 'Mark as Sold Out' : 'Mark as Available'}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setTakedownProductId(product.id)}
+                              className="text-orange-500 focus:text-orange-500"
+                            >
+                              <ArrowDownCircle className="w-4 h-4 mr-2" />
+                              Request Takedown
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  )}
-                  {(product.status === 'pending' || product.status === 'rejected') && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="p-2 hover:bg-secondary rounded-lg transition-colors">
-                        <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-popover border border-border shadow-lg">
-                        <DropdownMenuItem
-                          onClick={() => setEditingProduct(product)}
-                          className="focus:bg-secondary"
-                        >
-                          <Pencil className="w-4 h-4 mr-2" />
-                          Edit Product
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
                 </div>
               </div>
             ))
