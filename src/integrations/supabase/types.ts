@@ -492,6 +492,13 @@ export type Database = {
             referencedRelation: "affiliate_links"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "orders_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_links_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       payments: {
@@ -1061,6 +1068,73 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_links_public: {
+        Row: {
+          clicks: number | null
+          code: string | null
+          id: string | null
+          product_id: string | null
+        }
+        Insert: {
+          clicks?: number | null
+          code?: string | null
+          id?: string | null
+          product_id?: string | null
+        }
+        Update: {
+          clicks?: number | null
+          code?: string | null
+          id?: string | null
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_links_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_profiles_public: {
+        Row: {
+          business_name: string | null
+          city: string | null
+          logo_url: string | null
+          pickup_location: string | null
+          user_id: string | null
+          vendor_type: string | null
+          verification_status: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          city?: string | null
+          logo_url?: string | null
+          pickup_location?: string | null
+          user_id?: string | null
+          vendor_type?: string | null
+          verification_status?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          city?: string | null
+          logo_url?: string | null
+          pickup_location?: string | null
+          user_id?: string | null
+          vendor_type?: string | null
+          verification_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
