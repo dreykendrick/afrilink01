@@ -196,20 +196,8 @@ const IndexContent = () => {
     
     if (ref) {
       setAffiliateCode(ref);
-      // Track click
-      supabase
-        .from('affiliate_links')
-        .select('id, clicks')
-        .eq('code', ref)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data) {
-            supabase
-              .from('affiliate_links')
-              .update({ clicks: (data.clicks || 0) + 1 })
-              .eq('id', data.id);
-          }
-        });
+      // Track click via SECURITY DEFINER RPC (no public read of sensitive cols)
+      (supabase as any).rpc('resolve_affiliate_link', { p_code: ref });
     }
   }, []);
 
