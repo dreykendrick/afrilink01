@@ -492,13 +492,6 @@ export type Database = {
             referencedRelation: "affiliate_links"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "orders_affiliate_link_id_fkey"
-            columns: ["affiliate_link_id"]
-            isOneToOne: false
-            referencedRelation: "affiliate_links_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       payments: {
@@ -1072,73 +1065,6 @@ export type Database = {
           },
         ]
       }
-      affiliate_links_public: {
-        Row: {
-          clicks: number | null
-          code: string | null
-          id: string | null
-          product_id: string | null
-        }
-        Insert: {
-          clicks?: number | null
-          code?: string | null
-          id?: string | null
-          product_id?: string | null
-        }
-        Update: {
-          clicks?: number | null
-          code?: string | null
-          id?: string | null
-          product_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "affiliate_links_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      vendor_profiles_public: {
-        Row: {
-          business_name: string | null
-          city: string | null
-          logo_url: string | null
-          pickup_location: string | null
-          user_id: string | null
-          vendor_type: string | null
-          verification_status: string | null
-        }
-        Insert: {
-          business_name?: string | null
-          city?: string | null
-          logo_url?: string | null
-          pickup_location?: string | null
-          user_id?: string | null
-          vendor_type?: string | null
-          verification_status?: string | null
-        }
-        Update: {
-          business_name?: string | null
-          city?: string | null
-          logo_url?: string | null
-          pickup_location?: string | null
-          user_id?: string | null
-          vendor_type?: string | null
-          verification_status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "vendor_profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Functions: {
       confirm_delivery_with_token: {
@@ -1192,6 +1118,18 @@ export type Database = {
           vendor_id: string
         }[]
       }
+      get_vendor_public_info: {
+        Args: { p_user_id: string }
+        Returns: {
+          business_name: string
+          city: string
+          logo_url: string
+          pickup_location: string
+          user_id: string
+          vendor_type: string
+          verification_status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1203,6 +1141,13 @@ export type Database = {
       report_delivery_issue_with_token: {
         Args: { p_order_id: string; p_token: string }
         Returns: Json
+      }
+      resolve_affiliate_link: {
+        Args: { p_code: string }
+        Returns: {
+          id: string
+          product_id: string
+        }[]
       }
     }
     Enums: {
