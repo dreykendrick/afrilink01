@@ -1118,6 +1118,18 @@ export type Database = {
           vendor_id: string
         }[]
       }
+      get_vendor_public_info: {
+        Args: { p_user_id: string }
+        Returns: {
+          business_name: string
+          city: string
+          logo_url: string
+          pickup_location: string
+          user_id: string
+          vendor_type: string
+          verification_status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1129,6 +1141,13 @@ export type Database = {
       report_delivery_issue_with_token: {
         Args: { p_order_id: string; p_token: string }
         Returns: Json
+      }
+      resolve_affiliate_link: {
+        Args: { p_code: string }
+        Returns: {
+          id: string
+          product_id: string
+        }[]
       }
     }
     Enums: {

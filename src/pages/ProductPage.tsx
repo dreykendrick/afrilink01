@@ -77,12 +77,8 @@ export const ProductPage = () => {
       setProduct(data || null);
 
       if (data?.vendor_id) {
-        const { data: vendor } = await (supabase
-          .from('vendor_profiles' as any)
-          .select('city, verification_status')
-          .eq('user_id', data.vendor_id)
-          .maybeSingle() as unknown as Promise<{ data: any; error: any }>);
-        setVendorProfile(vendor || null);
+        const { data: vendor } = await (supabase as any).rpc('get_vendor_public_info', { p_user_id: data.vendor_id });
+        setVendorProfile(Array.isArray(vendor) ? vendor[0] || null : vendor || null);
       }
 
       setLoading(false);
