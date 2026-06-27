@@ -883,6 +883,35 @@ const IndexContent = () => {
     );
   }
 
+  if (view === 'orders' && currentUser) {
+    return (
+      <div className="min-h-screen bg-background pb-mobile-nav sm:pb-0">
+        <DashboardNav
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onNavigateToSettings={() => setView('settings')}
+          onNavigateToVerification={() => setView('verification-manage')}
+          onNavigateToMarketplace={() => handleNavigate('marketplace')}
+          onNavigateToHelp={() => setView('help-support')}
+          onNavigateToOrders={() => setView('orders')}
+          onWalletUpdate={fetchUserData}
+          availableRoles={availableRoles}
+          onSwitchRole={handleSwitchRole}
+          onAddRole={handleAddRole}
+        />
+        <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
+          <button
+            onClick={() => setView('dashboard')}
+            className="mb-4 text-sm text-primary hover:underline"
+          >
+            ← Back to Dashboard
+          </button>
+          <VendorOrders />
+        </div>
+      </div>
+    );
+  }
+
 
   if (view === 'dashboard' && currentUser) {
     return (
@@ -894,6 +923,7 @@ const IndexContent = () => {
           onNavigateToVerification={() => setView('verification-manage')}
           onNavigateToMarketplace={() => handleNavigate('marketplace')}
           onNavigateToHelp={() => setView('help-support')}
+          onNavigateToOrders={() => setView('orders')}
           onWalletUpdate={fetchUserData}
           availableRoles={availableRoles}
           onSwitchRole={handleSwitchRole}
