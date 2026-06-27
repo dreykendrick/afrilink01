@@ -19,7 +19,8 @@ import {
   RefreshCw,
   Plus,
   History,
-  Loader2
+  Loader2,
+  Package
 } from 'lucide-react';
 import { User } from '@/types';
 import wingerLogo from '@/assets/winger-logo.png';
@@ -48,6 +49,7 @@ interface DashboardNavProps {
   onNavigateToVerification?: () => void;
   onNavigateToMarketplace?: () => void;
   onNavigateToHelp?: () => void;
+  onNavigateToOrders?: () => void;
   onWalletUpdate?: () => void;
   availableRoles?: ('vendor' | 'affiliate')[];
   onSwitchRole?: (role: 'vendor' | 'affiliate') => void;
@@ -61,6 +63,7 @@ export const DashboardNav = ({
   onNavigateToVerification,
   onNavigateToMarketplace,
   onNavigateToHelp,
+  onNavigateToOrders,
   onWalletUpdate,
   availableRoles = [],
   onSwitchRole,
