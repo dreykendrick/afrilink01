@@ -11,6 +11,7 @@ import { AffiliateDashboard } from '@/components/dashboard/AffiliateDashboard';
 import { SettingsPage } from '@/components/dashboard/SettingsPage';
 import { VerificationManagePage } from '@/components/dashboard/VerificationManagePage';
 import { HelpSupportPage } from '@/components/dashboard/HelpSupportPage';
+import { VendorOrders } from '@/components/dashboard/VendorOrders';
 import { MarketplaceNav } from '@/components/marketplace/MarketplaceNav';
 import { ProductCard } from '@/components/marketplace/ProductCard';
 import { ProductModal } from '@/components/marketplace/ProductModal';
@@ -48,6 +49,7 @@ type View =
   | 'settings'
   | 'verification-manage'
   | 'help-support'
+  | 'orders'
   | 'onboarding'
   | 'role-selection'
   | 'onboarding-register'
@@ -74,7 +76,7 @@ const getViewFromUrl = (): { view: View | null; role: 'vendor' | 'affiliate' | n
   const roleParam = params.get('role');
   const validViews: View[] = [
     'landing', 'login', 'signup', 'forgot-password', 'reset-password', 'verification',
-    'dashboard', 'marketplace', 'settings', 'verification-manage', 'help-support',
+    'dashboard', 'marketplace', 'settings', 'verification-manage', 'help-support', 'orders',
     'onboarding', 'role-selection', 'onboarding-register', 'vendor-profile-setup',
     'affiliate-profile-setup', 'phone-verification'
   ];
