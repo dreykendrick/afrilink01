@@ -19,7 +19,8 @@ import {
   RefreshCw,
   Plus,
   History,
-  Loader2
+  Loader2,
+  Package
 } from 'lucide-react';
 import { User } from '@/types';
 import wingerLogo from '@/assets/winger-logo.png';
@@ -48,6 +49,7 @@ interface DashboardNavProps {
   onNavigateToVerification?: () => void;
   onNavigateToMarketplace?: () => void;
   onNavigateToHelp?: () => void;
+  onNavigateToOrders?: () => void;
   onWalletUpdate?: () => void;
   availableRoles?: ('vendor' | 'affiliate')[];
   onSwitchRole?: (role: 'vendor' | 'affiliate') => void;
@@ -61,6 +63,7 @@ export const DashboardNav = ({
   onNavigateToVerification,
   onNavigateToMarketplace,
   onNavigateToHelp,
+  onNavigateToOrders,
   onWalletUpdate,
   availableRoles = [],
   onSwitchRole,
@@ -217,6 +220,17 @@ export const DashboardNav = ({
 
       {/* Theme Toggle */}
       <div className="p-2 border-b border-border">
+        {currentUser.role === 'vendor' && onNavigateToOrders && (
+          <DropdownMenuItem
+            onClick={onNavigateToOrders}
+            className="cursor-pointer rounded-lg px-3 py-2.5 mb-1"
+          >
+            <div className="w-8 h-8 rounded-lg bg-afrilink-blue/10 flex items-center justify-center mr-3">
+              <Package className="w-4 h-4 text-afrilink-blue" />
+            </div>
+            <span className="font-medium text-sm">Orders</span>
+          </DropdownMenuItem>
+        )}
         <div className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-secondary/50 transition-colors">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">

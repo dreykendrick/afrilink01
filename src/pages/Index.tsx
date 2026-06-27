@@ -11,6 +11,7 @@ import { AffiliateDashboard } from '@/components/dashboard/AffiliateDashboard';
 import { SettingsPage } from '@/components/dashboard/SettingsPage';
 import { VerificationManagePage } from '@/components/dashboard/VerificationManagePage';
 import { HelpSupportPage } from '@/components/dashboard/HelpSupportPage';
+import { VendorOrders } from '@/components/dashboard/VendorOrders';
 import { MarketplaceNav } from '@/components/marketplace/MarketplaceNav';
 import { ProductCard } from '@/components/marketplace/ProductCard';
 import { ProductModal } from '@/components/marketplace/ProductModal';
@@ -48,6 +49,7 @@ type View =
   | 'settings'
   | 'verification-manage'
   | 'help-support'
+  | 'orders'
   | 'onboarding'
   | 'role-selection'
   | 'onboarding-register'
@@ -74,7 +76,7 @@ const getViewFromUrl = (): { view: View | null; role: 'vendor' | 'affiliate' | n
   const roleParam = params.get('role');
   const validViews: View[] = [
     'landing', 'login', 'signup', 'forgot-password', 'reset-password', 'verification',
-    'dashboard', 'marketplace', 'settings', 'verification-manage', 'help-support',
+    'dashboard', 'marketplace', 'settings', 'verification-manage', 'help-support', 'orders',
     'onboarding', 'role-selection', 'onboarding-register', 'vendor-profile-setup',
     'affiliate-profile-setup', 'phone-verification'
   ];
@@ -881,6 +883,35 @@ const IndexContent = () => {
     );
   }
 
+  if (view === 'orders' && currentUser) {
+    return (
+      <div className="min-h-screen bg-background pb-mobile-nav sm:pb-0">
+        <DashboardNav
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onNavigateToSettings={() => setView('settings')}
+          onNavigateToVerification={() => setView('verification-manage')}
+          onNavigateToMarketplace={() => handleNavigate('marketplace')}
+          onNavigateToHelp={() => setView('help-support')}
+          onNavigateToOrders={() => setView('orders')}
+          onWalletUpdate={fetchUserData}
+          availableRoles={availableRoles}
+          onSwitchRole={handleSwitchRole}
+          onAddRole={handleAddRole}
+        />
+        <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
+          <button
+            onClick={() => setView('dashboard')}
+            className="mb-4 text-sm text-primary hover:underline"
+          >
+            ← Back to Dashboard
+          </button>
+          <VendorOrders />
+        </div>
+      </div>
+    );
+  }
+
 
   if (view === 'dashboard' && currentUser) {
     return (
@@ -892,6 +923,7 @@ const IndexContent = () => {
           onNavigateToVerification={() => setView('verification-manage')}
           onNavigateToMarketplace={() => handleNavigate('marketplace')}
           onNavigateToHelp={() => setView('help-support')}
+          onNavigateToOrders={() => setView('orders')}
           onWalletUpdate={fetchUserData}
           availableRoles={availableRoles}
           onSwitchRole={handleSwitchRole}
