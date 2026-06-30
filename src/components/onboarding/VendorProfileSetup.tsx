@@ -120,10 +120,17 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
 
     setLoading(true);
     try {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      const authenticatedUserId = authData.user?.id;
+
+      if (authError || !authenticatedUserId) {
+        throw new Error('Your login session expired. Please log out and sign in again.');
+      }
+
       let logoUrl: string | null = null;
       if (logoFile) {
         const fileExt = logoFile.name.split('.').pop();
-        const fileName = `${userId}/logo.${fileExt}`;
+        const fileName = `${authenticatedUserId}/logo.${fileExt}`;
         const { error: uploadError } = await supabase.storage
           .from('vendor-logos')
           .upload(fileName, logoFile, { upsert: true });
@@ -135,7 +142,7 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
       }
 
       const upsertData = {
-        user_id: userId,
+        user_id: authenticatedUserId,
         business_name: businessName,
         vendor_type: vendorType,
         city,
