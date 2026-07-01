@@ -54,6 +54,7 @@ export const SignupPage = ({ onNavigate, onSignupSuccess }: SignupPageProps) => 
         options: {
           data: {
             full_name: fullName,
+            role,
           },
           emailRedirectTo: `${appUrl}/`
         }
@@ -77,31 +78,7 @@ export const SignupPage = ({ onNavigate, onSignupSuccess }: SignupPageProps) => 
       }
 
       if (data.user) {
-        // Create user role
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({ user_id: data.user.id, role });
-
-        if (roleError) {
-          console.error('Role creation error:', roleError);
-          // Don't block signup if role creation fails - can be fixed later
-        }
-
-        // Create application for approval
-        const { error: appError } = await supabase
-          .from('applications')
-          .insert({
-            user_id: data.user.id,
-            email,
-            full_name: fullName,
-            role,
-            status: 'pending'
-          });
-
-        if (appError) {
-          console.error('Application creation error:', appError);
-        }
-
+        // Role + application are created automatically by the handle_new_user DB trigger
         toast({
           title: 'Account Created!',
           description: 'Please complete your verification.',
