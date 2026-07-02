@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
           image_url: p.image_url,
           image_urls: p.image_urls,
           slug: p.slug,
-          vendor_name: vendor?.business_name || 'AfriLink Vendor',
+          vendor_name: vendor?.business_name || 'Winger Vendor',
           vendor_city: vendor?.city,
         };
       });
@@ -232,7 +232,7 @@ Deno.serve(async (req) => {
         image_url: product.image_url,
         image_urls: product.image_urls,
         slug: product.slug,
-        vendor_name: vendor?.business_name || 'AfriLink Vendor',
+        vendor_name: vendor?.business_name || 'Winger Vendor',
         vendor_city: vendor?.city,
         vendor_lat: vendor?.vendor_lat || null,
         vendor_lng: vendor?.vendor_lng || null,
