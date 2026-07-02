@@ -18,8 +18,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "pwa-192x192.png", "pwa-512x512.png"],
       manifest: {
-        name: "AfriLink - Africa's Premier Marketplace",
-        short_name: "AfriLink",
+        name: "Winger - Africa's Premier Marketplace",
+        short_name: "Winger",
         description: "Connect vendors, affiliates, and consumers on Africa's leading marketplace",
         theme_color: "#f59e0b",
         background_color: "#0f172a",
