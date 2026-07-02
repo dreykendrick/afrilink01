@@ -117,11 +117,11 @@ serve(async (req) => {
       // Keep `developer_app_id` alongside for compatibility with any updated docs.
       app_key: developerAppId,
       developer_app_id: developerAppId,
-      sender_id: "Afrilink",
+      sender_id: "Winger",
       otp_length: 6,
       minutes_to_expire: 10,
       delivery_method: "sms",
-      message_template: "Your AfriLink verification code is {code}. It expires in 10 minutes.",
+      message_template: "Your Winger verification code is {code}. It expires in 10 minutes.",
     };
 
     console.log(
