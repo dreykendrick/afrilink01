@@ -57,7 +57,7 @@ async function briqCreatePayment(params: {
     currency: params.currency,
     reference: params.orderId,
     order_id: params.orderId,
-    description: params.description || `AfriLink Order ${params.orderId.slice(0, 8)}`,
+    description: params.description || `Winger Order ${params.orderId.slice(0, 8)}`,
     return_url: params.returnUrl,
     success_url: params.returnUrl,
     cancel_url: params.cancelUrl,
@@ -575,7 +575,7 @@ Deno.serve(async (req) => {
             cancelUrl,
             customerName: order.customer_name,
             customerPhone: order.customer_phone,
-            description: `AfriLink Order ${body.order_id.slice(0, 8)}`,
+            description: `Winger Order ${body.order_id.slice(0, 8)}`,
           });
 
           // Save provider payment ID and raw payload
