@@ -35,7 +35,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = 'AfriLink'
+const SITE_NAME = 'Winger'
 const SENDER_DOMAIN = 'notify.afrilink.info'
 const ROOT_DOMAIN = 'afrilink.info'
 const FROM_DOMAIN = 'afrilink.info' // Domain shown in From address (may be root or sender subdomain)
