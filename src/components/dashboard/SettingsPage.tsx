@@ -283,6 +283,50 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
                 <CardDescription>Update your personal information</CardDescription>
               </CardHeader>
               <CardContent className="space-y-5 sm:space-y-6 px-4 sm:px-6">
+                {canEditImage && (
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-20 h-20 rounded-full overflow-hidden bg-secondary/50 border border-border flex items-center justify-center flex-shrink-0">
+                      {(imagePreview || imageUrl) ? (
+                        <img
+                          src={imagePreview || imageUrl || ''}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-8 h-8 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-sm">
+                        {userRole === 'vendor' ? 'Business Logo' : 'Profile Photo'}
+                      </Label>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="hidden"
+                        onChange={handleImageSelect}
+                      />
+                      <div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="min-h-[40px]"
+                        >
+                          <Camera className="w-4 h-4 mr-2" />
+                          {imagePreview ? 'Change selection' : 'Change image'}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {imagePreview
+                          ? 'New image ready — tap Save Changes to apply.'
+                          : 'PNG, JPG or WEBP • up to 5MB'}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-5 sm:space-y-0 sm:grid sm:gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
