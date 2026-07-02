@@ -23,7 +23,7 @@ async function briqCreatePayment(params: {
   const body: Record<string, unknown> = {
     amount: params.amount, currency: params.currency,
     reference: params.orderId, order_id: params.orderId,
-    description: params.description || `AfriLink Order ${params.orderId.slice(0, 8)}`,
+    description: params.description || `Winger Order ${params.orderId.slice(0, 8)}`,
     return_url: params.returnUrl, success_url: params.returnUrl,
     cancel_url: params.cancelUrl, failure_url: params.cancelUrl,
     callback_url: params.returnUrl,
