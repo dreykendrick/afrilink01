@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -14,7 +14,8 @@ import {
   Phone,
   Save,
   Loader2,
-  MapPin
+  MapPin,
+  Camera
 } from 'lucide-react';
 import { VendorLocationPicker, type VendorLocation } from '@/components/dashboard/VendorLocationPicker';
 import { Button } from '@/components/ui/button';
@@ -51,12 +52,19 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
   const [vendorLocation, setVendorLocation] = useState<VendorLocation | null>(null);
   const [vendorLocationLoaded, setVendorLocationLoaded] = useState(false);
 
+  // Profile image (vendor logo / affiliate avatar)
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const canEditImage = userRole === 'vendor' || userRole === 'affiliate';
+
   // Load vendor profile data on mount
   useEffect(() => {
     if (userRole === 'vendor') {
       supabase
         .from('vendor_profiles')
-        .select('vendor_address, vendor_lat, vendor_lng')
+        .select('vendor_address, vendor_lat, vendor_lng, logo_url')
         .eq('user_id', currentUser.id)
         .maybeSingle()
         .then(({ data }) => {
@@ -67,10 +75,44 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
               address: data.vendor_address || '',
             });
           }
+          if (data?.logo_url) setImageUrl(data.logo_url);
           setVendorLocationLoaded(true);
+        });
+    } else if (userRole === 'affiliate') {
+      supabase
+        .from('affiliate_profiles')
+        .select('avatar_url')
+        .eq('user_id', currentUser.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.avatar_url) setImageUrl(data.avatar_url);
         });
     }
   }, [userRole, currentUser.id]);
+
+  // Cleanup preview URL to avoid leaks
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    if (['heic', 'heif'].includes(ext)) {
+      toast.error('HEIC/HEIF images are not supported. Please use JPG or PNG.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be 5MB or smaller.');
+      return;
+    }
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
@@ -103,6 +145,22 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
+      // Upload new profile image if selected
+      let newImageUrl: string | null = null;
+      if (imageFile && canEditImage) {
+        const bucket = userRole === 'vendor' ? 'vendor-logos' : 'affiliate-avatars';
+        const baseName = userRole === 'vendor' ? 'logo' : 'avatar';
+        const ext = imageFile.name.split('.').pop() || 'jpg';
+        const path = `${currentUser.id}/${baseName}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from(bucket)
+          .upload(path, imageFile, { upsert: true, contentType: imageFile.type });
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
+        // Cache-bust so the new image shows immediately
+        newImageUrl = `${pub.publicUrl}?v=${Date.now()}`;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update({ 
@@ -112,6 +170,25 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
         .eq('id', currentUser.id);
 
       if (error) throw error;
+
+      // Persist image URL to role-specific profile table
+      if (newImageUrl && canEditImage) {
+        if (userRole === 'vendor') {
+          const { error: vErr } = await (supabase
+            .from('vendor_profiles' as any)
+            .upsert({ user_id: currentUser.id, logo_url: newImageUrl }, { onConflict: 'user_id' }) as any);
+          if (vErr) throw vErr;
+        } else if (userRole === 'affiliate') {
+          const { error: aErr } = await (supabase
+            .from('affiliate_profiles' as any)
+            .upsert({ user_id: currentUser.id, avatar_url: newImageUrl }, { onConflict: 'user_id' }) as any);
+          if (aErr) throw aErr;
+        }
+        setImageUrl(newImageUrl);
+        if (imagePreview) URL.revokeObjectURL(imagePreview);
+        setImagePreview(null);
+        setImageFile(null);
+      }
 
       // Save vendor location if vendor
       if (userRole === 'vendor' && vendorLocation) {
@@ -206,6 +283,50 @@ export const SettingsPage = ({ currentUser, onBack, onRefresh }: SettingsPagePro
                 <CardDescription>Update your personal information</CardDescription>
               </CardHeader>
               <CardContent className="space-y-5 sm:space-y-6 px-4 sm:px-6">
+                {canEditImage && (
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-20 h-20 rounded-full overflow-hidden bg-secondary/50 border border-border flex items-center justify-center flex-shrink-0">
+                      {(imagePreview || imageUrl) ? (
+                        <img
+                          src={imagePreview || imageUrl || ''}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-8 h-8 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-sm">
+                        {userRole === 'vendor' ? 'Business Logo' : 'Profile Photo'}
+                      </Label>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="hidden"
+                        onChange={handleImageSelect}
+                      />
+                      <div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="min-h-[40px]"
+                        >
+                          <Camera className="w-4 h-4 mr-2" />
+                          {imagePreview ? 'Change selection' : 'Change image'}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {imagePreview
+                          ? 'New image ready — tap Save Changes to apply.'
+                          : 'PNG, JPG or WEBP • up to 5MB'}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-5 sm:space-y-0 sm:grid sm:gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
