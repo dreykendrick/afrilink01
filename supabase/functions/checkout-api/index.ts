@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
 
       // Fetch vendor profiles separately to avoid join issues
       const vendorIds = [...new Set((products || []).map((p: { vendor_id: string }) => p.vendor_id))];
-      const { data: vendors } = await supabase
+      const { data: vendors } = await adminClient
         .from('vendor_profiles')
         .select('user_id, business_name, city')
         .in('user_id', vendorIds);
