@@ -215,8 +215,8 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Fetch vendor profile
-      const { data: vendor } = await supabase
+      // Fetch vendor profile (use admin client — vendor_profiles RLS blocks anon)
+      const { data: vendor } = await adminClient
         .from('vendor_profiles')
         .select('business_name, city, pickup_location, vendor_lat, vendor_lng, vendor_address')
         .eq('user_id', product.vendor_id)
