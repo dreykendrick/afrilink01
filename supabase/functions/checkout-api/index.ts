@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
 
       // Fetch vendor profiles separately to avoid join issues
       const vendorIds = [...new Set((products || []).map((p: { vendor_id: string }) => p.vendor_id))];
-      const { data: vendors } = await supabase
+      const { data: vendors } = await adminClient
         .from('vendor_profiles')
         .select('user_id, business_name, city')
         .in('user_id', vendorIds);
@@ -215,8 +215,8 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Fetch vendor profile
-      const { data: vendor } = await supabase
+      // Fetch vendor profile (use admin client — vendor_profiles RLS blocks anon)
+      const { data: vendor } = await adminClient
         .from('vendor_profiles')
         .select('business_name, city, pickup_location, vendor_lat, vendor_lng, vendor_address')
         .eq('user_id', product.vendor_id)
