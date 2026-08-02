@@ -418,6 +418,43 @@ async function applyPaymentSplit(
     vendor_payouts: vendorPayouts,
   });
 
+  // ========================================
+  // IN-APP NOTIFICATIONS (vendors + affiliate)
+  // ========================================
+  try {
+    const notifRows: Array<Record<string, unknown>> = [];
+    const orderRef = String(order.id).slice(0, 8);
+
+    for (const vendorId of vendorIds) {
+      notifRows.push({
+        user_id: vendorId,
+        title: '🛒 New Paid Order',
+        message: `Order #${orderRef} is paid. TZS ${vendorPayouts[vendorId].amount.toLocaleString()} has been added to your wallet.`,
+        type: 'success',
+        link: '/dashboard',
+        read: false,
+      });
+    }
+
+    if (affiliateId && totalAffiliateFee > 0) {
+      notifRows.push({
+        user_id: affiliateId,
+        title: '💰 Commission Earned',
+        message: `Order #${orderRef} is paid. TZS ${totalAffiliateFee.toLocaleString()} commission has been added to your wallet.`,
+        type: 'success',
+        link: '/dashboard',
+        read: false,
+      });
+    }
+
+    if (notifRows.length) {
+      const { error: notifError } = await adminClient.from('notifications').insert(notifRows);
+      if (notifError) console.error('Notification insert error:', notifError);
+    }
+  } catch (err) {
+    console.error('Failed to create payout notifications:', err);
+  }
+
   return {
     success: true,
     split: {

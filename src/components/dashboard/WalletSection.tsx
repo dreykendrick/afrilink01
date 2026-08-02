@@ -52,6 +52,37 @@ export const WalletSection = ({ walletType, onBalanceChange }: WalletSectionProp
     fetchWallet();
   }, [walletType]);
 
+  // Live balance updates when funds are credited/debited
+  useEffect(() => {
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let cancelled = false;
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      const userId = data.user?.id;
+      if (!userId || cancelled) return;
+
+      channel = supabase
+        .channel(`wallet-${walletType}-${userId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'wallets',
+            filter: `owner_id=eq.${userId}`,
+          },
+          () => fetchWallet()
+        )
+        .subscribe();
+    })();
+
+    return () => {
+      cancelled = true;
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [walletType]);
+
   const handleWithdrawSuccess = () => {
     fetchWallet();
     onBalanceChange?.();
