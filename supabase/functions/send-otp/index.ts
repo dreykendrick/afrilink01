@@ -169,6 +169,9 @@ serve(async (req) => {
     return new Response(JSON.stringify({ 
       success: true,
       request_id: requestId,
+      briq_status: response.status,
+      briq_response: data,
+      phone_sent_to_briq: phoneNoPlus,
     }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
