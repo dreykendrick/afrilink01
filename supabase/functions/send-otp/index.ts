@@ -75,12 +75,11 @@ serve(async (req) => {
   }
 
   // STEP 1 (trace): log exactly what the backend receives from the frontend.
+  // Briq requires phone numbers WITHOUT the '+' prefix (e.g. "255712345678").
   const phoneNoPlus = phone.startsWith("+") ? phone.slice(1) : phone;
-  const phone255NoPlus = phoneNoPlus.startsWith("255") ? phoneNoPlus : phoneNoPlus;
   console.log("[send-otp] Incoming OTP request", {
     phone_original: phone,
-    phone_candidate_no_plus: phoneNoPlus,
-    phone_candidate_255_no_plus: phone255NoPlus,
+    phone_for_briq: phoneNoPlus,
   });
 
   const apiKey = Deno.env.get("BRIQ_API_KEY");
@@ -100,7 +99,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ success: false, error: "SMS provider not configured" }),
       {
-        status: 500,
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       },
     );
@@ -112,7 +111,7 @@ serve(async (req) => {
 
     // STEP 2 (request payload capture): build payload explicitly so we can safely log it.
     const briqPayload = {
-      phone_number: phone,
+      phone_number: phoneNoPlus,
       // Briq currently requires `app_key` (we observed 422 when missing).
       // Keep `developer_app_id` alongside for compatibility with any updated docs.
       app_key: developerAppId,
@@ -161,7 +160,7 @@ serve(async (req) => {
     if (!response.ok) {
       console.error("Briq API failed", { status: response.status, data });
       return new Response(JSON.stringify({ success: false, error: "SMS delivery failed" }), {
-        status: 500,
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
@@ -177,7 +176,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Briq API exception", error);
     return new Response(JSON.stringify({ success: false, error: "SMS delivery failed" }), {
-      status: 500,
+      status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }
