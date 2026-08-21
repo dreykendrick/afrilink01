@@ -42,7 +42,9 @@ serve(async (req) => {
     });
   }
 
-  console.log("Verifying OTP for:", phone);
+  // Briq requires phone numbers WITHOUT the '+' prefix (e.g. "255712345678").
+  const phoneNoPlus = phone.startsWith("+") ? phone.slice(1) : phone;
+  console.log("Verifying OTP for:", phone, "(Briq format:", phoneNoPlus, ")");
 
   const apiKey = Deno.env.get("BRIQ_API_KEY");
   const developerAppId = Deno.env.get("BRIQ_DEVELOPER_APP_ID");
@@ -52,7 +54,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ success: false, error: "SMS provider not configured" }),
       {
-        status: 500,
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       },
     );
@@ -67,7 +69,7 @@ serve(async (req) => {
         "X-API-Key": apiKey,
       },
       body: JSON.stringify({
-        phone_number: phone,
+        phone_number: phoneNoPlus,
         // Briq currently requires `app_key` (keep `developer_app_id` for compatibility)
         app_key: developerAppId,
         developer_app_id: developerAppId,
@@ -84,7 +86,7 @@ serve(async (req) => {
         success: false, 
         error: data.message || "Invalid or expired code" 
       }), {
-        status: 400,
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
@@ -97,7 +99,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Briq verify API exception", error);
     return new Response(JSON.stringify({ success: false, error: "Verification failed" }), {
-      status: 500,
+      status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }
