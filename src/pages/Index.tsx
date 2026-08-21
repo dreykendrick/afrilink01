@@ -276,10 +276,11 @@ const IndexContent = () => {
         setProfile(profileData);
       }
 
-      if (!profileData?.phone_verified) {
-        setView('phone-verification');
-        return;
-      }
+      // Temporary disabled phone verification bypass
+      // if (!profileData?.phone_verified) {
+      //   setView('phone-verification');
+      //   return;
+      // }
 
       if (userRole === 'vendor') {
         if (postGrabProductId) {
@@ -799,8 +800,8 @@ const IndexContent = () => {
         <SignupPage
           onNavigate={handleNavigate}
           onSignupSuccess={(userId) => {
-            setPendingUserId(userId);
-            setView('verification');
+            showNotification('Account created successfully! Please sign in.');
+            setView('login');
           }}
         />
         {notification && <Notification message={notification} onClose={() => setNotification(null)} />}

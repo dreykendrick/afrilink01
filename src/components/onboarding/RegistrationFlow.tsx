@@ -93,12 +93,38 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
 
       if (data.user) {
         setUserId(data.user.id);
-        // Role + application are created automatically by the handle_new_user DB trigger
-        toast({
-          title: 'Account created!',
-          description: 'Continue to verify your phone number.',
-        });
-        setStep(2);
+        // Automatically mark phone as verified and set up the corresponding role profile
+        try {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .update({ phone_verified: true })
+            .eq('id', data.user.id);
+          
+          if (profileError) throw profileError;
+
+          if (role === 'vendor') {
+            const { error: roleError } = await (supabase.from('vendor_profiles' as any).upsert(
+              { user_id: data.user.id, verification_status: 'pending' },
+              { onConflict: 'user_id' },
+            ) as unknown as Promise<{ error: any }>);
+            if (roleError) throw roleError;
+          } else {
+            const { error: roleError } = await (supabase.from('affiliate_profiles' as any).upsert(
+              { user_id: data.user.id },
+              { onConflict: 'user_id' },
+            ) as unknown as Promise<{ error: any }>);
+            if (roleError) throw roleError;
+          }
+
+          toast({
+            title: 'Account created!',
+            description: 'Your account is ready.',
+          });
+          onComplete(data.user.id, role);
+        } catch (setupError: any) {
+          console.error('Error during automatic profile setup:', setupError);
+          toast({ title: 'Error', description: 'Failed to complete registration setup.', variant: 'destructive' });
+        }
       }
     } catch (error: any) {
       toast({ title: 'Error', description: 'Unable to create your account.', variant: 'destructive' });
