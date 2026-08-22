@@ -13,7 +13,7 @@ import { getAppUrlAsync } from '@/utils/appUrl';
 interface RegistrationFlowProps {
   role: 'vendor' | 'affiliate';
   onBack: () => void;
-  onComplete: (userId: string, role: 'vendor' | 'affiliate') => void;
+  onComplete: (userId: string, role: 'vendor' | 'affiliate', userEmail?: string) => void;
 }
 
 const maskPhone = (phone: string) => {
@@ -93,11 +93,19 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
 
       if (data.user) {
         setUserId(data.user.id);
-        toast({
-          title: 'Account created!',
-          description: 'Your account has been created successfully.',
-        });
-        onComplete(data.user.id, role);
+        const isConfirmRequired = !data.session;
+        if (isConfirmRequired) {
+          toast({
+            title: 'Verification email sent!',
+            description: `We've sent a confirmation link to ${email}. Please check your inbox and verify your account.`,
+          });
+        } else {
+          toast({
+            title: 'Account created!',
+            description: 'Your account has been created successfully.',
+          });
+        }
+        onComplete(data.user.id, role, email);
       }
     } catch (error: any) {
       toast({ title: 'Error', description: 'Unable to create your account.', variant: 'destructive' });

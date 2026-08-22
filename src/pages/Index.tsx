@@ -704,7 +704,15 @@ const IndexContent = () => {
       <RegistrationFlow
         role={onboardingRole}
         onBack={() => setView('role-selection')}
-        onComplete={async (_userId, role) => {
+        onComplete={async (_userId, role, userEmail) => {
+          // Check if session exists (user is logged in)
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) {
+            showNotification(`Registration successful! Please check your inbox${userEmail ? ` at ${userEmail}` : ''} to confirm your email and activate your account.`);
+            setView('login');
+            return;
+          }
+
           await fetchUserData();
 
           if (role === 'vendor') {
