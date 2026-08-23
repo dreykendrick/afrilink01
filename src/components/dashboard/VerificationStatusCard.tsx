@@ -10,7 +10,6 @@ interface VerificationStatusCardProps {
 
 interface VerificationStatus {
   email_verified: boolean;
-  phone_verified: boolean;
   photo_verified: boolean;
   verification_status: string;
 }
@@ -26,7 +25,7 @@ export const VerificationStatusCard = ({ onVerify }: VerificationStatusCardProps
 
   // Auto-hide fully verified card after 2 minutes
   useEffect(() => {
-    const isFullyVerified = status?.email_verified && status?.phone_verified && status?.photo_verified;
+    const isFullyVerified = status?.email_verified && status?.photo_verified;
     if (isFullyVerified) {
       const timer = setTimeout(() => setHidden(true), 2 * 60 * 1000);
       return () => clearTimeout(timer);
@@ -40,7 +39,7 @@ export const VerificationStatusCard = ({ onVerify }: VerificationStatusCardProps
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('email_verified, phone_verified, photo_verified, verification_status')
+        .select('email_verified, photo_verified, verification_status')
         .eq('id', user.id)
         .single();
 
@@ -61,13 +60,12 @@ export const VerificationStatusCard = ({ onVerify }: VerificationStatusCardProps
     );
   }
 
-  const isFullyVerified = status?.email_verified && status?.phone_verified && status?.photo_verified;
-  const completedSteps = [status?.email_verified, status?.phone_verified, status?.photo_verified].filter(Boolean).length;
-  const progress = (completedSteps / 3) * 100;
+  const isFullyVerified = status?.email_verified && status?.photo_verified;
+  const completedSteps = [status?.email_verified, status?.photo_verified].filter(Boolean).length;
+  const progress = (completedSteps / 2) * 100;
 
   const verificationSteps = [
     { label: 'Email', verified: status?.email_verified, icon: Mail },
-    { label: 'Phone', verified: status?.phone_verified, icon: Phone },
     { label: 'Photo ID', verified: status?.photo_verified, icon: Camera },
   ];
 
@@ -143,7 +141,7 @@ export const VerificationStatusCard = ({ onVerify }: VerificationStatusCardProps
                 <AlertCircle className="w-6 h-6 sm:w-7 sm:h-7 text-white animate-pulse" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white shadow-lg">
-                {completedSteps}/3
+                {completedSteps}/2
               </div>
             </div>
             <div>

@@ -20,6 +20,7 @@ interface SignupEmailProps {
   siteUrl: string
   recipient: string
   confirmationUrl: string
+  token?: string
 }
 
 export const SignupEmail = ({
@@ -27,6 +28,7 @@ export const SignupEmail = ({
   siteUrl,
   recipient,
   confirmationUrl,
+  token,
 }: SignupEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
@@ -44,18 +46,32 @@ export const SignupEmail = ({
           </Link>
           — the marketplace that connects vendors and affiliates across Africa.
         </Text>
-        <Text style={text}>
-          Verify your email (
-          <Link href={`mailto:${recipient}`} style={link}>
-            {recipient}
-          </Link>
-          ) to start selling or earning commissions:
-        </Text>
-        <Section style={buttonSection}>
-          <Button style={button} href={confirmationUrl}>
-            Get Started
-          </Button>
-        </Section>
+        
+        {token ? (
+          <>
+            <Text style={text}>
+              Please verify your email address by entering this verification code:
+            </Text>
+            <Section style={codeSection}>
+              <Text style={codeStyle}>{token}</Text>
+            </Section>
+          </>
+        ) : (
+          <>
+            <Text style={text}>
+              Verify your email (
+              <Link href={`mailto:${recipient}`} style={link}>
+                {recipient}
+              </Link>
+              ) to start selling or earning commissions:
+            </Text>
+            <Section style={buttonSection}>
+              <Button style={button} href={confirmationUrl}>
+                Get Started
+              </Button>
+            </Section>
+          </>
+        )}
         <Text style={footer}>
           If you didn't create an Winger account, you can safely ignore this email.
         </Text>
@@ -75,4 +91,6 @@ const text = { fontSize: '15px', color: '#6B7280', lineHeight: '1.6', margin: '0
 const link = { color: '#E88C0E', textDecoration: 'underline' }
 const buttonSection = { textAlign: 'center' as const, margin: '8px 0 28px' }
 const button = { backgroundColor: '#E88C0E', color: '#ffffff', fontSize: '15px', fontWeight: '600' as const, borderRadius: '16px', padding: '14px 28px', textDecoration: 'none' }
+const codeSection = { textAlign: 'center' as const, margin: '8px 0 28px', backgroundColor: '#FEF3C7', borderRadius: '12px', padding: '16px' }
+const codeStyle = { fontFamily: "'Courier New', Courier, monospace", fontSize: '32px', fontWeight: 'bold' as const, color: '#0F172A', letterSpacing: '6px', margin: '0' }
 const footer = { fontSize: '12px', color: '#9CA3AF', margin: '24px 0 0', borderTop: '1px solid #F3F4F6', paddingTop: '16px' }

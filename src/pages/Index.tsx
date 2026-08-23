@@ -4,7 +4,6 @@ import { LoginPage } from '@/components/auth/LoginPage';
 import { SignupPage } from '@/components/auth/SignupPage';
 import { ForgotPasswordPage } from '@/components/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/components/auth/ResetPasswordPage';
-import { VerificationForm } from '@/components/auth/VerificationForm';
 import { DashboardNav } from '@/components/dashboard/DashboardNav';
 import { VendorDashboard } from '@/components/dashboard/VendorDashboard';
 import { AffiliateDashboard } from '@/components/dashboard/AffiliateDashboard';
@@ -23,7 +22,6 @@ import { RoleSelection } from '@/components/onboarding/RoleSelection';
 import { RegistrationFlow } from '@/components/onboarding/RegistrationFlow';
 import { VendorProfileSetup } from '@/components/onboarding/VendorProfileSetup';
 import { AffiliateProfileSetup } from '@/components/onboarding/AffiliateProfileSetup';
-import { PhoneVerificationFlow } from '@/components/onboarding/PhoneVerificationFlow';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
 import { InstallPrompt } from '@/components/mobile/InstallPrompt';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
@@ -43,7 +41,6 @@ type View =
   | 'signup'
   | 'forgot-password'
   | 'reset-password'
-  | 'verification'
   | 'dashboard'
   | 'marketplace'
   | 'settings'
@@ -54,8 +51,7 @@ type View =
   | 'role-selection'
   | 'onboarding-register'
   | 'vendor-profile-setup'
-  | 'affiliate-profile-setup'
-  | 'phone-verification';
+  | 'affiliate-profile-setup';
 
 // Helper: detect password recovery from Supabase hash fragment
 const isRecoveryHash = (): boolean => {
@@ -75,10 +71,10 @@ const getViewFromUrl = (): { view: View | null; role: 'vendor' | 'affiliate' | n
   const viewParam = params.get('view');
   const roleParam = params.get('role');
   const validViews: View[] = [
-    'landing', 'login', 'signup', 'forgot-password', 'reset-password', 'verification',
+    'landing', 'login', 'signup', 'forgot-password', 'reset-password',
     'dashboard', 'marketplace', 'settings', 'verification-manage', 'help-support', 'orders',
     'onboarding', 'role-selection', 'onboarding-register', 'vendor-profile-setup',
-    'affiliate-profile-setup', 'phone-verification'
+    'affiliate-profile-setup'
   ];
   const view = validViews.includes(viewParam as View) ? (viewParam as View) : null;
   const role = roleParam === 'vendor' || roleParam === 'affiliate' ? roleParam : null;
@@ -155,7 +151,7 @@ const IndexContent = () => {
   const [products, setProducts] = useState<Product[]>([]); // Vendor's own products
   const [marketplaceProducts, setMarketplaceProducts] = useState<Product[]>([]); // Marketplace products (all approved)
   const [rawProducts, setRawProducts] = useState<any[]>([]);
-  const [profile, setProfile] = useState<{ full_name: string; wallet_balance: number; verification_photo_url: string | null; verification_status: string | null; phone_verified: boolean | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string; wallet_balance: number; verification_photo_url: string | null; verification_status: string | null; email_verified: boolean | null } | null>(null);
   const [roleAvatarUrl, setRoleAvatarUrl] = useState<string | null>(null);
   const [vendorStats, setVendorStats] = useState<VendorStats>({ revenue: 0, sales: 0, products: 0, pending: 0 });
   const [affiliateStats, setAffiliateStats] = useState<AffiliateStats>({ commission: 0, clicks: 0, conversions: 0, rate: 0 });
@@ -245,7 +241,7 @@ const IndexContent = () => {
       console.log('[Index] Skipping post-login redirect — recovery lock active');
       return;
     }
-    if (user && userRole && view !== 'verification' && view !== 'reset-password') {
+    if (user && userRole && view !== 'reset-password') {
       handlePostLogin();
     }
   }, [user, userRole]);
@@ -268,19 +264,13 @@ const IndexContent = () => {
     try {
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('full_name, wallet_balance, verification_photo_url, verification_status, phone_verified')
+        .select('full_name, wallet_balance, verification_photo_url, verification_status, email_verified')
         .eq('id', user.id)
         .single();
       
       if (profileData) {
         setProfile(profileData);
       }
-
-      // Temporary disabled phone verification bypass
-      // if (!profileData?.phone_verified) {
-      //   setView('phone-verification');
-      //   return;
-      // }
 
       if (userRole === 'vendor') {
         if (postGrabProductId) {
@@ -420,7 +410,7 @@ const IndexContent = () => {
         }
       }
 
-      const blockAutoRedirect = ['marketplace', 'affiliate-profile-setup', 'vendor-profile-setup', 'phone-verification'].includes(view);
+      const blockAutoRedirect = ['marketplace', 'affiliate-profile-setup', 'vendor-profile-setup'].includes(view);
       if (!blockAutoRedirect) {
         setView('dashboard');
       }
@@ -773,25 +763,7 @@ const IndexContent = () => {
     );
   }
 
-  if (view === 'phone-verification') {
-    if (!user) {
-      setView('login');
-      return null;
-    }
 
-    return (
-      <PhoneVerificationFlow
-        userId={user.id}
-        onComplete={() => {
-          showNotification('Phone verification complete!');
-          fetchUserData();
-        }}
-        onBack={() => {
-          handleLogout();
-        }}
-      />
-    );
-  }
 
   if (view === 'login') {
     return (
@@ -835,33 +807,7 @@ const IndexContent = () => {
     );
   }
 
-  if (view === 'verification') {
-    const userId = pendingUserId || user?.id;
-    if (!userId) {
-      setView('login');
-      return null;
-    }
 
-    return (
-      <>
-        <VerificationForm
-          userId={userId}
-          onComplete={() => {
-            if (user) {
-              showNotification('Verification submitted! Awaiting admin approval.');
-              setView('dashboard');
-              fetchUserData();
-            } else {
-              showNotification('Verification submitted! Please log in. An admin will review your documents.');
-              setView('login');
-              setPendingUserId(null);
-            }
-          }}
-        />
-        {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
-      </>
-    );
-  }
 
   if (view === 'settings' && currentUser) {
     return (

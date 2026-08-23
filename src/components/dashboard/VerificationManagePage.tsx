@@ -3,7 +3,6 @@ import {
   ArrowLeft, 
   ShieldCheck, 
   Mail, 
-  Phone, 
   Camera,
   CheckCircle2,
   Clock,
@@ -14,7 +13,6 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +28,6 @@ interface VerificationManagePageProps {
 
 interface VerificationData {
   email_verified: boolean;
-  phone_verified: boolean;
   photo_verified: boolean;
   verification_status: string | null;
   verification_photo_url: string | null;
@@ -41,8 +38,6 @@ export const VerificationManagePage = ({ currentUser, onBack, onRefresh }: Verif
   const [loading, setLoading] = useState(true);
   const [verificationData, setVerificationData] = useState<VerificationData | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [phone, setPhone] = useState('');
-  const [savingPhone, setSavingPhone] = useState(false);
 
   useEffect(() => {
     fetchVerificationStatus();
@@ -53,35 +48,16 @@ export const VerificationManagePage = ({ currentUser, onBack, onRefresh }: Verif
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('email_verified, phone_verified, photo_verified, verification_status, verification_photo_url, phone')
+        .select('email_verified, photo_verified, verification_status, verification_photo_url, phone')
         .eq('id', currentUser.id)
         .single();
 
       if (error) throw error;
       setVerificationData(data);
-      setPhone(data.phone || '');
     } catch (error: any) {
       toast.error('Failed to load verification status');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handlePhoneUpdate = async () => {
-    setSavingPhone(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ phone, phone_verified: false })
-        .eq('id', currentUser.id);
-
-      if (error) throw error;
-      toast.success('Phone number updated! Verification pending.');
-      fetchVerificationStatus();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update phone');
-    } finally {
-      setSavingPhone(false);
     }
   };
 
@@ -287,48 +263,7 @@ export const VerificationManagePage = ({ currentUser, onBack, onRefresh }: Verif
             </CardContent>
           </Card>
 
-          {/* Phone Verification */}
-          <Card className="border-border bg-card">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    verificationData?.phone_verified 
-                      ? 'bg-afrilink-green/10' 
-                      : 'bg-secondary'
-                  }`}>
-                    <Phone className={`w-6 h-6 ${
-                      verificationData?.phone_verified 
-                        ? 'text-afrilink-green' 
-                        : 'text-muted-foreground'
-                    }`} />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">Phone Verification</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {verificationData?.phone || 'No phone number added'}
-                    </p>
-                  </div>
-                </div>
-                {getStatusBadge(verificationData?.phone_verified)}
-              </div>
-              <div className="flex gap-2 mt-4">
-                <Input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+1 (555) 000-0000"
-                  className="bg-secondary/50"
-                />
-                <Button 
-                  onClick={handlePhoneUpdate}
-                  disabled={savingPhone || !phone}
-                  variant="outline"
-                >
-                  {savingPhone ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Update'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* Photo ID Verification */}
           <Card className="border-border bg-card">

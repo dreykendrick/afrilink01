@@ -1,9 +1,9 @@
 # PART 13 — Authentication
 
-Backed entirely by Supabase Auth (email/password) plus a custom phone-OTP
-verification step done via Briq SMS (edge functions `send-otp`/`verify-otp`,
-not Supabase's native phone auth). Roles are app-level (`user_roles` table),
-not Supabase custom claims.
+Backed entirely by Supabase Auth (email/password) plus a secure email-only OTP
+verification step using Supabase's native `verifyOtp` API. Roles are app-level
+(`user_roles` table), not Supabase custom claims. Verification flags on `profiles`
+are synchronized automatically by secure database triggers.
 
 ## Client setup
 `src/integrations/supabase/client.ts` creates the client with:
@@ -35,18 +35,14 @@ supabase.auth.signUp({
   `auth.users`), seeded from `raw_user_meta_data.role`. This means the
   Flutter client's `signUp` call MUST include `data: {full_name, role}` in
   the same shape or the downstream role/application bootstrap will not fire.
-- Error handling: `'User already registered'` → friendly "Account Exists" message; all other errors go through `getUserFriendlyError()`.
-- On success (`data.user` present): app immediately calls
-  `onSignupSuccess(data.user.id)`, sending the user into the phone-verification
-  step (see below) — a session already exists by this point (unless the
-  project has "confirm email" enabled, in which case `data.session` is null and
-  the app should also handle the pending-confirmation state — check project
-  Auth settings before assuming a session exists after sign up).
+- On success (`data.user` present): app moves the user to the email OTP verification step. Once they enter the OTP, the app verifies it using `supabase.auth.verifyOtp` and triggers `onComplete` to transition them to profile setup.
+- Error handling: 'User already registered' -> friendly "Account Exists" message; all other errors go through getUserFriendlyError().
 
-## Email confirmation
-- Standard Supabase confirm-email flow using the `signup` template rendered by
-  `auth-email-hook`. The confirmation link's redirect target is whatever
-  `emailRedirectTo` was passed at signUp time (`${appUrl}/`), i.e. the app root
+## Email OTP confirmation
+- Standard Supabase confirm-email flow utilizing the `signup` template rendered by
+  `auth-email-hook` (which displays a 6-digit numeric OTP token). The user enters this OTP in the app to activate their account.
+- Alternatively, they can click the confirmation link in the email. The confirmation link's redirect target is whatever
+  `emailRedirectTo` was passed at signUp time (`${appUrl}/`), i.e. the app root.
   — the SPA then reads the resulting session from the URL hash automatically
   via supabase-js. Flutter must handle the equivalent deep link
   (`afrilink://` custom scheme or a universal/app link to `/`) and call
@@ -237,16 +233,14 @@ global-scope variant specifically after a password reset.
   authorization, only for UI affordance, and must always let the backend's
   `is_admin` check be the actual gate.
 
-## Phone OTP verification (onboarding step, not Supabase native phone auth)
-- Flow (`PhoneVerificationFlow`, `RegistrationFlow`):
-  1. `supabase.from('profiles').update({ phone, phone_verified:false }).eq('id', userId)` — save the phone number first, unverified.
-  2. `supabase.functions.invoke('send-otp', { body: { phone } })` — triggers Briq SMS OTP (see API_REFERENCE.md §9).
-  3. User enters the 6-digit code; `supabase.functions.invoke('verify-otp', { body: { phone, code } })`.
-  4. On `{ verified: true }`: `supabase.from('profiles').update({ phone_verified: true }).eq('id', userId)` — the **client**, not the edge function, flips the flag. A Flutter implementation must perform this same follow-up write; there is no server-side auto-update.
-- This OTP step is entirely independent of Supabase Auth sessions — it never
-  creates or modifies an `auth.users` row or session; it only gates
-  `profiles.phone_verified`, which the app treats as a required onboarding
-  milestone before granting full dashboard access.
+## Email OTP verification (onboarding step, native Supabase Auth)
+- Flow (`RegistrationFlow`):
+  1. Calls `supabase.auth.signUp(...)` with email and password.
+  2. The `auth-email-hook` renders the verification OTP code and sends it via email.
+  3. User enters the 6-digit code in the OTP field.
+  4. Calls `supabase.auth.verifyOtp({ email, token, type: 'signup' })`.
+  5. On success, the user is authenticated. A database-side `AFTER UPDATE OF email_confirmed_at ON auth.users` trigger (`on_auth_user_updated_sync_email`) automatically syncs the `email_verified` column to `public.profiles`. The client is forbidden from writing this field directly due to column-level revokes.
+- The `onComplete` callback runs to direct the user to their role profile setups.
 
 ## Custom branded auth emails (`auth-email-hook`)
 - All Supabase Auth transactional emails (`signup`, `invite`, `magiclink`,

@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { validateTZPhone } from '@/utils/phone';
 import { getAppUrlAsync } from '@/utils/appUrl';
 
 interface RegistrationFlowProps {
@@ -16,25 +15,17 @@ interface RegistrationFlowProps {
   onComplete: (userId: string, role: 'vendor' | 'affiliate', userEmail?: string) => void;
 }
 
-const maskPhone = (phone: string) => {
-  if (phone.length < 4) return phone;
-  return phone.replace(/\d(?=\d{4})/g, '*');
-};
-
 export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowProps) => {
   const { toast } = useToast();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<1 | 2>(1);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
-  const [normalizedPhone, setNormalizedPhone] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   // OTP resend cooldown timer
   useEffect(() => {
@@ -53,12 +44,8 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
         description: 'Create your account to unlock Winger opportunities.',
       },
       {
-        title: 'Add your phone number',
-        description: 'We will send a one-time code to verify your account.',
-      },
-      {
-        title: 'Verify OTP',
-        description: 'Enter the 6-digit code sent to your phone.',
+        title: 'Verify your email',
+        description: 'Enter the 6-digit verification code sent to your email.',
       },
     ],
     [roleLabel],
@@ -93,66 +80,15 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
 
       if (data.user) {
         setUserId(data.user.id);
-        const isConfirmRequired = !data.session;
-        if (isConfirmRequired) {
-          toast({
-            title: 'Verification email sent!',
-            description: `We've sent a confirmation link to ${email}. Please check your inbox and verify your account.`,
-          });
-        } else {
-          toast({
-            title: 'Account created!',
-            description: 'Your account has been created successfully.',
-          });
-        }
-        onComplete(data.user.id, role, email);
+        setResendCooldown(60);
+        toast({
+          title: 'Verification email sent!',
+          description: `We've sent a 6-digit verification code to ${email}. Please check your inbox.`,
+        });
+        setStep(2);
       }
     } catch (error: any) {
       toast({ title: 'Error', description: 'Unable to create your account.', variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSendOtp = async () => {
-    // Validate Tanzania phone
-    const phoneValidation = validateTZPhone(phone);
-    if (!phoneValidation.isValid) {
-      setPhoneError(phoneValidation.error);
-      toast({ title: 'Invalid phone', description: phoneValidation.error || 'Enter a valid phone number.', variant: 'destructive' });
-      return;
-    }
-    setPhoneError(null);
-
-    if (!userId) {
-      toast({ title: 'Phone required', description: 'Enter a valid phone number.', variant: 'destructive' });
-      return;
-    }
-
-    setLoading(true);
-    const phoneToUse = phoneValidation.normalized || phone;
-    setNormalizedPhone(phoneToUse);
-    try {
-      const { error } = await supabase.from('profiles').update({ phone: phoneToUse, phone_verified: false }).eq('id', userId);
-      if (error) throw error;
-
-      const { data, error: otpError } = await supabase.functions.invoke('send-otp', {
-        body: { phone: phoneToUse },
-      });
-
-      if (otpError || !data?.success) {
-        throw otpError || new Error(data?.error || 'Unable to send OTP.');
-      }
-
-      setOtp('');
-      setResendCooldown(60); // 60 second cooldown
-      toast({
-        title: 'OTP sent',
-        description: `We sent a 6-digit code to ${maskPhone(phone)}.`,
-      });
-      setStep(3);
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to send OTP.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -167,17 +103,18 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
 
     setLoading(true);
     try {
-      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-otp', {
-        body: { phone: normalizedPhone || phone, code: otp },
+      // Verify email OTP token with Supabase
+      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'signup',
       });
 
-      if (verifyError || !verifyData?.success) {
-        throw verifyError || new Error(verifyData?.error || 'The OTP entered is incorrect or has expired.');
+      if (verifyError) {
+        throw verifyError;
       }
 
-      const { error } = await supabase.from('profiles').update({ phone_verified: true }).eq('id', userId);
-      if (error) throw error;
-
+      // Upsert vendor_profiles or affiliate_profiles
       if (role === 'vendor') {
         const { error: profileError } = await (supabase.from('vendor_profiles' as any).upsert(
           { user_id: userId, verification_status: 'pending' },
@@ -193,12 +130,45 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
       }
 
       toast({
-        title: 'Phone verified',
+        title: 'Email verified',
         description: 'Your account is now activated.',
       });
-      onComplete(userId, role);
+      
+      onComplete(userId, role, email);
     } catch (error: any) {
-      toast({ title: 'Verification failed', description: error.message, variant: 'destructive' });
+      toast({ 
+        title: 'Verification failed', 
+        description: error.message || 'The code entered is incorrect or has expired.', 
+        variant: 'destructive' 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (!email) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+
+      if (error) throw error;
+
+      setResendCooldown(60);
+      toast({
+        title: 'Verification code resent',
+        description: `We've sent a new 6-digit code to ${email}.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error resending code',
+        description: error.message || 'Please try again later.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -213,7 +183,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Button>
-            <span className="text-xs sm:text-sm text-muted-foreground">Step {step} of 3</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">Step {step} of 2</span>
           </div>
           <CardTitle className="text-xl sm:text-2xl">{stepCopy[step - 1].title}</CardTitle>
           <CardDescription>{stepCopy[step - 1].description}</CardDescription>
@@ -279,38 +249,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
           {step === 2 && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(event) => {
-                    setPhone(event.target.value);
-                    setPhoneError(null);
-                  }}
-                  placeholder="+255XXXXXXXXX or 0XXXXXXXXX"
-                  className={phoneError ? 'border-destructive' : ''}
-                  required
-                />
-                {phoneError && <p className="text-xs text-destructive">{phoneError}</p>}
-              </div>
-              <Button onClick={handleSendOtp} className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Sending OTP...
-                  </>
-                ) : (
-                  'Send OTP'
-                )}
-              </Button>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Enter OTP</Label>
+                <Label>Enter Verification Code</Label>
                 <InputOTP maxLength={6} value={otp} onChange={setOtp}>
                   <InputOTPGroup>
                     {Array.from({ length: 6 }).map((_, index) => (
@@ -321,7 +260,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <ShieldCheck className="w-4 h-4" />
-                OTP required before account activation.
+                Email verification code required before account activation.
               </div>
               <Button onClick={handleVerifyOtp} className="w-full" disabled={loading}>
                 {loading ? (
@@ -337,10 +276,10 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
                 type="button"
                 variant="ghost"
                 className="w-full"
-                onClick={handleSendOtp}
+                onClick={handleResendCode}
                 disabled={loading || resendCooldown > 0}
               >
-                {resendCooldown > 0 ? `Resend OTP (${resendCooldown}s)` : 'Resend OTP'}
+                {resendCooldown > 0 ? `Resend Code (${resendCooldown}s)` : 'Resend Code'}
               </Button>
               <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
                 <CheckCircle className="w-4 h-4 text-afrilink-green" />
