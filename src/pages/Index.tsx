@@ -895,7 +895,7 @@ const IndexContent = () => {
                 currentUser={currentUser}
                 products={products}
                 stats={vendorStats}
-                onVerify={() => setView('verification')}
+                onVerify={() => setView('verification-manage')}
                 onProductAdded={fetchUserData}
               />
             ) : (
@@ -904,7 +904,7 @@ const IndexContent = () => {
                 products={marketplaceProducts}
                 stats={affiliateStats}
                 onGenerateLink={handleGenerateLink}
-                onVerify={() => setView('verification')}
+                onVerify={() => setView('verification-manage')}
               />
             )}
           </div>

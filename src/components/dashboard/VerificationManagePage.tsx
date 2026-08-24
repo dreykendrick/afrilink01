@@ -81,14 +81,9 @@ export const VerificationManagePage = ({ currentUser, onBack, onRefresh }: Verif
         .from('verification-photos')
         .getPublicUrl(filePath);
 
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ 
-          verification_photo_url: publicUrl,
-          photo_verified: false,
-          verification_status: 'pending_review'
-        })
-        .eq('id', currentUser.id);
+      const { error: updateError } = await supabase.functions.invoke('submit-verification-photo', {
+        body: { photoUrl: publicUrl }
+      });
 
       if (updateError) throw updateError;
 
@@ -104,13 +99,9 @@ export const VerificationManagePage = ({ currentUser, onBack, onRefresh }: Verif
 
   const requestNewVerification = async () => {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          verification_status: 'pending',
-          photo_verified: false
-        })
-        .eq('id', currentUser.id);
+      const { error } = await supabase.functions.invoke('submit-verification-photo', {
+        body: {}
+      });
 
       if (error) throw error;
       toast.success('Verification request submitted!');

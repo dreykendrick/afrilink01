@@ -9,7 +9,5 @@ project_id = "ckklirhhwndijsjpmnfe"
     verify_jwt = false
   [functions.payments-api]
     verify_jwt = false
-  [functions.send-otp]
-    verify_jwt = false
-  [functions.verify-otp]
+  [functions.submit-verification-photo]
     verify_jwt = false
