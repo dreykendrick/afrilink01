@@ -25,20 +25,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserRoles = useCallback(async (userId: string) => {
     try {
+      // Winger backend schema uses profile_id and joins to roles table
       const { data, error } = await supabase
         .from('user_roles')
-        .select('role')
-        .eq('user_id', userId);
+        .select('roles(name)')
+        .eq('profile_id', userId);
 
       if (error) {
-        console.error('Error fetching user roles:', error);
+        if (error.code !== 'PGRST116' && !error.message?.includes('400')) {
+          console.error('Error fetching user roles:', error);
+        }
         return;
       }
 
-      const roles = (data || []).map(r => r.role as 'vendor' | 'affiliate');
+      // Extract the role name from the joined roles table
+      const roles = (data || [])
+        .map(r => (r.roles as any)?.name)
+        .filter(Boolean) as ('vendor' | 'affiliate')[];
+        
       setAvailableRoles(roles);
 
-      // Get the active role from localStorage or default to first role
       const savedRole = localStorage.getItem(`afrilink_active_role_${userId}`);
       if (savedRole && roles.includes(savedRole as 'vendor' | 'affiliate')) {
         setUserRole(savedRole as 'vendor' | 'affiliate');
@@ -47,9 +53,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem(`afrilink_active_role_${userId}`, roles[0]);
       }
     } catch (error) {
-      console.error('Error fetching user roles:', error);
+      // Silently ignore network/auth errors during verification flow
     }
   }, []);
+
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -109,9 +116,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
+      // Find the role_id for the requested role name
+      const { data: roleData, error: roleError } = await supabase
+        .from('roles')
+        .select('id')
+        .eq('name', newRole)
+        .single();
+
+      if (roleError || !roleData) {
+        console.error('Error finding role ID:', roleError);
+        return false;
+      }
+
+      // Insert into user_roles using profile_id and role_id
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: user.id, role: newRole });
+        .insert({ profile_id: user.id, role_id: roleData.id });
 
       if (error) {
         console.error('Error adding role:', error);
