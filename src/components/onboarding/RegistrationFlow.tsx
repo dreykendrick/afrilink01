@@ -147,7 +147,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
   };
 
   const handleResendCode = async () => {
-    if (!email) return;
+    if (resendCooldown > 0 || loading) return;
 
     setLoading(true);
     try {
@@ -164,9 +164,10 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
         description: `We've sent a new 8-digit code to ${email}.`,
       });
     } catch (error: any) {
+      console.error("Resend error:", error);
       toast({
-        title: 'Error resending code',
-        description: error.message || 'Please try again later.',
+        title: 'Failed to resend code',
+        description: error.message || "An unknown error occurred",
         variant: 'destructive',
       });
     } finally {
