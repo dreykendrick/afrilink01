@@ -277,27 +277,22 @@ const IndexContent = () => {
           setPostGrabProductId(null);
         }
         const { data: vendorProfile } = await (supabase
-          .from('vendor_profiles' as any)
-          .select('business_name, city, vendor_type, pickup_location, logo_url')
-          .eq('user_id', user.id)
+          .from('vendors' as any)
+          .select('store_name, logo_url')
+          .eq('profile_id', user.id)
           .maybeSingle() as unknown as Promise<{ data: any; error: any }>);
 
-        const vendorProfileComplete = Boolean(
-          vendorProfile?.business_name &&
-            vendorProfile?.city &&
-            vendorProfile?.vendor_type &&
-            vendorProfile?.pickup_location &&
-            vendorProfile?.logo_url,
-        );
+        const vendorProfileComplete = Boolean(vendorProfile?.store_name);
 
         if (vendorProfile?.logo_url) {
           setRoleAvatarUrl(vendorProfile.logo_url);
         }
 
-        if (!vendorProfileComplete) {
-          setView('vendor-profile-setup');
-          return;
-        }
+        // Temporarily bypass Vendor Profile Setup to avoid crashing on the missing tables
+        // if (!vendorProfileComplete) {
+        //   setView('vendor-profile-setup');
+        //   return;
+        // }
 
         const { data: vendorProducts } = await supabase
           .from('products')
