@@ -114,20 +114,9 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
         throw verifyError;
       }
 
-      // Upsert vendor_profiles or affiliate_profiles
-      if (role === 'vendor') {
-        const { error: profileError } = await (supabase.from('vendor_profiles' as any).upsert(
-          { user_id: userId, verification_status: 'pending' },
-          { onConflict: 'user_id' },
-        ) as unknown as Promise<{ error: any }>);
-        if (profileError) throw profileError;
-      } else {
-        const { error: profileError } = await (supabase.from('affiliate_profiles' as any).upsert(
-          { user_id: userId },
-          { onConflict: 'user_id' },
-        ) as unknown as Promise<{ error: any }>);
-        if (profileError) throw profileError;
-      }
+      // Note: The Winger backend automatically maps the user role and creates the profile
+      // via the database trigger (fn_sync_user_profile) during the initial signUp. 
+      // There is no need to manually insert into vendor_profiles or affiliate_profiles here.
 
       toast({
         title: 'Email verified',
