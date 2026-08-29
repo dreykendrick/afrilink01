@@ -132,12 +132,12 @@ export const VendorProfileSetup = ({ userId, onComplete, onBack }: VendorProfile
         const fileExt = logoFile.name.split('.').pop();
         const fileName = `${authenticatedUserId}/logo.${fileExt}`;
         const { error: uploadError } = await supabase.storage
-          .from('vendor-logos')
+          .from('vendor-assets')
           .upload(fileName, logoFile, { upsert: true });
 
         if (uploadError) throw uploadError;
 
-        const { data } = supabase.storage.from('vendor-logos').getPublicUrl(fileName);
+        const { data } = supabase.storage.from('vendor-assets').getPublicUrl(fileName);
         logoUrl = data.publicUrl;
       }
 
