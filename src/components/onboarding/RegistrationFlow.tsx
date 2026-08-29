@@ -45,7 +45,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
       },
       {
         title: 'Verify your email',
-        description: 'Enter the 6-digit verification code sent to your email.',
+        description: 'Enter the 8-digit verification code sent to your email.',
       },
     ],
     [roleLabel],
@@ -83,7 +83,7 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
         setResendCooldown(60);
         toast({
           title: 'Verification email sent!',
-          description: `We've sent a 6-digit verification code to ${email}. Please check your inbox.`,
+          description: `We've sent an 8-digit verification code to ${email}. Please check your inbox.`,
         });
         setStep(2);
       }
@@ -95,8 +95,8 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
   };
 
   const handleVerifyOtp = async () => {
-    if (!otp || otp.length < 6) {
-      toast({ title: 'Enter the full code', description: 'Please enter all 6 digits.', variant: 'destructive' });
+    if (!otp || otp.length < 8) {
+      toast({ title: 'Enter the full code', description: 'Please enter all 8 digits.', variant: 'destructive' });
       return;
     }
     if (!userId) return;
@@ -160,8 +160,8 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
 
       setResendCooldown(60);
       toast({
-        title: 'Verification code resent',
-        description: `We've sent a new 6-digit code to ${email}.`,
+        title: 'Code resent',
+        description: `We've sent a new 8-digit code to ${email}.`,
       });
     } catch (error: any) {
       toast({
@@ -250,9 +250,9 @@ export const RegistrationFlow = ({ role, onBack, onComplete }: RegistrationFlowP
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Enter Verification Code</Label>
-                <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                <InputOTP maxLength={8} value={otp} onChange={setOtp}>
                   <InputOTPGroup>
-                    {Array.from({ length: 6 }).map((_, index) => (
+                    {[...Array(8)].map((_, index) => (
                       <InputOTPSlot key={index} index={index} />
                     ))}
                   </InputOTPGroup>
