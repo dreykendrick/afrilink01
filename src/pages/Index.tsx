@@ -265,8 +265,8 @@ const IndexContent = () => {
       const { data: profileData } = await supabase
         .from('profiles')
         .select('full_name, wallet_balance, verification_photo_url, verification_status, email_verified')
-        .eq('id', user.id)
-        .single();
+        .eq('auth_user_id', user.id)
+        .maybeSingle();
       
       if (profileData) {
         setProfile(profileData);
@@ -277,12 +277,12 @@ const IndexContent = () => {
           setPostGrabProductId(null);
         }
         const { data: vendorProfile } = await (supabase
-          .from('vendors' as any)
-          .select('store_name, logo_url')
-          .eq('profile_id', user.id)
+          .from('vendor_profiles' as any)
+          .select('business_name, city, vendor_type, pickup_location, logo_url')
+          .eq('user_id', user.id)
           .maybeSingle() as unknown as Promise<{ data: any; error: any }>);
 
-        const vendorProfileComplete = Boolean(vendorProfile?.store_name);
+        const vendorProfileComplete = Boolean(vendorProfile?.business_name);
 
         if (vendorProfile?.logo_url) {
           setRoleAvatarUrl(vendorProfile.logo_url);
