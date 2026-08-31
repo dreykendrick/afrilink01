@@ -288,11 +288,10 @@ const IndexContent = () => {
           setRoleAvatarUrl(vendorProfile.logo_url);
         }
 
-        // Temporarily bypass Vendor Profile Setup to avoid crashing on the missing tables
-        // if (!vendorProfileComplete) {
-        //   setView('vendor-profile-setup');
-        //   return;
-        // }
+        if (!vendorProfileComplete) {
+          setView('vendor-profile-setup');
+          return;
+        }
 
         const { data: vendorProducts } = await supabase
           .from('products')
@@ -597,14 +596,14 @@ const IndexContent = () => {
     setView(newView as View);
   };
 
-  const currentUser: User | null = user && profile ? {
+  const currentUser: User | null = user ? {
     id: user.id,
-    name: profile.full_name || user.email?.split('@')[0] || 'User',
+    name: profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
     email: user.email || '',
-    role: userRole || 'vendor',
-    wallet: profile.wallet_balance || 0,
-    verified: profile.verification_status === 'verified',
-    avatarUrl: roleAvatarUrl || (profile.verification_status === 'verified' ? profile.verification_photo_url || undefined : undefined),
+    role: userRole || (user.user_metadata?.role as any) || 'vendor',
+    wallet: profile?.wallet_balance || 0,
+    verified: profile?.verification_status === 'verified',
+    avatarUrl: roleAvatarUrl || (profile?.verification_status === 'verified' ? profile?.verification_photo_url || undefined : undefined),
   } : null;
 
   // Get categories from products
@@ -633,7 +632,7 @@ const IndexContent = () => {
     return matchesSearch && matchesCategory && matchesCommission && matchesPrice;
   });
 
-  if (authLoading || isRoleSwitching) {
+  if (authLoading || isRoleSwitching || (dataLoading && view === 'dashboard' && !profile)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -992,6 +991,14 @@ const IndexContent = () => {
         )}
         <InstallPrompt />
         {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
+      </div>
+    );
+  }
+
+  if (user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }

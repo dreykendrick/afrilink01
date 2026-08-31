@@ -88,12 +88,12 @@ export const AffiliateProfileSetup = ({ userId, onComplete, onBack }: AffiliateP
       const fileExt = avatarFile.name.split('.').pop();
       const fileName = `${userId}/avatar.${fileExt}`;
       const { error: uploadError } = await supabase.storage
-        .from('affiliate-avatars')
+        .from('avatars')
         .upload(fileName, avatarFile, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage.from('affiliate-avatars').getPublicUrl(fileName);
+      const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
       avatarUrl = data.publicUrl;
 
       const { error } = await (supabase.from('affiliate_profiles' as any).upsert({
