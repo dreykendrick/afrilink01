@@ -15,87 +15,14 @@ import { supabase } from '@/integrations/supabase/client';
  * - Order confirmation links
  */
 
-const STORAGE_KEY = 'afrilink_app_url';
-const LOVABLE_HOST_RE = /(\.lovableproject\.com$|\.lovable\.app$)/i;
+const APP_URL = 'https://wingerapp.dev';
 
-/** Hard-coded fallback – used when VITE_APP_URL is unset AND cache is empty */
-const FALLBACK_APP_URL = 'https://afrilink01.vercel.app';
-
-let inFlight: Promise<string> | null = null;
-
-const normalizeUrl = (url: string): string => url.replace(/\/+$/, '');
-
-const readCachedUrl = (): string | null => {
-  try {
-    return localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
-  }
-};
-
-const writeCachedUrl = (url: string) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, url);
-  } catch {
-    // ignore
-  }
-};
-
-/**
- * Sync getter. Prefer this when you must render immediately.
- */
 export const getAppUrl = (): string => {
-  if (typeof window !== 'undefined' && window.location.origin) {
-    return normalizeUrl(window.location.origin);
-  }
-  const envUrl = import.meta.env.VITE_APP_URL;
-  if (envUrl) return normalizeUrl(envUrl);
-
-  const cached = readCachedUrl();
-  if (cached) return normalizeUrl(cached);
-
-  return normalizeUrl(FALLBACK_APP_URL);
+  return APP_URL;
 };
 
-/**
- * Async getter. Ensures we resolve the canonical URL even in preview/dev.
- */
 export const getAppUrlAsync = async (): Promise<string> => {
-  if (typeof window !== 'undefined' && window.location.origin) {
-    return normalizeUrl(window.location.origin);
-  }
-  const envUrl = import.meta.env.VITE_APP_URL;
-  if (envUrl) return normalizeUrl(envUrl);
-
-  const cached = readCachedUrl();
-  if (cached) return normalizeUrl(cached);
-
-  if (!inFlight) {
-    inFlight = (async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('app-config');
-        if (error) throw error;
-
-        const appUrl = (data?.appUrl || data?.app_url || '') as string;
-        if (appUrl) {
-          const normalized = normalizeUrl(appUrl);
-          writeCachedUrl(normalized);
-          return normalized;
-        }
-      } catch {
-        // ignore and fall back
-      }
-
-      if (!import.meta.env.DEV) {
-        console.warn('[appUrl] VITE_APP_URL is not set – falling back to hard-coded production URL');
-      }
-      return normalizeUrl(FALLBACK_APP_URL);
-    })().finally(() => {
-      inFlight = null;
-    });
-  }
-
-  return inFlight;
+  return APP_URL;
 };
 
 /**
