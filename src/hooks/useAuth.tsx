@@ -25,23 +25,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserRoles = useCallback(async (userId: string) => {
     try {
-      // Winger backend schema uses profile_id and joins to roles table
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('roles(name)')
-        .eq('profile_id', userId);
+      // 1. Get the profile id for this auth user
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('auth_user_id', userId)
+        .maybeSingle();
 
-      if (error) {
-        if (error.code !== 'PGRST116' && !error.message?.includes('400')) {
-          console.error('Error fetching user roles:', error);
-        }
-        return;
+      const profileId = profile?.id;
+
+      // 2. Query user_roles for this profile_id or userId
+      let rolesQuery = supabase
+        .from('user_roles')
+        .select('roles(name)');
+
+      if (profileId && profileId !== userId) {
+        rolesQuery = rolesQuery.or(`profile_id.eq.${profileId},profile_id.eq.${userId}`);
+      } else {
+        rolesQuery = rolesQuery.eq('profile_id', userId);
       }
 
-      // Extract the role name from the joined roles table
-      const roles = (data || [])
-        .map(r => (r.roles as any)?.name)
-        .filter(Boolean) as ('vendor' | 'affiliate')[];
+      const { data, error } = await rolesQuery;
+
+      if (error && error.code !== 'PGRST116') {
+        console.warn('Notice fetching user roles:', error.message);
+      }
+
+      // Extract and normalize role names to lowercase ('vendor' | 'affiliate')
+      let roles = (data || [])
+        .map(r => ((r.roles as any)?.name || (r as any).role || '')?.toLowerCase())
+        .filter((r): r is 'vendor' | 'affiliate' => r === 'vendor' || r === 'affiliate');
+
+      // Fallback to user metadata if DB roles not found
+      if (roles.length === 0) {
+        const { data: userData } = await supabase.auth.getUser();
+        const metaRole = (userData?.user?.user_metadata?.role || userData?.user?.user_metadata?.account_type || '')?.toLowerCase();
+        if (metaRole === 'vendor' || metaRole === 'affiliate') {
+          roles = [metaRole];
+        }
+      }
+
+      // Default to vendor if still no role resolved
+      if (roles.length === 0) {
+        roles = ['vendor'];
+      }
         
       setAvailableRoles(roles);
 
@@ -53,7 +80,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem(`afrilink_active_role_${userId}`, roles[0]);
       }
     } catch (error) {
-      // Silently ignore network/auth errors during verification flow
+      console.error('Error resolving user roles:', error);
+      setUserRole('vendor');
+      setAvailableRoles(['vendor']);
     }
   }, []);
 
