@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
   try {
     payload = await req.json()
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400, headers: corsHeaders })
+    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 
   // Supabase Custom Email Hooks send data in this shape:
@@ -84,12 +84,12 @@ Deno.serve(async (req) => {
   console.log(`Received email webhook for type: ${emailType}, to: ${recipientEmail}`);
 
   if (!recipientEmail) {
-    return new Response(JSON.stringify({ error: 'Missing email in payload' }), { status: 400, headers: corsHeaders })
+    return new Response(JSON.stringify({ error: 'Missing email in payload' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 
   const EmailTemplate = EMAIL_TEMPLATES[emailType]
   if (!EmailTemplate) {
-    return new Response(JSON.stringify({ error: `Unknown email type: ${emailType}` }), { status: 400, headers: corsHeaders })
+    return new Response(JSON.stringify({ error: `Unknown email type: ${emailType}` }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 
   const confirmationUrl = normalizeConfirmationUrl(emailType, emailData.redirect_to || emailData.url)
@@ -130,9 +130,9 @@ Deno.serve(async (req) => {
     }
     
     console.log('Email sent successfully!', { id: data.id });
-    return new Response(JSON.stringify({ success: true, id: data.id }), { status: 200, headers: corsHeaders })
+    return new Response(JSON.stringify({ success: true, id: data.id }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   } catch (err: any) {
     console.error('Email sending failed:', err.message);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders })
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 })
