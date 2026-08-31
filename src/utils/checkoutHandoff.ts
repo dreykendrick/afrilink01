@@ -12,7 +12,12 @@
 
 import { CartItem } from '@/hooks/useCart';
 
-const CHECKOUT_BASE_URL = 'https://shop.afrilink.info';
+const getCheckoutBaseUrl = (): string => {
+  if (typeof window !== 'undefined' && window.location.origin) {
+    return window.location.origin;
+  }
+  return 'https://wingerapp.dev';
+};
 
 export interface CheckoutHandoffParams {
   items: CartItem[];
@@ -32,7 +37,7 @@ export const buildCheckoutUrl = (
     vendorId?: string;
   } = {}
 ): string => {
-  const url = new URL(`/p/${slugOrId}`, CHECKOUT_BASE_URL);
+  const url = new URL(`/p/${slugOrId}`, getCheckoutBaseUrl());
 
   if (options.source) {
     url.searchParams.set('source', options.source);
