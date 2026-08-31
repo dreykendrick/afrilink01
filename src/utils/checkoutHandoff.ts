@@ -12,11 +12,8 @@
 
 import { CartItem } from '@/hooks/useCart';
 
-const getCheckoutBaseUrl = (): string => {
-  if (typeof window !== 'undefined' && window.location.origin) {
-    return window.location.origin;
-  }
-  return 'https://wingerapp.dev';
+export const getCheckoutBaseUrl = (): string => {
+  return import.meta.env.VITE_SHOP_URL || import.meta.env.VITE_CHECKOUT_URL || 'https://shop.wingerapp.dev';
 };
 
 export interface CheckoutHandoffParams {

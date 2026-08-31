@@ -33,7 +33,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getProductSlug } from '@/utils/slug';
 import { getAppUrl, getAppUrlAsync } from '@/utils/appUrl';
-import { performMarketplaceCheckoutHandoff, buildCheckoutUrl } from '@/utils/checkoutHandoff';
+import { performMarketplaceCheckoutHandoff, buildCheckoutUrl, getCheckoutBaseUrl } from '@/utils/checkoutHandoff';
 
 type View =
   | 'landing'
@@ -492,9 +492,11 @@ const IndexContent = () => {
 
     // Check if link already exists
     const existingLink = affiliateLinks.find(l => l.product_id === productId);
+    const targetSlug = product.slug || product.id;
+    const shopBase = getCheckoutBaseUrl();
+
     if (existingLink) {
-      const appUrl = await getAppUrlAsync();
-      const link = `${appUrl}/p/${product.id}?ref=${existingLink.code}`;
+      const link = `${shopBase}/p/${targetSlug}?ref=${existingLink.code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link copied to clipboard!');
       return;
@@ -517,8 +519,7 @@ const IndexContent = () => {
       if (error) throw error;
 
       setAffiliateLinks(prev => [...prev, data]);
-      const appUrl = await getAppUrlAsync();
-      const link = `${appUrl}/p/${product.id}?ref=${code}`;
+      const link = `${shopBase}/p/${targetSlug}?ref=${code}`;
       navigator.clipboard.writeText(link);
       toast.success('Affiliate link generated and copied!');
     } catch (error: any) {
