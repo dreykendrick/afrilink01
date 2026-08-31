@@ -337,33 +337,16 @@ const IndexContent = () => {
           .eq('user_id', user.id)
           .maybeSingle() as unknown as Promise<{ data: any; error: any }>);
 
-        const affiliateProfileComplete = Boolean(affiliateProfile?.display_name && affiliateProfile?.avatar_url);
+        const affiliateProfileComplete = Boolean(affiliateProfile?.display_name || user.user_metadata?.full_name || user.email);
 
         if (affiliateProfile?.avatar_url) {
           setRoleAvatarUrl(affiliateProfile.avatar_url);
         }
 
-        if (!affiliateProfileComplete) {
-          setView('affiliate-profile-setup');
-          return;
-        }
-
-        if (postGrabProductId) {
-          const marketplaceProducts = await fetchMarketplaceProducts();
-          await handleGenerateLink(postGrabProductId);
-          const targetProduct = marketplaceProducts.find((product) => product.id === postGrabProductId);
-          if (targetProduct) {
-            setSelectedProduct(targetProduct);
-          }
-          setPostGrabProductId(null);
-          setView('marketplace');
-          return;
-        }
-
         const { data: approvedProducts } = await supabase
           .from('products')
           .select('*')
-          .eq('status', 'approved');
+          .neq('status', 'rejected');
 
         if (approvedProducts) {
           const formattedProducts: Product[] = approvedProducts.map(p => ({
@@ -422,7 +405,7 @@ const IndexContent = () => {
       const { data: approvedProducts } = await supabase
         .from('products')
         .select('*')
-        .eq('status', 'approved');
+        .neq('status', 'rejected');
 
       if (approvedProducts) {
         const formattedProducts: Product[] = approvedProducts.map(p => ({
@@ -752,7 +735,7 @@ const IndexContent = () => {
         onComplete={() => {
           showNotification('Affiliate profile completed!');
           fetchUserData();
-          setView('marketplace');
+          setView('dashboard');
         }}
         onBack={() => setView('role-selection')}
       />
