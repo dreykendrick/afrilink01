@@ -61,14 +61,20 @@ export const ProductPage = () => {
         return;
       }
 
-      // CRITICAL FIX 3: Single query by ID instead of fetching all products
-      const { data, error } = await supabase
+      // Query product by UUID id or slug, allowing active/pending products
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productId);
+      let query = supabase
         .from('products')
         .select('id, title, description, price, commission, category, image_url, image_urls, vendor_id, status, sales')
-        .eq('id', productId)
-        .eq('status', 'approved')
-        .eq('is_available', true)
-        .maybeSingle();
+        .neq('status', 'rejected');
+
+      if (isUuid) {
+        query = query.or(`id.eq.${productId},slug.eq.${productId}`);
+      } else {
+        query = query.eq('slug', productId);
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) {
         console.error('Product fetch error:', error);
@@ -77,8 +83,16 @@ export const ProductPage = () => {
       setProduct(data || null);
 
       if (data?.vendor_id) {
-        const { data: vendor } = await (supabase as any).rpc('get_vendor_public_info', { p_user_id: data.vendor_id });
-        setVendorProfile(Array.isArray(vendor) ? vendor[0] || null : vendor || null);
+        try {
+          const { data: vendor } = await supabase
+            .from('vendor_profiles')
+            .select('city, verification_status')
+            .eq('user_id', data.vendor_id)
+            .maybeSingle();
+          setVendorProfile(vendor || null);
+        } catch {
+          // ignore
+        }
       }
 
       setLoading(false);

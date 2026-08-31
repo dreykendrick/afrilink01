@@ -45,16 +45,15 @@ const writeCachedUrl = (url: string) => {
  * Sync getter. Prefer this when you must render immediately.
  */
 export const getAppUrl = (): string => {
+  if (typeof window !== 'undefined' && window.location.origin) {
+    return normalizeUrl(window.location.origin);
+  }
   const envUrl = import.meta.env.VITE_APP_URL;
   if (envUrl) return normalizeUrl(envUrl);
 
   const cached = readCachedUrl();
   if (cached) return normalizeUrl(cached);
 
-  // Never fall back to window.location.origin in production – use hard-coded fallback
-  if (!import.meta.env.DEV) {
-    console.warn('[appUrl] VITE_APP_URL is not set – falling back to hard-coded production URL');
-  }
   return normalizeUrl(FALLBACK_APP_URL);
 };
 
@@ -62,6 +61,9 @@ export const getAppUrl = (): string => {
  * Async getter. Ensures we resolve the canonical URL even in preview/dev.
  */
 export const getAppUrlAsync = async (): Promise<string> => {
+  if (typeof window !== 'undefined' && window.location.origin) {
+    return normalizeUrl(window.location.origin);
+  }
   const envUrl = import.meta.env.VITE_APP_URL;
   if (envUrl) return normalizeUrl(envUrl);
 
