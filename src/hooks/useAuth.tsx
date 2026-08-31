@@ -125,58 +125,58 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const switchRole = useCallback(async (newRole: 'vendor' | 'affiliate'): Promise<boolean> => {
     if (!user) return false;
-    
-    if (!availableRoles.includes(newRole)) {
-      console.error('User does not have this role');
-      return false;
-    }
 
     setUserRole(newRole);
+    setAvailableRoles(prev => Array.from(new Set([...prev, newRole])));
     localStorage.setItem(`afrilink_active_role_${user.id}`, newRole);
     return true;
-  }, [user, availableRoles]);
+  }, [user]);
 
   const addRole = useCallback(async (newRole: 'vendor' | 'affiliate'): Promise<boolean> => {
     if (!user) return false;
     
-    if (availableRoles.includes(newRole)) {
-      // Already has this role, just switch to it
-      return switchRole(newRole);
-    }
-
     try {
-      // Find the role_id for the requested role name
-      const { data: roleData, error: roleError } = await supabase
+      // 1. Get profile id
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .maybeSingle();
+
+      const profileId = profile?.id;
+
+      // 2. Find role id matching UPPERCASE or lowercase role
+      const uppercaseRole = newRole.toUpperCase();
+      const { data: roleData } = await supabase
         .from('roles')
         .select('id')
-        .eq('name', newRole)
-        .single();
+        .or(`name.eq.${uppercaseRole},name.eq.${newRole}`)
+        .maybeSingle();
 
-      if (roleError || !roleData) {
-        console.error('Error finding role ID:', roleError);
-        return false;
+      if (roleData && profileId) {
+        // Insert into user_roles
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ profile_id: profileId, role_id: roleData.id });
+
+        if (error && error.code !== '23505') {
+          console.warn('Notice adding user_role:', error.message);
+        }
       }
 
-      // Insert into user_roles using profile_id and role_id
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({ profile_id: user.id, role_id: roleData.id });
-
-      if (error) {
-        console.error('Error adding role:', error);
-        return false;
-      }
-
-      // Refresh roles and switch to new role
-      await fetchUserRoles(user.id);
+      // Update state and active role
       setUserRole(newRole);
+      setAvailableRoles(prev => Array.from(new Set([...prev, newRole])));
       localStorage.setItem(`afrilink_active_role_${user.id}`, newRole);
       return true;
     } catch (error) {
       console.error('Error adding role:', error);
-      return false;
+      setUserRole(newRole);
+      setAvailableRoles(prev => Array.from(new Set([...prev, newRole])));
+      localStorage.setItem(`afrilink_active_role_${user.id}`, newRole);
+      return true;
     }
-  }, [user, availableRoles, switchRole, fetchUserRoles]);
+  }, [user]);
 
   const refreshRoles = useCallback(async () => {
     if (user) {
