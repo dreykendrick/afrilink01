@@ -272,7 +272,9 @@ const IndexContent = () => {
         setProfile(profileData);
       }
 
-      if (userRole === 'vendor') {
+      const activeRole: 'vendor' | 'affiliate' = currentUser?.role || userRole || (user.user_metadata?.role as any) || (user.user_metadata?.account_type as any) || 'vendor';
+      
+      if (activeRole === 'vendor') {
         if (postGrabProductId) {
           setPostGrabProductId(null);
         }
@@ -884,7 +886,7 @@ const IndexContent = () => {
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
-            ) : userRole === 'vendor' ? (
+            ) : (currentUser?.role === 'vendor' || userRole === 'vendor') ? (
               <VendorDashboard
                 currentUser={currentUser}
                 products={products}
@@ -906,7 +908,7 @@ const IndexContent = () => {
         <MobileBottomNav 
           activeTab={getMobileActiveTab()}
           onNavigate={handleNavigate}
-          userRole={userRole || 'vendor'}
+          userRole={currentUser?.role || userRole || 'vendor'}
         />
         <InstallPrompt />
         {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
