@@ -346,7 +346,8 @@ const IndexContent = () => {
         const { data: approvedProducts } = await supabase
           .from('products')
           .select('*')
-          .neq('status', 'rejected');
+          .eq('status', 'approved')
+          .eq('is_available', true);
 
         if (approvedProducts) {
           const formattedProducts: Product[] = approvedProducts.map(p => ({
@@ -405,7 +406,8 @@ const IndexContent = () => {
       const { data: approvedProducts } = await supabase
         .from('products')
         .select('*')
-        .neq('status', 'rejected');
+        .eq('status', 'approved')
+        .eq('is_available', true);
 
       if (approvedProducts) {
         const formattedProducts: Product[] = approvedProducts.map(p => ({
@@ -487,6 +489,11 @@ const IndexContent = () => {
     const product = marketplaceProducts.find(p => p.id === productId) || rawProducts.find(p => p.id === productId);
     if (!product) {
       toast.error('Product not found');
+      return;
+    }
+
+    if (product.status !== 'approved' || product.isAvailable === false) {
+      toast.error('Only approved and available products can be promoted');
       return;
     }
 
