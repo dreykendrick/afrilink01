@@ -492,7 +492,8 @@ const IndexContent = () => {
 
     // Check if link already exists
     const existingLink = affiliateLinks.find(l => l.product_id === productId);
-    const targetSlug = product.slug || product.id;
+    const rawSlug = product.slug || product.id;
+    const targetSlug = rawSlug.trim().replace(/\s+/g, '-');
     const shopBase = getCheckoutBaseUrl();
 
     if (existingLink) {
