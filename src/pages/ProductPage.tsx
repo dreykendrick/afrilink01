@@ -61,17 +61,19 @@ export const ProductPage = () => {
         return;
       }
 
-      // Query product by UUID id or slug, allowing active/pending products
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productId);
+      const decodedProductId = decodeURIComponent(productId).trim();
+      const normalizedSlug = decodedProductId.replace(/\s+/g, '-');
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(decodedProductId);
       let query = supabase
         .from('products')
-        .select('id, title, description, price, commission, category, image_url, image_urls, vendor_id, status, sales')
-        .neq('status', 'rejected');
+        .select('id, title, description, price, commission, category, image_url, image_urls, vendor_id, status, sales, slug, is_available')
+        .eq('status', 'approved')
+        .eq('is_available', true);
 
       if (isUuid) {
-        query = query.or(`id.eq.${productId},slug.eq.${productId}`);
+        query = query.or(`id.eq.${decodedProductId},slug.eq.${decodedProductId},slug.eq.${normalizedSlug}`);
       } else {
-        query = query.eq('slug', productId);
+        query = query.in('slug', [...new Set([decodedProductId, normalizedSlug])]);
       }
 
       const { data, error } = await query.maybeSingle();
